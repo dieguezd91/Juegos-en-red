@@ -18,11 +18,15 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     [SerializeField] private Button createButton;
     [SerializeField] private Button joinButton;
+    [SerializeField] private Button playBtn;
+    [SerializeField] private Button exitBtn;
 
     private void Awake()
     {
+        playBtn.onClick.AddListener(Play);
         createButton.onClick.AddListener(CreateRoom);
         joinButton.onClick.AddListener(JoinRoom);
+        exitBtn.onClick.AddListener(GameManager.instance.Quit);
     }
 
     void Start()
