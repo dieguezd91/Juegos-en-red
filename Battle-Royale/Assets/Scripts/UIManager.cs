@@ -43,6 +43,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         createButton.onClick.RemoveAllListeners();
         joinButton.onClick.RemoveAllListeners();
+        playBtn.onClick.RemoveAllListeners();
+        exitBtn.onClick.RemoveAllListeners();
     }
 
     public void Play()
