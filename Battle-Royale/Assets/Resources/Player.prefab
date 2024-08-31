@@ -392,6 +392,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speedMovement: 3
+  hasLineOfSight: 0
 --- !u!114 &3504278792667566653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,7 +407,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shootingPoint: {fileID: 4134154616427499804}
   bulletPrefab: {fileID: 6434099559356838721, guid: 587619b9ea8629a4d96bd9f20f5c652a, type: 3}
-  bulletSpeed: 10
 --- !u!114 &1253433008755915443
 MonoBehaviour:
   m_ObjectHideFlags: 0
