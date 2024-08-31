@@ -4,25 +4,25 @@ using UnityEngine;
 public class BulletPrefab : MonoBehaviourPunCallbacks
 {
     public BulletTypes bulletType;
-    float currentSpeed;
-    float currentDamage;
-    PhotonView pv;
+    private float _currentSpeed;
+    private float _currentDamage;
+    private PhotonView _pv;
 
-    void Start()
+    private void Start()
     {
-        pv = GetComponent<PhotonView>();
+        _pv = GetComponent<PhotonView>();
         Invoke(nameof(DestroyBullet), bulletType.lifeTime);
-        currentSpeed = Random.Range(bulletType.speed * 0.9f, bulletType.speed);
-        currentDamage = bulletType.damage;
+        _currentSpeed = Random.Range(bulletType.speed * 0.9f, bulletType.speed);
+        _currentDamage = bulletType.damage;
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (pv.IsMine)
+        if (_pv.IsMine)
         {
             if (collision.CompareTag("Player"))
             {
-                PhotonView targetPv = collision.GetComponent<PhotonView>();
+                var targetPv = collision.GetComponent<PhotonView>();
                 if (targetPv != null && !targetPv.IsMine)
                 {
                     targetPv.RPC("ApplyDamage", RpcTarget.All, bulletType.damage);
@@ -32,9 +32,9 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
         }
     }
 
-    void DestroyBullet()
+    private void DestroyBullet()
     {
-        if (pv.IsMine)
+        if (_pv.IsMine)
         {
             PhotonNetwork.Destroy(gameObject);
         }
