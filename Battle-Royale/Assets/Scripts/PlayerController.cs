@@ -5,19 +5,25 @@ using Photon.Pun;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
-    PhotonView pv;
-    Rigidbody2D rb;
-    [SerializeField] float speedMovement;
-    Vector2 inputMovement;
-    public bool hasLineOfSight;
+    public PhotonView pv;
+    private Rigidbody2D _rb;
+    [SerializeField] private float speedMovement;
+    private Vector2 _inputMovement;
 
-    void Start()
+    public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
+
+    private void Start()
     {
         pv = GetComponent<PhotonView>();
-        rb = GetComponent<Rigidbody2D>();
+        _rb = GetComponent<Rigidbody2D>();
+
+        if (pv.IsMine)
+        {
+            OnPlayerControllerInstantiated?.Invoke(this);
+        }
     }
 
-    void Update()
+    private void Update()
     {
         if (pv.IsMine)
         {
@@ -25,7 +31,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         if (pv.IsMine)
         {
@@ -35,14 +41,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void HandleInput()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
-        inputMovement = new Vector2(moveX, moveY).normalized;
+        var moveX = Input.GetAxis("Horizontal");
+        var moveY = Input.GetAxis("Vertical");
+        _inputMovement = new Vector2(moveX, moveY).normalized;
     }
 
     private void Move()
     {
-        rb.velocity = inputMovement * speedMovement;
+        _rb.velocity = _inputMovement * speedMovement;
     }
 }
 

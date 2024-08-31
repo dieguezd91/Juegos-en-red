@@ -3,20 +3,20 @@ using Photon.Pun;
 
 public class LifeController : MonoBehaviourPunCallbacks
 {
-    [SerializeField] float maxHp = 100f;
-    [SerializeField] float currentHp;
-    PhotonView pv;
+    [SerializeField] public float maxHp = 100f;
+    [SerializeField] public float currentHp;
+    private PhotonView _pv;
 
-    void Start()
+    private void Start()
     {
-        pv = GetComponent<PhotonView>();
+        _pv = GetComponent<PhotonView>();
         currentHp = maxHp;
     }
 
     [PunRPC]
     public void ApplyDamage(float damage)
     {
-        if (pv.IsMine)
+        if (_pv.IsMine)
         {
             currentHp -= damage;
             Debug.Log("Current HP: " + currentHp);
@@ -30,7 +30,7 @@ public class LifeController : MonoBehaviourPunCallbacks
 
     private void Die()
     {
-        if (pv.IsMine)
+        if (_pv.IsMine)
         {
             PhotonNetwork.Destroy(gameObject);
         }

@@ -3,18 +3,18 @@ using Photon.Pun;
 
 public class PlayerAimController : MonoBehaviourPunCallbacks
 {
-    PhotonView pv;
-    [SerializeField] Transform shootingPoint;
-    [SerializeField] GameObject bulletPrefab;
+    private PhotonView _pv;
+    [SerializeField] private Transform shootingPoint;
+    [SerializeField] private GameObject bulletPrefab;
 
-    void Start()
+    private void Start()
     {
-        pv = GetComponent<PhotonView>();
+        _pv = GetComponent<PhotonView>();
     }
 
-    void Update()
+    private void Update()
     {
-        if (pv.IsMine)
+        if (_pv.IsMine)
         {
             RotatePlayer();
             if (Input.GetButtonDown("Fire1"))
@@ -24,18 +24,18 @@ public class PlayerAimController : MonoBehaviourPunCallbacks
         }
     }
 
-    void RotatePlayer()
+    private void RotatePlayer()
     {
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 direction = (mousePos - transform.position).normalized;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
     }
 
     void Shoot()
     {
-        GameObject bullet = PhotonNetwork.Instantiate(bulletPrefab.name, shootingPoint.position, shootingPoint.rotation);
-        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+        var bullet = PhotonNetwork.Instantiate(bulletPrefab.name, shootingPoint.position, shootingPoint.rotation);
+        var rb = bullet.GetComponent<Rigidbody2D>();
         rb.velocity = shootingPoint.up * bullet.GetComponent<BulletPrefab>().bulletType.speed;
     }
 }
