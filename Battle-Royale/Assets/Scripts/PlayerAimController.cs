@@ -6,7 +6,6 @@ public class PlayerAimController : MonoBehaviourPunCallbacks
     PhotonView pv;
     [SerializeField] Transform shootingPoint;
     [SerializeField] GameObject bulletPrefab;
-    [SerializeField] float bulletSpeed = 10f;
 
     void Start()
     {
@@ -37,6 +36,6 @@ public class PlayerAimController : MonoBehaviourPunCallbacks
     {
         GameObject bullet = PhotonNetwork.Instantiate(bulletPrefab.name, shootingPoint.position, shootingPoint.rotation);
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-        rb.velocity = shootingPoint.up * bulletSpeed;
+        rb.velocity = shootingPoint.up * bullet.GetComponent<BulletPrefab>().bulletType.speed;
     }
 }

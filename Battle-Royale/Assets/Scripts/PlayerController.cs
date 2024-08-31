@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     Rigidbody2D rb;
     [SerializeField] float speedMovement;
     Vector2 inputMovement;
+    public bool hasLineOfSight;
 
     void Start()
     {

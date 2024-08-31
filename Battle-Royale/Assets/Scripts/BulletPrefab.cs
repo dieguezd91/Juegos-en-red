@@ -1,16 +1,19 @@
-using UnityEngine;
 using Photon.Pun;
+using UnityEngine;
 
 public class BulletPrefab : MonoBehaviourPunCallbacks
 {
-    [SerializeField] float damage = 10f;
-    [SerializeField] float lifetime = 5f;
+    public BulletTypes bulletType;
+    float currentSpeed;
+    float currentDamage;
     PhotonView pv;
 
     void Start()
     {
         pv = GetComponent<PhotonView>();
-        Invoke(nameof(DestroyBullet), lifetime);
+        Invoke(nameof(DestroyBullet), bulletType.lifeTime);
+        currentSpeed = Random.Range(bulletType.speed * 0.9f, bulletType.speed);
+        currentDamage = bulletType.damage;
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -22,7 +25,7 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
                 PhotonView targetPv = collision.GetComponent<PhotonView>();
                 if (targetPv != null && !targetPv.IsMine)
                 {
-                    targetPv.RPC("ApplyDamage", RpcTarget.All, damage);
+                    targetPv.RPC("ApplyDamage", RpcTarget.All, bulletType.damage);
                     DestroyBullet();
                 }
             }
@@ -37,4 +40,3 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
         }
     }
 }
-
