@@ -47,7 +47,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         playBtn.onClick.AddListener(Play);
         createButton.onClick.AddListener(CreateRoom);
         joinButton.onClick.AddListener(JoinRoom);
-        exitBtn.onClick.AddListener(GameManager.Instance.Quit);
+        //exitBtn.onClick.AddListener(GameManager.Instance.Quit);
     }
 
     private void Update()
