@@ -12,7 +12,7 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
     {
         _pv = GetComponent<PhotonView>();
         Invoke(nameof(DestroyBullet), bulletType.lifeTime);
-        _currentSpeed = Random.Range(bulletType.speed * 0.9f, bulletType.speed);
+        _currentSpeed = Random.Range(bulletType.speed * 0.8f, bulletType.speed);
         _currentDamage = bulletType.damage;
     }
 

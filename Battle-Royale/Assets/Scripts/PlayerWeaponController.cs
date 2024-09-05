@@ -1,11 +1,14 @@
 using UnityEngine;
 using Photon.Pun;
 
-public class PlayerAimController : MonoBehaviourPunCallbacks
+public class PlayerWeaponController : MonoBehaviourPunCallbacks
 {
     private PhotonView _pv;
     [SerializeField] private Transform shootingPoint;
     [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private float fireRate = 0.5f; // Cadencia de disparo
+
+    private float _nextFireTime = 0f; // Tiempo para el proximo disparo
 
     private void Start()
     {
@@ -17,9 +20,10 @@ public class PlayerAimController : MonoBehaviourPunCallbacks
         if (_pv.IsMine)
         {
             RotatePlayer();
-            if (Input.GetButtonDown("Fire1"))
+            if (Input.GetButton("Fire1") && Time.time >= _nextFireTime)
             {
                 Shoot();
+                _nextFireTime = Time.time + fireRate; // Actualiza el tiempo para el siguiente disparo
             }
         }
     }
@@ -32,7 +36,7 @@ public class PlayerAimController : MonoBehaviourPunCallbacks
         transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
     }
 
-    void Shoot()
+    private void Shoot()
     {
         var bullet = PhotonNetwork.Instantiate(bulletPrefab.name, shootingPoint.position, shootingPoint.rotation);
         var rb = bullet.GetComponent<Rigidbody2D>();
