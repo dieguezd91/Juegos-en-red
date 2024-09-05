@@ -34,6 +34,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField]
     private GameObject timer;
     [SerializeField] private Image lifeBar;
+    [SerializeField] private Image staminaBar;
 
     private void Awake()
     {
@@ -46,7 +47,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         playBtn.onClick.AddListener(Play);
         createButton.onClick.AddListener(CreateRoom);
         joinButton.onClick.AddListener(JoinRoom);
-        exitBtn.onClick.AddListener(GameManager.Instance.Quit);
+        //exitBtn.onClick.AddListener(GameManager.Instance.Quit);
     }
 
     private void Update()
@@ -67,6 +68,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (_playerController != null && _playerController.pv.IsMine)
         {
             UpdateLifeBar();
+            UpdateStaminaBar();
         }
     }
 
@@ -125,9 +127,24 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
+    private void UpdateStaminaBar()
+    {
+        if (_playerController.pv.IsMine)
+        {
+            var staminaPercentage = _playerController.currentStamina / _playerController.maxStamina;
+            staminaBar.fillAmount = staminaPercentage;
+            staminaBar.color = GetStaminaColor(staminaPercentage);
+        }
+    }
+
     private Color GetHealthColor(float healthPercentage)
     {
         return Color.Lerp(Color.red, Color.green, healthPercentage);
+    }
+
+    private Color GetStaminaColor(float staminaPercentage)
+    {
+        return Color.Lerp(Color.yellow, Color.blue, staminaPercentage);
     }
 
     private void JoinRoom()
