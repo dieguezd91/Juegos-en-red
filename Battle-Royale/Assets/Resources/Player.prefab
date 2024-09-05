@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8784906851444101245}
   - component: {fileID: 7197870493814133429}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4134154616427499804}
   - component: {fileID: 1218724095467592447}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ShootingPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -186,7 +186,8 @@ GameObject:
   - component: {fileID: 1253433008755915443}
   - component: {fileID: 2630659901260837683}
   - component: {fileID: 8528791190181879423}
-  m_Layer: 0
+  - component: {fileID: -4929117486304870105}
+  m_Layer: 7
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -431,3 +432,20 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!114 &-4929117486304870105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4756130146139878315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56e4210065a83149a8a0de2f8afeccc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grenadePrefab: {fileID: 6281604895549927941, guid: e31136057f107b44eb401c785a66fd8d, type: 3}
+  throwForce: 5
+  maxThrowDistance: 5
+  maxGrenades: 2
+  currentGrenades: 1
