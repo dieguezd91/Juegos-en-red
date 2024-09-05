@@ -393,6 +393,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pv: {fileID: 0}
   speedMovement: 3
+  sprintSpeed: 8
+  maxStamina: 100
+  staminaRegenRate: 10
+  staminaDrainRate: 20
+  currentStamina: 0
 --- !u!114 &3504278792667566653
 MonoBehaviour:
   m_ObjectHideFlags: 0
