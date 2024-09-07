@@ -16,6 +16,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] private float staminaDrainRate = 15f;
     [SerializeField] private float dashStaminaCost = 40f;
 
+    [SerializeField] private float interactionRange;
+    [SerializeField] private LayerMask interactionLayer;
+
     private Vector2 _inputMovement;
     public float currentStamina;
     private bool isSprinting;
@@ -76,6 +79,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             StartCoroutine(Dash());
         }
+        
+        // Presiona E para interactuar con cofres u otros elementos
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Interact();
+        }
     }
 
     private void Move()
@@ -127,4 +136,30 @@ public class PlayerController : MonoBehaviourPunCallbacks
             yield return new WaitForSeconds(1f);
         }
     }
+
+    //Logica de interaccion
+    private void Interact()
+    {
+        Collider2D[] interactable = new Collider2D[1];
+        interactable[0] = Physics2D.OverlapCircle(transform.position, interactionRange, interactionLayer);
+
+        try
+        {
+            if (interactable[0] != null)
+            {
+                if (interactable[0].TryGetComponent<IInteractable>(out IInteractable interactTarget))
+                {
+                    interactTarget.Interact();
+                }
+            }
+        }
+        catch { }
+        
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position, interactionRange);
+    }
+
 }

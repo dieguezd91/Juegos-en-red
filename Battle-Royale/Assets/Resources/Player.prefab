@@ -340,6 +340,10 @@ MonoBehaviour:
   staminaRegenRate: 2.5
   staminaDrainRate: 15
   dashStaminaCost: 40
+  interactionRange: 0.8
+  interactionLayer:
+    serializedVersion: 2
+    m_Bits: 512
   currentStamina: 0
 --- !u!114 &3504278792667566653
 MonoBehaviour:
