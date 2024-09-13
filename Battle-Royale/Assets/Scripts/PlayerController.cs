@@ -25,6 +25,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool isDashing;
     private bool canDash = true;
 
+
+    //Equipment
+
+    private IWeapon currentWeapon;
+    private IWeapon[] equipedWeapons = new IWeapon[2];
+    private IWeapon[] equipedGranades;
+
+
+
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
 
     private void Start()
@@ -155,6 +164,27 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         catch { }
         
+    }
+
+    public void EquipWeapon(IWeapon weapon)
+    {
+        if (equipedWeapons[1] == null)
+        {
+            equipedWeapons[1] = weapon;
+        }        
+    }
+
+    private void DropWeapon()
+    {
+        IWeapon weapon = equipedWeapons[1];
+        currentWeapon = equipedWeapons[0];
+        equipedWeapons[1] = null;
+        PhotonNetwork.Instantiate(weapon.GetName(), new Vector2(transform.position.x - 2, transform.position.y), Quaternion.identity);
+    }
+
+    private void DropGranade(int index)
+    {
+
     }
 
     private void OnDrawGizmos()
