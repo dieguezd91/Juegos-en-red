@@ -4,9 +4,12 @@ using Photon.Pun;
 public class PlayerWeaponController : MonoBehaviourPunCallbacks
 {
     private PhotonView _pv;
-    [SerializeField] private Transform shootingPoint;
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private float fireRate = 0.5f; // Cadencia de disparo
+    [SerializeField]private Transform shootingPoint;
+    [SerializeField] private GameObject weaponObject;
+    private GameObject bulletPrefab;
+    private float fireRate = 0.5f; // Cadencia de disparo
+    private float damage;
+
 
     private float _nextFireTime = 0f; // Tiempo para el proximo disparo
 
@@ -41,5 +44,13 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         var bullet = PhotonNetwork.Instantiate(bulletPrefab.name, shootingPoint.position, shootingPoint.rotation);
         var rb = bullet.GetComponent<Rigidbody2D>();
         rb.velocity = shootingPoint.up * bullet.GetComponent<BulletPrefab>().bulletType.speed;
+    }
+
+    public void UpdateWeaponInfo(WeaponInfo newWeapon)
+    {
+        weaponObject.GetComponent<SpriteRenderer>().sprite = newWeapon.weaponPrefab.GetComponent<SpriteRenderer>().sprite;
+        bulletPrefab = newWeapon.bulletPrefab;
+        damage = newWeapon.damage;
+        fireRate = newWeapon.fireRate;
     }
 }

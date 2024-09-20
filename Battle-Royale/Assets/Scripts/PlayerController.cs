@@ -24,17 +24,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool isSprinting;
     private bool isDashing;
     private bool canDash = true;
+    private int _ammo;
 
 
     //Equipment
 
-    private IWeapon currentWeapon;
-    private IWeapon[] equipedWeapons = new IWeapon[2];
-    private IWeapon[] equipedGranades;
+    [SerializeField]private WeaponInfo startingWeapon;
+    private int currentWeapon;
+    private WeaponInfo[] equipedWeapons = new WeaponInfo[2];
+    //private IWeapon[] equipedGranades;
 
 
 
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
+    private void Awake()
+    {
+        EquipWeapon(startingWeapon, 0);
+        SwitchWeapon(0);
+    }
 
     private void Start()
     {
@@ -47,6 +54,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             OnPlayerControllerInstantiated?.Invoke(this);
             StartCoroutine(RegenerateStamina());
         }
+
     }
 
     private void Update()
@@ -94,6 +102,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             Interact();
         }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            SwitchWeapon(0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            SwitchWeapon(1);
+        }
+
     }
 
     private void Move()
@@ -166,25 +185,46 @@ public class PlayerController : MonoBehaviourPunCallbacks
         
     }
 
-    public void EquipWeapon(IWeapon weapon)
+    public void EquipWeapon(WeaponInfo weapon, int slot)
     {
-        if (equipedWeapons[1] == null)
+        if (equipedWeapons[slot] == null)
         {
-            equipedWeapons[1] = weapon;
-        }        
+            equipedWeapons[slot] = weapon;
+        }
+        else
+        {
+            DiscardWeapon();
+            equipedWeapons[slot] = weapon;
+        }
+
     }
 
-    private void DropWeapon()
+    private void DiscardWeapon()
     {
-        IWeapon weapon = equipedWeapons[1];
-        currentWeapon = equipedWeapons[0];
-        equipedWeapons[1] = null;
-        PhotonNetwork.Instantiate(weapon.GetName(), new Vector2(transform.position.x - 2, transform.position.y), Quaternion.identity);
+        if(equipedWeapons[1] != null)
+        {
+            WeaponInfo weapon = equipedWeapons[1];
+            SwitchWeapon(0);
+            equipedWeapons[1] = null;
+            PhotonNetwork.Instantiate(weapon.weaponPrefab.name, new Vector2(transform.position.x - 2, transform.position.y), Quaternion.identity);
+        }
+        
     }
 
-    private void DropGranade(int index)
+    private void DiscardGranade(int index)
     {
 
+    }
+
+    public int GetCurrentAmmo()
+    {
+        return _ammo;
+    }
+
+    public void SwitchWeapon(int weaponSlot)
+    {
+        gameObject.GetComponent<PlayerWeaponController>().UpdateWeaponInfo(equipedWeapons[weaponSlot]);
+        currentWeapon = weaponSlot;
     }
 
     private void OnDrawGizmos()

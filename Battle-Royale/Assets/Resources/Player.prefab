@@ -345,6 +345,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   currentStamina: 0
+  startingWeapon: {fileID: 11400000, guid: 811e3f4e7d7e58348953fd384d812037, type: 2}
 --- !u!114 &3504278792667566653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -358,8 +359,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shootingPoint: {fileID: 4134154616427499804}
-  bulletPrefab: {fileID: 6434099559356838721, guid: 587619b9ea8629a4d96bd9f20f5c652a, type: 3}
-  fireRate: 0.5
+  weaponObject: {fileID: 700438537423311415}
 --- !u!114 &1253433008755915443
 MonoBehaviour:
   m_ObjectHideFlags: 0
