@@ -187,6 +187,7 @@ GameObject:
   - component: {fileID: 2630659901260837683}
   - component: {fileID: 8528791190181879423}
   - component: {fileID: -4929117486304870105}
+  - component: {fileID: 8275570159581135667}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -453,3 +454,24 @@ MonoBehaviour:
   maxThrowDistance: 5
   maxGrenades: 2
   currentGrenades: 1
+--- !u!114 &8275570159581135667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4756130146139878315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb172550f40ae3d439c67401da2c3ca3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  range: 20
+  angle: 360
+  obstacle:
+    serializedVersion: 2
+    m_Bits: 256
+  viewTarget:
+    serializedVersion: 2
+    m_Bits: 1024
+  radius: 20
