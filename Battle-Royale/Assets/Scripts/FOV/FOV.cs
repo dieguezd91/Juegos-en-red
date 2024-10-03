@@ -13,7 +13,13 @@ public class FOV : MonoBehaviour
     [SerializeField] private float radius;
 
     private RaycastHit2D[] hits = new RaycastHit2D[17];
+    private PhotonView pv;
     //[SerializeField] private float delayToLooseTarget;
+
+    private void Start()
+    {
+        pv = GetComponent<PhotonView>();
+    }
 
     private void Update()
     {
@@ -24,27 +30,30 @@ public class FOV : MonoBehaviour
             {
                 if(hits != null && hits[i] != false)
             {
+                if (hits[i].rigidbody.gameObject == this.gameObject) continue;
+
                     if (CheckRange(hits[i].rigidbody.transform) && CheckAngle(hits[i].rigidbody.transform) && InView(hits[i].rigidbody.transform))
                     {
                     hits[i].rigidbody.TryGetComponent<SpriteRenderer>(out SpriteRenderer sprite);
 
                     sprite.enabled = true;
-                    print("turn ON renderer");
-                    print("CheckRange: "+ CheckRange(hits[i].rigidbody.transform));
-                    print("CheckAngle: " + CheckAngle(hits[i].rigidbody.transform));
-                    print("InVew: " + InView(hits[i].rigidbody.transform));
-                    }
+                    
+                    //print("turn ON renderer");
+                    //print("CheckRange: "+ CheckRange(hits[i].rigidbody.transform));
+                    //print("CheckAngle: " + CheckAngle(hits[i].rigidbody.transform));
+                    //print("InVew: " + InView(hits[i].rigidbody.transform));
+                }
                     else
                     {
                     hits[i].rigidbody.TryGetComponent<SpriteRenderer>(out SpriteRenderer sprite);
 
                     sprite.enabled = false;
-                    print("turn off renderer");
+                    //print("turn off renderer");
                     }
                 }
                 else 
                 { 
-                print("No viewTargets detected");
+                //print("No viewTargets detected");
                 break;
                 }
             }
@@ -68,6 +77,7 @@ public class FOV : MonoBehaviour
     public bool InView(Transform target)
     {
         Vector2 dirToTarget = target.position - Origin;
+        //print(Physics2D.Raycast(Origin, dirToTarget.normalized, dirToTarget.magnitude, obstacle).collider.name);
         return !Physics2D.Raycast(Origin, dirToTarget.normalized, dirToTarget.magnitude, obstacle);
     }
     Vector3 Origin
@@ -86,6 +96,19 @@ public class FOV : MonoBehaviour
             return transform.forward;            
         }
     }
+
+
+    [PunRPC]
+    private void HideFromView(SpriteRenderer target)
+    {
+        target.enabled = false;        
+    }
+
+    private void ShowInView(SpriteRenderer target)
+    {
+        target.enabled = true;
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;

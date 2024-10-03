@@ -180,7 +180,7 @@ GameObject:
   - component: {fileID: 305672027}
   - component: {fileID: 305672026}
   - component: {fileID: 305672025}
-  m_Layer: 8
+  m_Layer: 11
   m_Name: HorizontalWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -622,7 +622,7 @@ GameObject:
   - component: {fileID: 1280117218}
   - component: {fileID: 1280117217}
   - component: {fileID: 1280117216}
-  m_Layer: 8
+  m_Layer: 11
   m_Name: VerticalWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -980,7 +980,7 @@ GameObject:
   - component: {fileID: 1734441234}
   - component: {fileID: 1734441236}
   - component: {fileID: 1734441237}
-  m_Layer: 10
+  m_Layer: 7
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
