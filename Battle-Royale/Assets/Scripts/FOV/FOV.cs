@@ -23,42 +23,45 @@ public class FOV : MonoBehaviour
 
     private void Update()
     {
-
-        Physics2D.CircleCastNonAlloc(transform.position, radius, transform.forward, hits, range, viewTarget);
+        if (pv.IsMine)
+        {
+            Physics2D.CircleCastNonAlloc(transform.position, radius, transform.forward, hits, range, viewTarget);
 
             for (int i = 0; i < hits.Length; i++)
             {
-                if(hits != null && hits[i] != false)
-            {
-                if (hits[i].rigidbody.gameObject == this.gameObject) continue;
+                if (hits != null && hits[i] != false)
+                {
+                    if (hits[i].rigidbody.gameObject == this.gameObject) continue;
 
                     if (CheckRange(hits[i].rigidbody.transform) && CheckAngle(hits[i].rigidbody.transform) && InView(hits[i].rigidbody.transform))
                     {
-                    hits[i].rigidbody.TryGetComponent<SpriteRenderer>(out SpriteRenderer sprite);
+                        //hits[i].rigidbody.TryGetComponent<SpriteRenderer>(out SpriteRenderer sprite);
 
-                    sprite.enabled = true;
-                    
-                    //print("turn ON renderer");
-                    //print("CheckRange: "+ CheckRange(hits[i].rigidbody.transform));
-                    //print("CheckAngle: " + CheckAngle(hits[i].rigidbody.transform));
-                    //print("InVew: " + InView(hits[i].rigidbody.transform));
-                }
+                        //sprite.enabled = true;
+
+                        hits[i].rigidbody.TryGetComponent<FOVReciver>(out FOVReciver sprites);
+
+                        sprites.ShowSprites();
+
+                    }
                     else
                     {
-                    hits[i].rigidbody.TryGetComponent<SpriteRenderer>(out SpriteRenderer sprite);
+                        //hits[i].rigidbody.TryGetComponent<SpriteRenderer>(out SpriteRenderer sprite);
 
-                    sprite.enabled = false;
-                    //print("turn off renderer");
+                        //sprite.enabled = false;
+
+                        hits[i].rigidbody.TryGetComponent<FOVReciver>(out FOVReciver sprites);
+
+                        sprites.HideSprites();
+
                     }
                 }
-                else 
-                { 
-                //print("No viewTargets detected");
-                break;
+                else
+                {                    
+                    break;
                 }
             }
-            
-            
+        }
     }
 
     public bool CheckRange(Transform target)

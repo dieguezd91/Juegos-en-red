@@ -188,6 +188,7 @@ GameObject:
   - component: {fileID: 8528791190181879423}
   - component: {fileID: -4929117486304870105}
   - component: {fileID: 8275570159581135667}
+  - component: {fileID: 5654495051834946605}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -470,8 +471,24 @@ MonoBehaviour:
   angle: 360
   obstacle:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 2048
   viewTarget:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 1152
   radius: 20
+--- !u!114 &5654495051834946605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4756130146139878315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51dbaf57ac755e849b6e53c1f50c9c0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Renderers:
+  - {fileID: 958718511982926721}
+  - {fileID: 7197870493814133429}
+  - {fileID: 1218724095467592447}
