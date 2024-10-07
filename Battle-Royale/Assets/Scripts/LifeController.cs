@@ -5,12 +5,17 @@ public class LifeController : MonoBehaviourPunCallbacks
 {
     [SerializeField] public float maxHp = 100f;
     [SerializeField] public float currentHp;
+    [SerializeField] public float maxShield = 50f;
+    [SerializeField] public float currentShield;
+    [SerializeField] public float shieldDamageReduction = 0.5f; // 50% damage reduction
+
     private PhotonView _pv;
 
     private void Start()
     {
         _pv = GetComponent<PhotonView>();
         currentHp = maxHp;
+        currentShield = maxShield;
     }
 
     [PunRPC]
@@ -18,14 +23,38 @@ public class LifeController : MonoBehaviourPunCallbacks
     {
         if (_pv.IsMine)
         {
-            currentHp -= damage;
-            Debug.Log("Current HP: " + currentHp);
+            float remainingDamage = damage;
+
+            if (currentShield > 0)
+            {
+                float shieldDamage = Mathf.Min(currentShield, damage * shieldDamageReduction);
+                currentShield -= shieldDamage;
+                remainingDamage -= shieldDamage / shieldDamageReduction;
+            }
+
+            // Aplicar el daño restante a la salud
+            if (remainingDamage > 0)
+            {
+                currentHp -= remainingDamage;
+            }
+
+            Debug.Log($"Current HP: {currentHp}, Current Shield: {currentShield}");
 
             if (currentHp <= 0)
             {
                 Die();
             }
+
+            // Sincronizar la salud y el escudo
+            _pv.RPC("SyncHealthAndShield", RpcTarget.All, currentHp, currentShield);
         }
+    }
+
+    [PunRPC]
+    private void SyncHealthAndShield(float health, float shield)
+    {
+        currentHp = health;
+        currentShield = shield;
     }
 
     private void Die()
@@ -35,5 +64,13 @@ public class LifeController : MonoBehaviourPunCallbacks
             PhotonNetwork.Destroy(gameObject);
         }
     }
-}
 
+    public void RestoreShield(float amount)
+    {
+        if (_pv.IsMine)
+        {
+            currentShield = Mathf.Min(currentShield + amount, maxShield);
+            _pv.RPC("SyncHealthAndShield", RpcTarget.All, currentHp, currentShield);
+        }
+    }
+}

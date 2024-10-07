@@ -33,6 +33,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject timer;
     [SerializeField] private Image lifeBar;
     [SerializeField] private Image staminaBar;
+    [SerializeField] private Image shieldBar;
 
     private void Awake()
     {
@@ -72,6 +73,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             UpdateLifeBar();
             UpdateStaminaBar();
+            UpdateShieldBar();
         }
     }
 
@@ -140,6 +142,20 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
+    private void UpdateShieldBar()
+    {
+        if (_playerController.pv.IsMine)
+        {
+            var lifeController = _playerController.GetComponent<LifeController>();
+            if (lifeController != null)
+            {
+                var shieldPercentage = lifeController.currentShield / lifeController.maxShield;
+                shieldBar.fillAmount = shieldPercentage;
+                shieldBar.color = GetShieldColor(shieldPercentage);
+            }
+        }
+    }
+
     private Color GetHealthColor(float healthPercentage)
     {
         return Color.Lerp(Color.red, Color.green, healthPercentage);
@@ -148,6 +164,11 @@ public class UIManager : MonoBehaviourPunCallbacks
     private Color GetStaminaColor(float staminaPercentage)
     {
         return Color.Lerp(Color.yellow, Color.blue, staminaPercentage);
+    }
+
+    private Color GetShieldColor(float shieldPercentage)
+    {
+        return Color.Lerp(Color.cyan, Color.blue, shieldPercentage);
     }
 
     private string FormatTime(float time)

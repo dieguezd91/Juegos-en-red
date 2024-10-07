@@ -24,8 +24,12 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
             {
                 var targetPv = collision.GetComponent<PhotonView>();
                 if (targetPv != null && !targetPv.IsMine)
-                {
-                    targetPv.RPC("ApplyDamage", RpcTarget.All, bulletType.damage);
+                {                    
+                    var lifeController = collision.GetComponent<LifeController>();
+                    if (lifeController != null)
+                    {
+                        lifeController.photonView.RPC("ApplyDamage", RpcTarget.All, _currentDamage);
+                    }
                     DestroyBullet();
                 }
             }
