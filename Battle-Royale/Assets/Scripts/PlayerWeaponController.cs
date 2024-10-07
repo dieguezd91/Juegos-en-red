@@ -4,14 +4,14 @@ using Photon.Pun;
 public class PlayerWeaponController : MonoBehaviourPunCallbacks
 {
     private PhotonView _pv;
-    [SerializeField]private Transform shootingPoint;
+    [SerializeField] private Transform shootingPoint;
     [SerializeField] private GameObject weaponObject;
+    [SerializeField] private Transform playerSprite;
     private GameObject bulletPrefab;
-    private float fireRate = 0.5f; // Cadencia de disparo
+    private float fireRate = 0.5f;
     private float damage;
-
-
-    private float _nextFireTime = 0f; // Tiempo para el proximo disparo
+    private float _nextFireTime = 0f;
+    public Quaternion shootingDirection;
 
     private void Start()
     {
@@ -22,35 +22,61 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
     {
         if (_pv.IsMine)
         {
-            RotatePlayer();
+            Aim();
             if (Input.GetButton("Fire1") && Time.time >= _nextFireTime)
             {
                 Shoot();
-                _nextFireTime = Time.time + fireRate; // Actualiza el tiempo para el siguiente disparo
+                _nextFireTime = Time.time + fireRate;
             }
         }
     }
 
-    private void RotatePlayer()
+    private void Aim()
     {
-        var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 direction = (mousePos - transform.position).normalized;
-        var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 aimDirection = mousePosition - transform.position;
+        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+
+        weaponObject.transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        if (angle > 90 || angle < -90)
+        {
+            playerSprite.localScale = new Vector3(-1, 1, 1);
+            weaponObject.transform.localScale = new Vector3(-1, -1, 1);
+        }
+        else
+        {
+            playerSprite.localScale = new Vector3(1, 1, 1);
+            weaponObject.transform.localScale = new Vector3(1, 1, 1);
+        }
     }
 
     private void Shoot()
     {
-        var bullet = PhotonNetwork.Instantiate(bulletPrefab.name, shootingPoint.position, shootingPoint.rotation);
-        var rb = bullet.GetComponent<Rigidbody2D>();
-        rb.velocity = shootingPoint.up * bullet.GetComponent<BulletPrefab>().bulletType.speed;
+        if (bulletPrefab != null)
+        {
+            var bullet = PhotonNetwork.Instantiate(bulletPrefab.name, shootingPoint.position, weaponObject.transform.rotation);
+            var rb = bullet.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                Vector2 shootDirection = (shootingPoint.position - weaponObject.transform.position).normalized;
+                rb.velocity = shootDirection * bullet.GetComponent<BulletPrefab>().bulletType.speed;
+            }
+        }
     }
 
     public void UpdateWeaponInfo(WeaponInfo newWeapon)
     {
-        weaponObject.GetComponent<SpriteRenderer>().sprite = newWeapon.weaponPrefab.GetComponent<SpriteRenderer>().sprite;
-        bulletPrefab = newWeapon.bulletPrefab;
-        damage = newWeapon.damage;
-        fireRate = newWeapon.fireRate;
+        if (newWeapon != null && weaponObject != null)
+        {
+            SpriteRenderer weaponSprite = weaponObject.GetComponent<SpriteRenderer>();
+            if (weaponSprite != null && newWeapon.weaponPrefab != null)
+            {
+                weaponSprite.sprite = newWeapon.weaponPrefab.GetComponent<SpriteRenderer>()?.sprite;
+            }
+            bulletPrefab = newWeapon.bulletPrefab;
+            damage = newWeapon.damage;
+            fireRate = newWeapon.fireRate;
+        }
     }
 }

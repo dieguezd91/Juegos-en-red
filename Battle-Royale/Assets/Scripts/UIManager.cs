@@ -19,9 +19,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject optionsPanel;
     [SerializeField] private GameObject creditsPanel;
     [SerializeField] private GameObject playPanel;
-    [SerializeField] private int maxPlayers;
-    [SerializeField] private TMP_InputField createInput;
-    [SerializeField] private TMP_InputField joinInput;
+    [SerializeField] public TMP_InputField createInput;
+    [SerializeField] public TMP_InputField joinInput;
     [SerializeField] private GameObject createInputGo;
     [SerializeField] private GameObject joinInputGo;
 
@@ -31,8 +30,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private Button exitBtn;
 
     [Header ("HUD")]
-    [SerializeField]
-    private GameObject timer;
+    [SerializeField] private GameObject timer;
     [SerializeField] private Image lifeBar;
     [SerializeField] private Image staminaBar;
 
@@ -44,10 +42,15 @@ public class UIManager : MonoBehaviourPunCallbacks
 
         PlayerController.OnPlayerControllerInstantiated += OnPlayerControllerInstantiated;
 
+        
+    }
+
+    private void Start()
+    {
         playBtn.onClick.AddListener(Play);
-        createButton.onClick.AddListener(CreateRoom);
-        joinButton.onClick.AddListener(JoinRoom);
-        //exitBtn.onClick.AddListener(GameManager.Instance.Quit);
+        createButton.onClick.AddListener(GameManager.Instance.CreateRoom);
+        joinButton.onClick.AddListener(GameManager.Instance.JoinRoom);
+        exitBtn.onClick.AddListener(GameManager.Instance.Quit);
     }
 
     private void Update()
@@ -145,23 +148,6 @@ public class UIManager : MonoBehaviourPunCallbacks
     private Color GetStaminaColor(float staminaPercentage)
     {
         return Color.Lerp(Color.yellow, Color.blue, staminaPercentage);
-    }
-
-    private void JoinRoom()
-    {
-        PhotonNetwork.JoinRoom(joinInput.text);
-    }
-
-    private void CreateRoom()
-    {
-        var roomConfig = new RoomOptions();
-        roomConfig.MaxPlayers = maxPlayers;
-        PhotonNetwork.CreateRoom(createInput.text, roomConfig);
-    }
-
-    public override void OnJoinedRoom()
-    {
-        PhotonNetwork.LoadLevel("Gameplay");
     }
 
     private string FormatTime(float time)

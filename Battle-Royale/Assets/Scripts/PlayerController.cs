@@ -26,17 +26,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool canDash = true;
     private int _ammo;
 
+    private Vector2 lastDirection = Vector2.up;
 
-    //Equipment
-
-    [SerializeField]private WeaponInfo startingWeapon;
+    [SerializeField] private WeaponInfo startingWeapon;
     private int currentWeapon;
     private WeaponInfo[] equipedWeapons = new WeaponInfo[2];
-    //private IWeapon[] equipedGranades;
-
-
 
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
+
     private void Awake()
     {
         EquipWeapon(startingWeapon, 0);
@@ -47,14 +44,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         pv = GetComponent<PhotonView>();
         _rb = GetComponent<Rigidbody2D>();
-        currentStamina = maxStamina; 
+        currentStamina = maxStamina;
 
         if (pv.IsMine)
         {
             OnPlayerControllerInstantiated?.Invoke(this);
             StartCoroutine(RegenerateStamina());
         }
-
     }
 
     private void Update()
@@ -75,11 +71,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void HandleInput()
     {
-        var moveX = Input.GetAxis("Horizontal");
-        var moveY = Input.GetAxis("Vertical");
+        var moveX = Input.GetAxisRaw("Horizontal");
+        var moveY = Input.GetAxisRaw("Vertical");
+
         _inputMovement = new Vector2(moveX, moveY).normalized;
 
-        // Verificar si el jugador esta corriendo
+        // Guardar la ultima direccion de movimiento
+        if (_inputMovement != Vector2.zero)
+        {
+            lastDirection = _inputMovement;
+        }
+
         if (Input.GetKey(KeyCode.LeftShift) && currentStamina > 0)
         {
             isSprinting = true;
@@ -91,18 +93,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
             isSprinting = false;
         }
 
-        // Presiona Space para hacer el dash
+        // Presionar Space para hacer el dash
         if (Input.GetKeyDown(KeyCode.Space) && canDash && currentStamina >= dashStaminaCost)
         {
             StartCoroutine(Dash());
         }
-        
-        // Presiona E para interactuar con cofres u otros elementos
+
         if (Input.GetKeyDown(KeyCode.E))
         {
             Interact();
         }
 
+        // Cambiar de arma con teclas 1 y 2
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             SwitchWeapon(0);
@@ -112,13 +114,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             SwitchWeapon(1);
         }
-
     }
 
     private void Move()
     {
         float movementSpeed = isSprinting ? sprintSpeed : speedMovement;
+
         _rb.velocity = _inputMovement * movementSpeed;
+        _rb.rotation = 0f;
     }
 
     private IEnumerator Dash()
@@ -130,21 +133,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
         currentStamina -= dashStaminaCost;
         currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
 
-        // Realizar el dash
-        Vector2 dashDirection = _inputMovement;
-        if (dashDirection == Vector2.zero)  // Si no hay movimiento, usar la direccion hacia adelante
-        {
-            dashDirection = Vector2.up;  // O cualquier direccion por defecto
-        }
-
+        // Direccion del dash (ultima direccion de movimiento si no hay input actual)
+        Vector2 dashDirection = _inputMovement == Vector2.zero ? lastDirection : _inputMovement;
         _rb.velocity = dashDirection * dashSpeed;
 
-        // Esperar la duracion del dash
         yield return new WaitForSeconds(dashDuration);
 
         isDashing = false;
 
-        // Esperar el cooldown antes de permitir hacer otro dash
+        // Esperar el cooldown antes de permitir otro dash
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
@@ -153,19 +150,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         while (true)
         {
-            // Si no está corriendo y la stamina no esta llena, regenera stamina
+            // Regenerar stamina si no esta corriendo ni haciendo dash
             if (!isSprinting && !isDashing && currentStamina < maxStamina)
             {
-                currentStamina += staminaRegenRate;
+                currentStamina += staminaRegenRate * Time.deltaTime;
                 currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
             }
 
-            // Regenera stamina cada un segundo
+            // Regenerar stamina continuamente
             yield return new WaitForSeconds(1f);
         }
     }
 
-    //Logica de interaccion
     private void Interact()
     {
         Collider2D[] interactable = new Collider2D[1];
@@ -182,9 +178,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
         }
         catch { }
-        
     }
 
+    // Equipar un arma
     public void EquipWeapon(WeaponInfo weapon, int slot)
     {
         if (equipedWeapons[slot] == null)
@@ -196,29 +192,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
             DiscardWeapon();
             equipedWeapons[slot] = weapon;
         }
-
     }
 
+    // Descartar el arma en el slot 1
     private void DiscardWeapon()
     {
-        if(equipedWeapons[1] != null)
+        if (equipedWeapons[1] != null)
         {
             WeaponInfo weapon = equipedWeapons[1];
             SwitchWeapon(0);
             equipedWeapons[1] = null;
             PhotonNetwork.Instantiate(weapon.weaponPrefab.name, new Vector2(transform.position.x - 2, transform.position.y), Quaternion.identity);
         }
-        
-    }
-
-    private void DiscardGranade(int index)
-    {
-
-    }
-
-    public int GetCurrentAmmo()
-    {
-        return _ammo;
     }
 
     public void SwitchWeapon(int weaponSlot)
@@ -227,9 +212,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
         currentWeapon = weaponSlot;
     }
 
+    public int GetCurrentAmmo()
+    {
+        return _ammo;
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(transform.position, interactionRange);
     }
-
 }
