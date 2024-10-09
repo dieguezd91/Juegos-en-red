@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class WeaponItem : CollectableItem
 {
     void Start()
@@ -13,9 +9,5 @@ public class WeaponItem : CollectableItem
     {
         Destroy(this.gameObject);
         print("Item collected");
-    }
-
-
-
-    
+    } 
 }

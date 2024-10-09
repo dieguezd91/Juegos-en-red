@@ -7,6 +7,5 @@ public class BulletTypes : ScriptableObject
 {
     public float speed;
     public float lifeTime;
-    public float dispersion;
     public float damage;
 }
