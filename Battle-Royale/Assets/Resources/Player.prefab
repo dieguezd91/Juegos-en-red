@@ -194,6 +194,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 100
   currentHp: 0
+  maxShield: 50
+  currentShield: 0
+  shieldDamageReduction: 0.5
 --- !u!114 &4266495640726940399
 MonoBehaviour:
   m_ObjectHideFlags: 0

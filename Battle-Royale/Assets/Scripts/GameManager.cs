@@ -48,7 +48,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void CreateRoom()
     {
         var roomConfig = new RoomOptions();
-        roomConfig.MaxPlayers = maxPlayers;
+        roomConfig.MaxPlayers = UIManager.Instance.MaxPlayers.value+2;
+        roomConfig.IsVisible = !UIManager.Instance.IsPrivate;
         PhotonNetwork.CreateRoom(UIManager.Instance.createInput.text, roomConfig);
     }
 

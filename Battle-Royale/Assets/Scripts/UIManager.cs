@@ -19,11 +19,18 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject optionsPanel;
     [SerializeField] private GameObject creditsPanel;
     [SerializeField] private GameObject playPanel;
+    [SerializeField] private GameObject createRoomPanel;
     [SerializeField] public TMP_InputField createInput;
     [SerializeField] public TMP_InputField joinInput;
     [SerializeField] private GameObject createInputGo;
+    [SerializeField] private Dropdown maxPlayers;
+    public Dropdown MaxPlayers { get { return maxPlayers; } }
+    [SerializeField] private Toggle isPrivate;
+    public Toggle IsPrivate { get { return isPrivate; } }
     [SerializeField] private GameObject joinInputGo;
 
+    [SerializeField] private Button createRoomButton;
+    [SerializeField] private Button backCreateRoomButton;
     [SerializeField] private Button createButton;
     [SerializeField] private Button joinButton;
     [SerializeField] private Button playBtn;
@@ -52,6 +59,9 @@ public class UIManager : MonoBehaviourPunCallbacks
         createButton.onClick.AddListener(GameManager.Instance.CreateRoom);
         joinButton.onClick.AddListener(GameManager.Instance.JoinRoom);
         exitBtn.onClick.AddListener(GameManager.Instance.Quit);
+
+        createRoomButton.onClick.AddListener(CreateRoomPannel);
+        backCreateRoomButton.onClick.AddListener(CreateRoomPannel);
     }
 
     private void Update()
@@ -83,6 +93,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         joinButton.onClick.RemoveAllListeners();
         playBtn.onClick.RemoveAllListeners();
         exitBtn.onClick.RemoveAllListeners();
+
+        createRoomButton.onClick.RemoveAllListeners();
+        backCreateRoomButton.onClick.RemoveAllListeners();
+
         PlayerController.OnPlayerControllerInstantiated -= OnPlayerControllerInstantiated;
     }
 
@@ -99,6 +113,16 @@ public class UIManager : MonoBehaviourPunCallbacks
                 playPanel.SetActive(true);
         }
     }
+
+    public void CreateRoomPannel()
+    {
+        if (createRoomPanel != null)
+        {
+            if (!createRoomPanel.activeInHierarchy)
+                createRoomPanel.SetActive(true);
+            else createRoomPanel.SetActive(false);
+        }
+    }    
 
     public void ShowHideOptions()
     {
