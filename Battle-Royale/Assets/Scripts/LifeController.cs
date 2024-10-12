@@ -3,9 +3,14 @@ using Photon.Pun;
 
 public class LifeController : MonoBehaviourPunCallbacks
 {
-    [SerializeField] public float maxHp = 100f;
+    public PlayerSO PlayerData;
+    
+    public float HealingAmount;
+    public float HealingDuration;
+    public bool _isHealing = false;
+
     [SerializeField] public float currentHp;
-    [SerializeField] public float maxShield = 50f;
+    [SerializeField] public float maxShield;
     [SerializeField] public float currentShield;
     [SerializeField] public float shieldDamageReduction = 0.5f; // 50% damage reduction
 
@@ -14,8 +19,8 @@ public class LifeController : MonoBehaviourPunCallbacks
     private void Start()
     {
         _pv = GetComponent<PhotonView>();
-        currentHp = maxHp;
-        currentShield = maxShield;
+        currentHp = PlayerData.MaxHP;
+        currentShield = 0f;
     }
 
     [PunRPC]
@@ -72,5 +77,34 @@ public class LifeController : MonoBehaviourPunCallbacks
             currentShield = Mathf.Min(currentShield + amount, maxShield);
             _pv.RPC("SyncHealthAndShield", RpcTarget.All, currentHp, currentShield);
         }
+    }
+
+    public bool CanHeal() => !_isHealing && currentHp < PlayerData.MaxHP;
+
+    public void StartHealing()
+    {
+        _isHealing = true;
+        StartCoroutine(HealingCoroutine());
+    }
+
+    private System.Collections.IEnumerator HealingCoroutine()
+    {
+        // Simular el uso de ítem (animación, sonido, etc.)
+        Debug.Log("Healing started...");
+        yield return new WaitForSeconds(HealingDuration);
+
+        // Curación completada
+        CompleteHealing(HealingAmount);
+    }
+
+    private void CompleteHealing(float healingAmount)
+    {
+        if (_pv.IsMine)
+        {
+            currentHp = Mathf.Min(currentHp + healingAmount, PlayerData.MaxHP);
+            _pv.RPC("SyncHealthAndShield", RpcTarget.All, currentHp, currentHp);
+            _isHealing = false;
+        }
+        Debug.Log("Healing failed...");
     }
 }

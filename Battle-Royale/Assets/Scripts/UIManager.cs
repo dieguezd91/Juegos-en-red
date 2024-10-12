@@ -126,7 +126,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         if (_playerController.pv.IsMine)
         {
-            var hpPercentage = _playerController.GetComponent<LifeController>().currentHp / _playerController.GetComponent<LifeController>().maxHp;
+            var hpPercentage = _playerController.GetComponent<LifeController>().currentHp / _playerController.GetComponent<LifeController>().PlayerData.MaxHP;
             lifeBar.fillAmount = hpPercentage;
             lifeBar.color = GetHealthColor(hpPercentage);
         }

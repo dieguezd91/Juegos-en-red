@@ -164,6 +164,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57cd67aff5c635c42ba2a672801f6c3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerData: {fileID: 11400000, guid: 74a3822d87a0a5d4dba4fc01e6fdd20b, type: 2}
+  LifeController: {fileID: 0}
   pv: {fileID: 0}
   speedMovement: 3
   sprintSpeed: 8
@@ -192,8 +194,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2c263ce65baf3a44b16e029ff2709e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 100
+  PlayerData: {fileID: 11400000, guid: 74a3822d87a0a5d4dba4fc01e6fdd20b, type: 2}
+  HealingAmount: 0
+  HealingDuration: 0
+  _isHealing: 0
   currentHp: 0
+  maxShield: 50
+  currentShield: 0
+  shieldDamageReduction: 0.5
 --- !u!114 &4266495640726940399
 MonoBehaviour:
   m_ObjectHideFlags: 0

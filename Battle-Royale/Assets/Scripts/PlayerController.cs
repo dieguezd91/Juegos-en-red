@@ -1,9 +1,16 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
+    private FSM<PlayerStateEnum> _fsm;
+    private ITreeNode _root;
+    public PlayerSO PlayerData;
+    public LifeController LifeController;
+    private PlayerStateEnum _currentState = PlayerStateEnum.Idle;
+
     public PhotonView pv;
     private Rigidbody2D _rb;
     [SerializeField] private float speedMovement = 5f;
@@ -20,9 +27,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] private LayerMask interactionLayer;
 
     private Vector2 _inputMovement;
+    public Vector2 InputMovement => _inputMovement;
+
     public float currentStamina;
     private bool isSprinting;
+
     private bool isDashing;
+    public bool IsDashing => isDashing;
+
     private bool canDash = true;
     private int _ammo;
 
@@ -44,13 +56,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         pv = GetComponent<PhotonView>();
         _rb = GetComponent<Rigidbody2D>();
-        currentStamina = maxStamina;
-
+        currentStamina = PlayerData.MaxStamina;
+        LifeController = GetComponent<LifeController>();
         if (pv.IsMine)
         {
             OnPlayerControllerInstantiated?.Invoke(this);
             StartCoroutine(RegenerateStamina());
         }
+        InitializedFSM();
+        InitializedTree();
     }
 
     private void Update()
@@ -59,6 +73,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             HandleInput();
         }
+        if (LifeController.CanHeal() && !LifeController._isHealing)
+        {
+            LifeController.StartHealing();
+        }
+        _fsm.OnUpdate();
     }
 
     private void FixedUpdate()
@@ -67,6 +86,88 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             Move();
         }
+    }
+
+    void InitializedFSM()
+    {
+        _fsm = new FSM<PlayerStateEnum>();
+        var _states = new List<PlayerStateBase<PlayerStateEnum>>();
+
+        var idle = new PlayerIdleState<PlayerStateEnum>(_root);
+        var moving = new PlayerMovingState<PlayerStateEnum>(_root);
+        var dodge = new PlayerDodgeState<PlayerStateEnum>(_root);
+        var healing = new PlayerHealingState<PlayerStateEnum>(_root);
+        var died = new PlayerDiedState<PlayerStateEnum>();
+        //var combat = new PlayerCombatState<PlayerStateEnum>(_root);
+
+        _states.Add(idle);
+        _states.Add(moving);
+        _states.Add(dodge);
+        _states.Add(healing);
+        _states.Add(died);
+        //_states.Add(combat);
+
+        for (int i = 0; i < _states.Count; i++)
+        {
+            _states[i].InitializedState(this, _fsm);
+        }
+
+        #region ADD TRANSITIONS
+        idle.AddTransition(PlayerStateEnum.Moving, moving);
+        idle.AddTransition(PlayerStateEnum.Healing, healing);
+        idle.AddTransition(PlayerStateEnum.Died, died);
+        //idle.AddTransition(PlayerStateEnum.Combat, combat);
+
+        moving.AddTransition(PlayerStateEnum.Idle, idle);
+        moving.AddTransition(PlayerStateEnum.Healing, healing);
+        moving.AddTransition(PlayerStateEnum.Died, died);
+
+        dodge.AddTransition(PlayerStateEnum.Idle, idle);
+        dodge.AddTransition(PlayerStateEnum.Moving, moving);
+        dodge.AddTransition(PlayerStateEnum.Died, died);
+        //dodge.AddTransition(PlayerStateEnum.Combat, combat);
+
+        //combat.AddTransition(PlayerStateEnum.Idle, idle);
+        //combat.AddTransition(PlayerStateEnum.Moving, moving);
+        //combat.AddTransition(PlayerStateEnum.Healing, healing);
+        //combat.AddTransition(PlayerStateEnum.Died, died);
+
+        healing.AddTransition(PlayerStateEnum.Idle, idle);
+        healing.AddTransition(PlayerStateEnum.Moving, moving);
+        healing.AddTransition(PlayerStateEnum.Died, died);
+        #endregion
+
+        _fsm.SetInit(idle);
+    }
+
+    #region ACTIONS-PLAYER
+    void ActionIdle() => _fsm.Transitions(PlayerStateEnum.Idle);
+    void ActionMoving() => _fsm.Transitions(PlayerStateEnum.Moving);
+    void ActionDodge() => _fsm.Transitions(PlayerStateEnum.Dodge);
+    void ActionHealing() => _fsm.Transitions(PlayerStateEnum.Healing);
+    void ActionDied() => _fsm.Transitions(PlayerStateEnum.Died);
+    #endregion
+    #region QUESTIONS-PLAYER
+    bool ImAlive() => LifeController.currentHp > 0f;
+    bool ImMoving() => _inputMovement != Vector2.zero;
+    bool ImDodge() => isDashing;
+    bool ImHealing() => LifeController._isHealing;
+    #endregion
+    void InitializedTree()
+    {
+        var idle = new TreeAction(ActionIdle);
+        var moving = new TreeAction(ActionMoving);
+        var dodge = new TreeAction(ActionDodge);
+        var healing = new TreeAction(ActionHealing);
+        var died = new TreeAction(ActionDied);
+
+        
+        var imHealing = new TreeQuestion(ImHealing, healing, idle);
+        var imDodge = new TreeQuestion(ImDodge, imHealing, dodge);
+        var imMoving = new TreeQuestion(ImMoving, imDodge, moving);
+        var imAlive = new TreeQuestion(ImAlive, imMoving, died);
+
+        _root = imAlive;
     }
 
     private void HandleInput()
@@ -180,6 +281,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         catch { }
     }
 
+    #region WEAPON_CONTROL
     // Equipar un arma
     public void EquipWeapon(WeaponInfo weapon, int slot)
     {
@@ -216,9 +318,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         return _ammo;
     }
+    #endregion
 
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(transform.position, interactionRange);
     }
+
+    
 }
