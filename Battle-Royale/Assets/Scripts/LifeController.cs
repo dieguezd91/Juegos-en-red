@@ -65,7 +65,8 @@ public class LifeController : MonoBehaviourPunCallbacks
         {
             //PhotonNetwork.Destroy(gameObject);
             OnDeath(this.gameObject.GetComponent<PlayerController>());
-            this.gameObject.SetActive(false);            
+            print("event called: OnDeath");
+            //this.gameObject.SetActive(false);            
         }
     }
 

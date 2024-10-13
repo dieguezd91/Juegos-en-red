@@ -20,9 +20,14 @@ public class GameManager : MonoBehaviourPunCallbacks
     private Dictionary<PlayerController, Transform> playerSpawns = new Dictionary<PlayerController, Transform>();
     private bool practiceTime = true;
     private bool roundStarted = false;
+    private bool inRoom;
+    private bool roomInitialized = false;
     public bool PracticeTime { get { return practiceTime; } }
 
     public event System.Action OnPracticeTimeOver = delegate { };
+
+    private float enterRoomWaitTime = 0.1f;
+    private float currentRoomWaitTime;
 
     private void Awake()
     {
@@ -48,28 +53,50 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        if (roundStarted == false && playerList.Count == maxPlayers)
+        if (inRoom)
         {
-            foreach (PlayerController player in playerList)
+            if (currentRoomWaitTime < enterRoomWaitTime)
             {
-                RespawnPlayer(player);
+                currentRoomWaitTime += Time.deltaTime;
+            }
+            else
+            {
+                roomInitialized = true;
+                //print("ClientRoom Initialized");
             }
 
-            if (SceneManager != null && SceneManager.SceneIndex == "Gameplay")
+
+
+            if (roomInitialized)
             {
-                roundDuration -= Time.deltaTime;
-            }
+                if (roundStarted == false && playerList.Count == maxPlayers)
+                {
+                    foreach (PlayerController player in playerList)
+                    {
+                        RespawnPlayer(player);
+                    }
 
-            OnPracticeTimeOver();
+                    if (SceneManager != null && SceneManager.SceneIndex == "Gameplay")
+                    {
+                        roundDuration -= Time.deltaTime;
+                    }
 
-            practiceTime = false;
-            roundStarted = true;
-        }        
+                    OnPracticeTimeOver();
+                    print("Practice time Over");
+
+                    practiceTime = false;
+                    roundStarted = true;
+                }
+            }           
+
+        }
+               
     }
 
     public void JoinRoom()
     {
         PhotonNetwork.JoinRoom(UIManager.Instance.joinInput.text);
+        inRoom = true;
     }
 
     public void CreateRoom()
@@ -79,6 +106,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         roomConfig.MaxPlayers = maxPlayers;
         roomConfig.IsVisible = !UIManager.Instance.IsPrivate;
         PhotonNetwork.CreateRoom(UIManager.Instance.createInput.text, roomConfig);
+        pv.RPC("UpdateMaxPlayers", RpcTarget.AllBuffered, maxPlayers);
+        inRoom = true;
     }
 
     public override void OnJoinedRoom()
@@ -115,7 +144,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         Transform temp = spawnPoints[Random.Range(0, spawnPoints.Count)];
         playerToAdd.gameObject.transform.position = temp.position;
         playerSpawns.Add(playerToAdd, temp);
-        pv.RPC("RemoveSpawnPoint", RpcTarget.AllBuffered, spawnPoints.IndexOf(temp));        
+        pv.RPC("RemoveSpawnPoint", RpcTarget.AllBuffered, spawnPoints.IndexOf(temp));
     }
 
 
@@ -131,12 +160,14 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
+
     private void RespawnPlayer(PlayerController playerToRespawn)
     {
         Transform spawnPoint = playerSpawns.GetValueOrDefault(playerToRespawn);
         playerToRespawn.transform.position = spawnPoint.position;
         playerToRespawn.gameObject.GetComponent<LifeController>().FullRestoreHealth();
         playerToRespawn.gameObject.SetActive(true);
+        print("Player Respawned");
     }
 
     private void RemovePlayer(PlayerController playerToRemove)
@@ -148,5 +179,11 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void RemoveSpawnPoint(int target)
     {       
         spawnPoints.Remove(spawnPoints[target]);
+    }
+
+    [PunRPC]
+    private void UpdateMaxPlayers(int value)
+    {
+        maxPlayers = value;
     }
 }
