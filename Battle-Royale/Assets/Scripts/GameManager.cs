@@ -7,10 +7,22 @@ using UnityEngine;
 public class GameManager : MonoBehaviourPunCallbacks
 {
     public static GameManager Instance;
+
+    private PhotonView pv;
     public SceneController SceneManager { get; private set; }
 
     [SerializeField] public float roundDuration;
     [SerializeField] private int maxPlayers;
+
+    private List<Transform> spawnPoints = new List<Transform>();
+    public List<Transform> SpawnPoints { get { return spawnPoints; } }
+    private List<PlayerController> playerList = new List<PlayerController>();
+    private Dictionary<PlayerController, Transform> playerSpawns = new Dictionary<PlayerController, Transform>();
+    private bool practiceTime = true;
+    private bool roundStarted = false;
+    public bool PracticeTime { get { return practiceTime; } }
+
+    public event System.Action OnPracticeTimeOver = delegate { };
 
     private void Awake()
     {
@@ -20,6 +32,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             Destroy(gameObject);
 
         DontDestroyOnLoad(gameObject);
+
+        pv = gameObject.GetComponent<PhotonView>();
     }
 
     private void Start()
@@ -34,10 +48,23 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        if (SceneManager != null && SceneManager.SceneIndex == "Gameplay")
+        if (roundStarted == false && playerList.Count == maxPlayers)
         {
-            roundDuration -= Time.deltaTime;
-        }
+            foreach (PlayerController player in playerList)
+            {
+                RespawnPlayer(player);
+            }
+
+            if (SceneManager != null && SceneManager.SceneIndex == "Gameplay")
+            {
+                roundDuration -= Time.deltaTime;
+            }
+
+            OnPracticeTimeOver();
+
+            practiceTime = false;
+            roundStarted = true;
+        }        
     }
 
     public void JoinRoom()
@@ -48,7 +75,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void CreateRoom()
     {
         var roomConfig = new RoomOptions();
-        roomConfig.MaxPlayers = UIManager.Instance.MaxPlayers.value+2;
+        maxPlayers = UIManager.Instance.MaxPlayers.value + 2;
+        roomConfig.MaxPlayers = maxPlayers;
         roomConfig.IsVisible = !UIManager.Instance.IsPrivate;
         PhotonNetwork.CreateRoom(UIManager.Instance.createInput.text, roomConfig);
     }
@@ -74,5 +102,51 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("Quit");
         Application.Quit();
+    }
+
+    public void LoadSpawnPoints(List<Transform> spawnLocations)
+    {
+        spawnPoints = spawnLocations;
+    }
+
+    public void AddPlayer(PlayerController playerToAdd)
+    {
+        playerList.Add(playerToAdd);
+        Transform temp = spawnPoints[Random.Range(0, spawnPoints.Count)];
+        playerToAdd.gameObject.transform.position = temp.position;
+        playerSpawns.Add(playerToAdd, temp);
+        pv.RPC("RemoveSpawnPoint", RpcTarget.AllBuffered, spawnPoints.IndexOf(temp));        
+    }
+
+
+    public void PlayerDeath(PlayerController playerToHandle)
+    {
+        if (practiceTime)
+        {
+            RespawnPlayer(playerToHandle);
+        }
+        else 
+        {
+            RemovePlayer(playerToHandle);
+        }
+    }
+
+    private void RespawnPlayer(PlayerController playerToRespawn)
+    {
+        Transform spawnPoint = playerSpawns.GetValueOrDefault(playerToRespawn);
+        playerToRespawn.transform.position = spawnPoint.position;
+        playerToRespawn.gameObject.GetComponent<LifeController>().FullRestoreHealth();
+        playerToRespawn.gameObject.SetActive(true);
+    }
+
+    private void RemovePlayer(PlayerController playerToRemove)
+    {
+
+    }
+
+    [PunRPC]
+    private void RemoveSpawnPoint(int target)
+    {       
+        spawnPoints.Remove(spawnPoints[target]);
     }
 }

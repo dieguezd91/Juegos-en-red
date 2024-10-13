@@ -1,4 +1,5 @@
 using System.Collections;
+using System;
 using UnityEngine;
 using Photon.Pun;
 
@@ -34,14 +35,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
 
+    public event Action<PlayerController> OnSpawn = delegate { };
+
     private void Awake()
-    {
+    {        
         EquipWeapon(startingWeapon, 0);
         SwitchWeapon(0);
     }
 
     private void Start()
     {
+        OnSpawn(this);
         pv = GetComponent<PhotonView>();
         _rb = GetComponent<Rigidbody2D>();
         currentStamina = maxStamina;

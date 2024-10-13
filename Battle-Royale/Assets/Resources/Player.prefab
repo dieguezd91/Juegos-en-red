@@ -265,8 +265,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Renderers:
   - {fileID: 958718511982926721}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 5565734621123032940}
 --- !u!58 &8528791190181879423
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -487,6 +486,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1e8e95e9dbb929c4b879a3203aa74377, type: 3}
+--- !u!212 &5565734621123032940 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 7717119209485476281, guid: 1e8e95e9dbb929c4b879a3203aa74377, type: 3}
+  m_PrefabInstance: {fileID: 2748815553250989781}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6926726929081896047 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5045558116517092026, guid: 1e8e95e9dbb929c4b879a3203aa74377, type: 3}

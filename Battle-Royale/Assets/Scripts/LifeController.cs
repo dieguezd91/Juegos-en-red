@@ -11,6 +11,8 @@ public class LifeController : MonoBehaviourPunCallbacks
 
     private PhotonView _pv;
 
+    public event System.Action<PlayerController> OnDeath = delegate { };
+
     private void Start()
     {
         _pv = GetComponent<PhotonView>();
@@ -61,7 +63,9 @@ public class LifeController : MonoBehaviourPunCallbacks
     {
         if (_pv.IsMine)
         {
-            PhotonNetwork.Destroy(gameObject);
+            //PhotonNetwork.Destroy(gameObject);
+            OnDeath(this.gameObject.GetComponent<PlayerController>());
+            this.gameObject.SetActive(false);            
         }
     }
 
@@ -71,6 +75,22 @@ public class LifeController : MonoBehaviourPunCallbacks
         {
             currentShield = Mathf.Min(currentShield + amount, maxShield);
             _pv.RPC("SyncHealthAndShield", RpcTarget.All, currentHp, currentShield);
+        }
+    }
+
+    public void RestoreHealth (float amount)
+    {
+        if (_pv.IsMine)
+        {
+            currentHp += amount;
+        }
+    }
+
+    public void FullRestoreHealth()
+    {
+        if (_pv.IsMine)
+        {
+            currentHp = maxHp;
         }
     }
 }

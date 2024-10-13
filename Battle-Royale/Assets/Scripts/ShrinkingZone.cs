@@ -18,6 +18,8 @@ public class ShrinkingZone : MonoBehaviour
 
     private void Start()
     {
+        GameManager.Instance.OnPracticeTimeOver += ActivateZone;
+
         zoneRenderer = GetComponent<SpriteRenderer>();
         _zoneCollider = GetComponent<CircleCollider2D>();
 
@@ -99,5 +101,10 @@ public class ShrinkingZone : MonoBehaviour
             player.GetComponent<LifeController>().ApplyDamage(damagePerSecondOutside);
             yield return new WaitForSeconds(1f);
         }
+    }
+
+    private void ActivateZone()
+    {
+        this.gameObject.SetActive(true);
     }
 }
