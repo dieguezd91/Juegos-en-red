@@ -66,28 +66,13 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
 
 
-
-            if (roomInitialized)
+            if (PhotonNetwork.IsMasterClient)
             {
-                if (roundStarted == false && playerList.Count == maxPlayers)
+                if (roomInitialized && roundStarted == false && playerList.Count == maxPlayers)
                 {
-                    foreach (PlayerController player in playerList)
-                    {
-                        RespawnPlayer(player);
-                    }
-
-                    if (SceneManager != null && SceneManager.SceneIndex == "Gameplay")
-                    {
-                        roundDuration -= Time.deltaTime;
-                    }
-
-                    OnPracticeTimeOver();
-                    print("Practice time Over");
-
-                    practiceTime = false;
-                    roundStarted = true;
+                    pv.RPC("StartMatch", RpcTarget.All);
                 }
-            }           
+            }                     
 
         }
                
@@ -185,5 +170,27 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void UpdateMaxPlayers(int value)
     {
         maxPlayers = value;
+    }
+
+    [PunRPC]
+    private void StartMatch()
+    {        
+            foreach (PlayerController player in playerList)
+            {
+                RespawnPlayer(player);
+            }
+
+            if (SceneManager != null && SceneManager.SceneIndex == "Gameplay")
+            {
+                roundDuration -= Time.deltaTime;
+            }
+
+            OnPracticeTimeOver();
+            print("Practice time Over");
+
+            practiceTime = false;
+            roundStarted = true;
+        
+        //print("Match Started");
     }
 }
