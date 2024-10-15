@@ -30,6 +30,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             Debug.LogError("SceneController not found in the scene. Please ensure it is present.");
         }
+        if (!PhotonNetwork.IsConnected)
+            PhotonNetwork.ConnectUsingSettings();
     }
 
     private void Update()

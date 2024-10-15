@@ -89,7 +89,6 @@ public class LifeController : MonoBehaviourPunCallbacks
 
     private System.Collections.IEnumerator HealingCoroutine()
     {
-        // Simular el uso de ítem (animación, sonido, etc.)
         Debug.Log("Healing started...");
         yield return new WaitForSeconds(HealingDuration);
 
@@ -105,6 +104,6 @@ public class LifeController : MonoBehaviourPunCallbacks
             _pv.RPC("SyncHealthAndShield", RpcTarget.All, currentHp, currentHp);
             _isHealing = false;
         }
-        Debug.Log("Healing failed...");
+        Debug.Log("Healing Complete: " + currentHp + "HP");
     }
 }

@@ -12,8 +12,7 @@ public class PlayerDodgeState<T> : PlayerStateBase<T>
     public override void Awake()
     {
         base.Awake();
-        if (CheckState()) _root.Execute();
-
+        //Debug.Log("DodgeENTER");
     }
 
     public override void Execute()
@@ -25,9 +24,10 @@ public class PlayerDodgeState<T> : PlayerStateBase<T>
     public override void Sleep()
     {
         base.Sleep();
+        //Debug.Log("DodgeEXIT");
     }
     bool CheckState()
     {
-        return _playerController.InputMovement != Vector2.zero || _playerController.IsDashing || _playerController.LifeController.currentHp > 0;
+        return !_playerController.IsDashing || _playerController.LifeController.currentHp <= 0;
     }
 }

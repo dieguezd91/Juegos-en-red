@@ -13,7 +13,6 @@ public class TreeAction : ITreeNode
     public void Execute()
     {
         if (_action != null)
-//            Debug.Log("TREE"+_action);
             _action();
     }
 }

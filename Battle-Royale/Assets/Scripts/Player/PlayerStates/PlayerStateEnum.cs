@@ -5,5 +5,6 @@ public enum PlayerStateEnum
     Dodge,
     Combat,
     Healing,
+    Reloading,
     Died,
 }

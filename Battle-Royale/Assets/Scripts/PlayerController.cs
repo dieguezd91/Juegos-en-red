@@ -5,11 +5,13 @@ using Photon.Pun;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
+
+
     private FSM<PlayerStateEnum> _fsm;
     private ITreeNode _root;
     public PlayerSO PlayerData;
     public LifeController LifeController;
-    private PlayerStateEnum _currentState = PlayerStateEnum.Idle;
+    public PlayerStateEnum _currentState = PlayerStateEnum.Idle;
 
     public PhotonView pv;
     private Rigidbody2D _rb;
@@ -63,26 +65,26 @@ public class PlayerController : MonoBehaviourPunCallbacks
             OnPlayerControllerInstantiated?.Invoke(this);
             StartCoroutine(RegenerateStamina());
         }
-        InitializedFSM();
         InitializedTree();
+        InitializedFSM();
     }
 
     private void Update()
     {
-        if (pv.IsMine)
-        {
-            HandleInput();
-        }
-        if (LifeController.CanHeal() && !LifeController._isHealing)
-        {
-            LifeController.StartHealing();
-        }
+        //if (pv.IsMine)
+        //{
+        //    HandleInput();
+        //}
+        //if (LifeController.CanHeal() && !LifeController._isHealing && Input.GetKey(KeyCode.K)) //Input Provisorio
+        //{
+        //    LifeController.StartHealing();
+        //}
         _fsm.OnUpdate();
     }
 
     private void FixedUpdate()
     {
-        if (pv.IsMine && !isDashing)
+        if (pv.IsMine/* && !isDashing*/ && !ImDodge() && !ImHealing())
         {
             Move();
         }
@@ -97,15 +99,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var moving = new PlayerMovingState<PlayerStateEnum>(_root);
         var dodge = new PlayerDodgeState<PlayerStateEnum>(_root);
         var healing = new PlayerHealingState<PlayerStateEnum>(_root);
+        var reloading = new PlayerReloadingState<PlayerStateEnum>(_root);
         var died = new PlayerDiedState<PlayerStateEnum>();
-        //var combat = new PlayerCombatState<PlayerStateEnum>(_root);
 
         _states.Add(idle);
         _states.Add(moving);
         _states.Add(dodge);
         _states.Add(healing);
+        _states.Add(reloading);
         _states.Add(died);
-        //_states.Add(combat);
 
         for (int i = 0; i < _states.Count; i++)
         {
@@ -115,26 +117,27 @@ public class PlayerController : MonoBehaviourPunCallbacks
         #region ADD TRANSITIONS
         idle.AddTransition(PlayerStateEnum.Moving, moving);
         idle.AddTransition(PlayerStateEnum.Healing, healing);
+        idle.AddTransition(PlayerStateEnum.Dodge, dodge);
         idle.AddTransition(PlayerStateEnum.Died, died);
-        //idle.AddTransition(PlayerStateEnum.Combat, combat);
+        idle.AddTransition(PlayerStateEnum.Reloading, reloading);
 
         moving.AddTransition(PlayerStateEnum.Idle, idle);
         moving.AddTransition(PlayerStateEnum.Healing, healing);
+        moving.AddTransition(PlayerStateEnum.Dodge, dodge);
         moving.AddTransition(PlayerStateEnum.Died, died);
+        moving.AddTransition(PlayerStateEnum.Reloading, reloading);
 
         dodge.AddTransition(PlayerStateEnum.Idle, idle);
         dodge.AddTransition(PlayerStateEnum.Moving, moving);
         dodge.AddTransition(PlayerStateEnum.Died, died);
-        //dodge.AddTransition(PlayerStateEnum.Combat, combat);
-
-        //combat.AddTransition(PlayerStateEnum.Idle, idle);
-        //combat.AddTransition(PlayerStateEnum.Moving, moving);
-        //combat.AddTransition(PlayerStateEnum.Healing, healing);
-        //combat.AddTransition(PlayerStateEnum.Died, died);
 
         healing.AddTransition(PlayerStateEnum.Idle, idle);
         healing.AddTransition(PlayerStateEnum.Moving, moving);
         healing.AddTransition(PlayerStateEnum.Died, died);
+
+        reloading.AddTransition(PlayerStateEnum.Idle, idle);
+        reloading.AddTransition(PlayerStateEnum.Moving, moving);
+        reloading.AddTransition(PlayerStateEnum.Died, died);
         #endregion
 
         _fsm.SetInit(idle);
@@ -149,9 +152,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
     #region QUESTIONS-PLAYER
     bool ImAlive() => LifeController.currentHp > 0f;
-    bool ImMoving() => _inputMovement != Vector2.zero;
+    bool ImMoving() => InputMovement != Vector2.zero;
     bool ImDodge() => isDashing;
     bool ImHealing() => LifeController._isHealing;
+    //bool ImReloading() => _isReloading;
     #endregion
     void InitializedTree()
     {
@@ -162,16 +166,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var died = new TreeAction(ActionDied);
 
         
-        var imHealing = new TreeQuestion(ImHealing, healing, idle);
-        var imDodge = new TreeQuestion(ImDodge, imHealing, dodge);
-        var imMoving = new TreeQuestion(ImMoving, imDodge, moving);
-        var imAlive = new TreeQuestion(ImAlive, imMoving, died);
+        var imMoving = new TreeQuestion(ImMoving, moving, idle);
+        var imHealing = new TreeQuestion(ImHealing, healing, imMoving);
+        var imDodge = new TreeQuestion(ImDodge, dodge, imHealing);
+        var imAlive = new TreeQuestion(ImAlive, imDodge, died);
 
         _root = imAlive;
     }
 
-    private void HandleInput()
+    public void HandleInput()
     {
+        if (LifeController.CanHeal() && !LifeController._isHealing && Input.GetKey(KeyCode.K)) //Input Provisorio
+        {
+            LifeController.StartHealing();
+        }
+
         var moveX = Input.GetAxisRaw("Horizontal");
         var moveY = Input.GetAxisRaw("Vertical");
 
@@ -197,6 +206,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         // Presionar Space para hacer el dash
         if (Input.GetKeyDown(KeyCode.Space) && canDash && currentStamina >= dashStaminaCost)
         {
+            isDashing = true;
             StartCoroutine(Dash());
         }
 
@@ -215,6 +225,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             SwitchWeapon(1);
         }
+
+        
     }
 
     private void Move()
@@ -254,7 +266,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             // Regenerar stamina si no esta corriendo ni haciendo dash
             if (!isSprinting && !isDashing && currentStamina < maxStamina)
             {
-                currentStamina += staminaRegenRate * Time.deltaTime;
+                currentStamina += staminaRegenRate/* * Time.deltaTime*/;
                 currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
             }
 
