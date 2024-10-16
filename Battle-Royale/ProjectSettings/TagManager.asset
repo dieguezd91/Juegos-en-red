@@ -19,7 +19,7 @@ TagManager:
   - Interactable
   - ViewTarget
   - Wall
-  - 
+  - Weapon
   - 
   - 
   - 
@@ -42,4 +42,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Player
+    uniqueID: 1305603975
     locked: 0
