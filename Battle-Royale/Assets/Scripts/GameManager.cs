@@ -27,9 +27,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     public event System.Action OnPracticeTimeOver = delegate { };
     public event System.Action OnRespawn = delegate { };
 
-    private float enterRoomWaitTime = 0.2f;
-    private float currentRoomWaitTime;
-
     private void Awake()
     {        
         if (Instance == null)
@@ -56,24 +53,13 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (inRoom)
         {
-            if (currentRoomWaitTime < enterRoomWaitTime)
-            {
-                currentRoomWaitTime += Time.deltaTime;
-            }
-            else
-            {
-                roomInitialized = true;
-                //print("ClientRoom Initialized");
-            }
-
-            if (roomInitialized)
-            {
-                pv.RPC("UpdateMaxPlayers", RpcTarget.AllBuffered, maxPlayers);
-            }
-
-
             if (PhotonNetwork.IsMasterClient)
             {
+                if (roomInitialized)
+                {
+                    pv.RPC("UpdateMaxPlayers", RpcTarget.AllBuffered, maxPlayers);
+                }
+
                 if (roomInitialized && roundStarted == false && playerList.Count == maxPlayers)
                 {
                     pv.RPC("StartMatch", RpcTarget.All);
@@ -138,6 +124,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public void AddPlayer(PlayerController playerToAdd)
     {
+        if (PhotonNetwork.IsMasterClient && !roomInitialized) roomInitialized = true;
         playerList.Add(playerToAdd);
         Transform temp = spawnPoints[Random.Range(0, spawnPoints.Count)];
         playerToAdd.gameObject.transform.position = temp.position;
@@ -171,6 +158,12 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void RemovePlayer(PlayerController playerToRemove)
     {
 
+    }
+
+    public void SetPlayerEvents(GameController controller)
+    {
+        controller.OnPlayerSpawn += AddPlayer;
+        
     }
 
     [PunRPC]
