@@ -15,7 +15,7 @@ public class GameController : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
-        //GameManager.Instance.SetPlayerEvents(this);
+        GameManager.Instance.GetGameController(this);
     }
 
     private void Update()
@@ -23,8 +23,8 @@ public class GameController : MonoBehaviourPunCallbacks
         if (currentWaitTime >= waitTime && initialized == false)
         {
             var player = PhotonNetwork.Instantiate(playerPrefab.name, new Vector2(Random.Range(-4, 4), Random.Range(-4, 4)), Quaternion.identity);
-
-            OnPlayerSpawn(player.GetComponent<PlayerController>());            
+            
+            OnPlayerSpawn(player.GetComponent<PlayerController>());
 
             if (virtualCamera != null)
             {

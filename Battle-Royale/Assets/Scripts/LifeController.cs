@@ -16,11 +16,14 @@ public class LifeController : MonoBehaviourPunCallbacks
 
     private PhotonView _pv;
 
+    public System.Action<PlayerController> OnDeath = delegate { };
+
     private void Start()
     {
         _pv = GetComponent<PhotonView>();
         currentHp = PlayerData.MaxHP;
         currentShield = 0f;
+        GameManager.Instance.OnPlayerRespawn += FullRestore;
     }
 
     [PunRPC]
@@ -66,7 +69,8 @@ public class LifeController : MonoBehaviourPunCallbacks
     {
         if (_pv.IsMine)
         {
-            PhotonNetwork.Destroy(gameObject);
+            //PhotonNetwork.Destroy(gameObject);
+            OnDeath(gameObject.GetComponent<PlayerController>());
         }
     }
 
@@ -105,5 +109,11 @@ public class LifeController : MonoBehaviourPunCallbacks
             _isHealing = false;
         }
         Debug.Log("Healing Complete: " + currentHp + "HP");
+    }
+
+    private void FullRestore()
+    {
+        currentHp = PlayerData.MaxHP;
+        currentShield = maxShield;
     }
 }
