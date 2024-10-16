@@ -62,7 +62,9 @@ public class GameManager : MonoBehaviourPunCallbacks
 
                 if (roomInitialized && roundStarted == false && playerList.Count == maxPlayers)
                 {
+                    OnPracticeTimeOver();
                     pv.RPC("StartMatch", RpcTarget.All);
+                    roundStarted = true;
                 }
             }
 
@@ -90,7 +92,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     //    roomConfig.MaxPlayers = MaxPlayers;
     //    roomConfig.IsVisible = IsPrivate;
     //    PhotonNetwork.CreateRoom(UIManager.Instance.createInput.text, roomConfig);
-    //    pv.RPC("UpdateMaxPlayers", RpcTarget.AllBuffered, maxPlayers);
     //    inRoom = true;
     //}
 
