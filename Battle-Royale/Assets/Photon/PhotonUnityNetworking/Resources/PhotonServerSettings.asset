@@ -43,6 +43,9 @@ MonoBehaviour:
   - OpenChest
   - HideFromView
   - SyncHealthAndShield
+  - RemoveSpawnPoint
+  - StartMatch
+  - UpdateMaxPlayers
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
