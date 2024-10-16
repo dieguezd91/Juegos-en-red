@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerMovingState<T> : PlayerStateBase<T>
 {
     private ITreeNode _root;
+
     public PlayerMovingState(ITreeNode root)
     {
         _root = root;
@@ -12,7 +13,8 @@ public class PlayerMovingState<T> : PlayerStateBase<T>
     public override void Awake()
     {
         base.Awake();
-        //Debug.Log("MovingENTER");
+        Debug.Log("C");
+        _playerController.animator.SetBool("IsMoving", true);
     }
 
     public override void Execute()
@@ -28,7 +30,8 @@ public class PlayerMovingState<T> : PlayerStateBase<T>
     public override void Sleep()
     {
         base.Sleep();
-        //Debug.Log("MovingEXIT");
+        Debug.Log("D");
+        _playerController.animator.SetBool("IsMoving", false);
     }
 
     bool CheckState()

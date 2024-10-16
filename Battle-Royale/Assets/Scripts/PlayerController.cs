@@ -5,8 +5,6 @@ using Photon.Pun;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
-
-
     private FSM<PlayerStateEnum> _fsm;
     private ITreeNode _root;
     public PlayerSO PlayerData;
@@ -32,7 +30,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public Vector2 InputMovement => _inputMovement;
 
     public float currentStamina;
-    private bool isSprinting;
+    public bool isSprinting;
 
     private bool isDashing;
     public bool IsDashing => isDashing;
@@ -48,6 +46,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
 
+    public Animator animator;
+
     private void Awake()
     {
         EquipWeapon(startingWeapon, 0);
@@ -57,6 +57,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void Start()
     {
         pv = GetComponent<PhotonView>();
+        animator = GetComponentInChildren<Animator>();
         _rb = GetComponent<Rigidbody2D>();
         currentStamina = PlayerData.MaxStamina;
         LifeController = GetComponent<LifeController>();
@@ -71,6 +72,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void Update()
     {
+        Debug.Log(animator);
         //if (pv.IsMine)
         //{
         //    HandleInput();
@@ -225,8 +227,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             SwitchWeapon(1);
         }
-
-        
     }
 
     private void Move()

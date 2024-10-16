@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerIdleState<T> : PlayerStateBase<T>
 {
     private ITreeNode _root;
+
     public PlayerIdleState(ITreeNode root)
     {
         _root = root;
@@ -12,7 +13,11 @@ public class PlayerIdleState<T> : PlayerStateBase<T>
     public override void Awake()
     {
         base.Awake();
-        //Debug.Log("IdleENTER");
+        Debug.Log("A");
+        if (_playerController.animator != null)
+        {
+            _playerController.animator.SetBool("IsIdle", true);
+        }
     }
 
     public override void Execute()
@@ -30,7 +35,11 @@ public class PlayerIdleState<T> : PlayerStateBase<T>
     public override void Sleep()
     {
         base.Sleep();
-        //Debug.Log("IdleEXIT");
+        Debug.Log("B");
+        if (_playerController.animator != null)
+        {
+            _playerController.animator.SetBool("IsIdle", false);
+        }
     }
     bool CheckState()
     {

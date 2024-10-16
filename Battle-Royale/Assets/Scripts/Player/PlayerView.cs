@@ -11,7 +11,7 @@ public class PlayerView : MonoBehaviourPunCallbacks
     {
         Rb = GetComponent<Rigidbody2D>();
         Pv = GetComponent<PhotonView>();
-        Animator = GetComponent<Animator>();
+        Animator = GetComponentInChildren<Animator>();
     }
 
     public void UpdateMovement(Vector2 velocity)
