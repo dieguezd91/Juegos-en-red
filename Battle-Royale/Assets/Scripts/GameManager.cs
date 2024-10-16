@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public bool PracticeTime { get { return practiceTime; } }
 
     public event System.Action OnPracticeTimeOver = delegate { };
-    public event System.Action OnRespawn = delegate { };
+    public event System.Action OnPlayerRespawn = delegate { };
 
     private void Awake()
     {        
@@ -122,13 +122,14 @@ public class GameManager : MonoBehaviourPunCallbacks
         spawnPoints = spawnLocations;
     }
 
-    public void AddPlayer(PlayerController playerToAdd)
+    private void AddPlayer(PlayerController playerToAdd)
     {
         if (PhotonNetwork.IsMasterClient && !roomInitialized) roomInitialized = true;
         playerList.Add(playerToAdd);
         Transform temp = spawnPoints[Random.Range(0, spawnPoints.Count)];
         playerToAdd.gameObject.transform.position = temp.position;
         playerSpawns.Add(playerToAdd, temp);
+        playerToAdd.GetComponent<LifeController>().OnDeath += PlayerDeath;
         pv.RPC("RemoveSpawnPoint", RpcTarget.AllBuffered, spawnPoints.IndexOf(temp));
     }
 
@@ -150,7 +151,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         Transform spawnPoint = playerSpawns.GetValueOrDefault(playerToRespawn);
         playerToRespawn.transform.position = spawnPoint.position;
-        OnRespawn();
+        OnPlayerRespawn();
         playerToRespawn.gameObject.SetActive(true);
         print("Player Respawned");
     }
@@ -160,10 +161,9 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     }
 
-    public void SetPlayerEvents(GameController controller)
+    public void GetGameController(GameController controller)
     {
-        controller.OnPlayerSpawn += AddPlayer;
-        
+        controller.OnPlayerSpawn += AddPlayer;        
     }
 
     [PunRPC]
