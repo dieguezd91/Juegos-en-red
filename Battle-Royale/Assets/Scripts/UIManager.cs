@@ -19,6 +19,9 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject optionsPanel;
     [SerializeField] private GameObject creditsPanel;
     [SerializeField] private GameObject playPanel;
+    [SerializeField] private GameObject loadingPanel;
+    [SerializeField] private GameObject mainMenuPanel;
+
     [SerializeField] public TMP_InputField createInput;
     [SerializeField] public TMP_InputField joinInput;
     [SerializeField] private GameObject createInputGo;
@@ -41,9 +44,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         else Destroy(gameObject);
         DontDestroyOnLoad(gameObject);
 
-        PlayerController.OnPlayerControllerInstantiated += OnPlayerControllerInstantiated;
-
-        
+        PlayerController.OnPlayerControllerInstantiated += OnPlayerControllerInstantiated;        
     }
 
     private void Start()
@@ -59,6 +60,8 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (GameManager.Instance.SceneManager.SceneIndex == "MainMenu")
         {
             mainMenuCanvas.SetActive(true);
+            loadingPanel.SetActive(false);
+            mainMenuPanel.SetActive(true);
         }
 
         if (GameManager.Instance.SceneManager.SceneIndex == "Gameplay")
