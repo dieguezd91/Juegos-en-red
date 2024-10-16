@@ -10,6 +10,7 @@ public class PlayerMovingState<T> : PlayerStateBase<T>
     {
         _root = root;
     }
+
     public override void Awake()
     {
         base.Awake();
@@ -24,6 +25,18 @@ public class PlayerMovingState<T> : PlayerStateBase<T>
         {
             _playerController.HandleInput();
         }
+
+        if (_playerController.isSprinting)
+        {
+            _playerController.animator.SetBool("IsSprinting", true);
+            _playerController.animator.SetBool("IsMoving", false);
+        }
+        else
+        {
+            _playerController.animator.SetBool("IsSprinting", false);
+            _playerController.animator.SetBool("IsMoving", true);
+        }
+
         if (CheckState()) _root.Execute();
     }
 
@@ -32,10 +45,11 @@ public class PlayerMovingState<T> : PlayerStateBase<T>
         base.Sleep();
         Debug.Log("D");
         _playerController.animator.SetBool("IsMoving", false);
+        _playerController.animator.SetBool("IsSprinting", false);
     }
 
     bool CheckState()
     {
-        return _playerController.InputMovement == Vector2.zero || _playerController.IsDashing|| _playerController.LifeController.currentHp < 0f;
+        return _playerController.InputMovement == Vector2.zero || _playerController.IsDashing || _playerController.LifeController.currentHp <= 0f;
     }
 }

@@ -129,7 +129,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   currentStamina: 0
+  isSprinting: 0
   startingWeapon: {fileID: 11400000, guid: 811e3f4e7d7e58348953fd384d812037, type: 2}
+  animator: {fileID: 0}
 --- !u!114 &1253433008755915443
 MonoBehaviour:
   m_ObjectHideFlags: 0
