@@ -15,7 +15,11 @@ public class ShrinkingZone : MonoBehaviour
     private CircleCollider2D _zoneCollider;
     private HashSet<PlayerController> playersOutsideZone = new HashSet<PlayerController>();
     private Vector3 initialScale;
-
+    private void Awake()
+    {
+        this.gameObject.SetActive(false);
+        GameManager.Instance.OnPracticeTimeOver += ActivateZone;
+    }
     private void Start()
     {
         zoneRenderer = GetComponent<SpriteRenderer>();
@@ -99,5 +103,10 @@ public class ShrinkingZone : MonoBehaviour
             player.GetComponent<LifeController>().ApplyDamage(damagePerSecondOutside);
             yield return new WaitForSeconds(1f);
         }
+    }
+
+    private void ActivateZone()
+    {
+        this.gameObject.SetActive(true);
     }
 }
