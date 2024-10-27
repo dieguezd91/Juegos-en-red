@@ -8,6 +8,7 @@ public class Chest : MonoBehaviour, IInteractable
     private PhotonView pv;
     private bool _open = false;
     [SerializeField] private GameObject[] availableRewards;
+    private ScriptableObject[] _rewards;
 
     private void Awake()
     {
@@ -30,5 +31,10 @@ public class Chest : MonoBehaviour, IInteractable
         _open = true;
         gameObject.GetComponent<SpriteRenderer>().color = Color.red;        
         print("chest open");
+    }
+
+    public void FillChest(List<ItemBase> items)
+    {
+        _rewards = items.ToArray();
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewWeapon", menuName = "WeaponType")]
-public class WeaponInfo : ScriptableObject
+public class WeaponInfo : ItemBase
 {
     [SerializeField] private float _fireRate;
     public float fireRate { get { return _fireRate; }}
