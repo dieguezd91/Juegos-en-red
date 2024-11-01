@@ -144,10 +144,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             playerSpawns.Add(playerToAdd, spawnPoint);
             playerToAdd.GetComponent<LifeController>().OnDeath += PlayerDeath;
         }
-        else
-        {
-            Debug.LogError("No hay spawn points disponibles!");
-        }
     }
 
     private Transform GetAvailableSpawnPoint()

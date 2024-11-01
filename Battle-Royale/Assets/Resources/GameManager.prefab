@@ -45,8 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0609ed6232b83b43b3d496e6b017df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PhotonViewId: 999
-  roundDuration: 60
+  roundDuration: 100
   maxPlayers: 16
 --- !u!114 &8291505235047624133
 MonoBehaviour:
@@ -63,10 +62,10 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 3
+  Synchronization: 0
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents: []
-  sceneViewId: 0
+  sceneViewId: 999
   InstantiationId: 0
   isRuntimeInstantiated: 0
