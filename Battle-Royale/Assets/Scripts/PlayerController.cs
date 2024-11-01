@@ -72,7 +72,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        Debug.Log(animator);
         //if (pv.IsMine)
         //{
         //    HandleInput();

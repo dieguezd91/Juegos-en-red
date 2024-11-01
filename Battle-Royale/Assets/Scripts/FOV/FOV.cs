@@ -1,67 +1,82 @@
-using System.Collections;
-using System.Collections.Generic;
 using Photon.Pun;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class FOV : MonoBehaviour
+public class FOV : MonoBehaviourPunCallbacks
 {
     [SerializeField] private float range;
-    //[SerializeField] private Transform pov;
     [SerializeField] private float angle;
     [SerializeField] private LayerMask obstacle;
     [SerializeField] private LayerMask viewTarget;
     [SerializeField] private float radius;
 
     private RaycastHit2D[] hits = new RaycastHit2D[17];
-    private PhotonView pv;
-    //[SerializeField] private float delayToLooseTarget;
+    private PhotonView photonView;
+    private Dictionary<int, FOVReceiver> cachedReceivers = new Dictionary<int, FOVReceiver>();
 
     private void Start()
     {
-        pv = GetComponent<PhotonView>();
+        photonView = GetComponent<PhotonView>();
     }
 
     private void Update()
     {
-        if (pv.IsMine)
+        if (!photonView.IsMine) return;
+
+        CheckVisibility();
+    }
+
+    private void CheckVisibility()
+    {
+        int hitCount = Physics2D.CircleCastNonAlloc(transform.position, radius, transform.forward, hits, range, viewTarget);
+
+        foreach (var receiver in cachedReceivers.Values)
         {
-            Physics2D.CircleCastNonAlloc(transform.position, radius, transform.forward, hits, range, viewTarget);
-
-            for (int i = 0; i < hits.Length; i++)
+            if (receiver != null)
             {
-                if (hits != null && hits[i] != false)
-                {
-                    if (hits[i].rigidbody.gameObject == this.gameObject) continue;
-
-                    if (CheckRange(hits[i].rigidbody.transform) && CheckAngle(hits[i].rigidbody.transform) && InView(hits[i].rigidbody.transform))
-                    {
-                        //hits[i].rigidbody.TryGetComponent<SpriteRenderer>(out SpriteRenderer sprite);
-
-                        //sprite.enabled = true;
-
-                        hits[i].rigidbody.TryGetComponent<FOVReciver>(out FOVReciver sprites);
-
-                        sprites.ShowSprites();
-
-                    }
-                    else
-                    {
-                        //hits[i].rigidbody.TryGetComponent<SpriteRenderer>(out SpriteRenderer sprite);
-
-                        //sprite.enabled = false;
-
-                        hits[i].rigidbody.TryGetComponent<FOVReciver>(out FOVReciver sprites);
-
-                        sprites.HideSprites();
-
-                    }
-                }
-                else
-                {                    
-                    break;
-                }
+                receiver.HideSprites();
             }
         }
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            if (hits[i].collider == null) continue;
+
+            GameObject hitObject = hits[i].collider.gameObject;
+            if (hitObject == gameObject) continue;
+
+            FOVReceiver receiver = GetOrAddReceiver(hitObject);
+            if (receiver == null) continue;
+
+            if (IsTargetVisible(hitObject.transform))
+            {
+                receiver.ShowSprites();
+            }
+        }
+    }
+
+    private FOVReceiver GetOrAddReceiver(GameObject target)
+    {
+        PhotonView targetPV = target.GetComponent<PhotonView>();
+        if (targetPV == null) return null;
+
+        int viewID = targetPV.ViewID;
+
+        if (!cachedReceivers.TryGetValue(viewID, out FOVReceiver receiver))
+        {
+            receiver = target.GetComponent<FOVReceiver>();
+            if (receiver != null)
+            {
+                cachedReceivers[viewID] = receiver;
+            }
+        }
+
+        return receiver;
+    }
+
+    private bool IsTargetVisible(Transform target)
+    {
+        return CheckRange(target) && CheckAngle(target) && InView(target);
     }
 
     public bool CheckRange(Transform target)
@@ -72,53 +87,27 @@ public class FOV : MonoBehaviour
 
     public bool CheckAngle(Transform target)
     {
-        Vector2 dirToTarget = target.position - Origin;
-        float angleToTarget = Vector3.Angle(dirToTarget, Foward);
+        Vector2 dirToTarget = (target.position - Origin).normalized;
+        float angleToTarget = Vector2.Angle(dirToTarget, transform.right);
         return angleToTarget <= angle / 2;
     }
 
     public bool InView(Transform target)
     {
         Vector2 dirToTarget = target.position - Origin;
-        //print(Physics2D.Raycast(Origin, dirToTarget.normalized, dirToTarget.magnitude, obstacle).collider.name);
         return !Physics2D.Raycast(Origin, dirToTarget.normalized, dirToTarget.magnitude, obstacle);
     }
-    Vector3 Origin
-    {
-        get
-        {
-            return transform.position;           
 
-        }
-    }
-
-    Vector3 Foward
-    {
-        get
-        {
-            return transform.forward;            
-        }
-    }
-
-
-    [PunRPC]
-    private void HideFromView(SpriteRenderer target)
-    {
-        target.enabled = false;        
-    }
-
-    private void ShowInView(SpriteRenderer target)
-    {
-        target.enabled = true;
-    }
+    private Vector3 Origin => transform.position;
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(Origin, range);        
+        Gizmos.DrawWireSphere(Origin, range);
 
+        Vector3 rightDir = transform.right;
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(Origin, Quaternion.Euler(0, angle / 2, 0) * Foward * range);
-        Gizmos.DrawRay(Origin, Quaternion.Euler(0, -angle / 2, 0) * Foward * range);
-    }    
+        Gizmos.DrawRay(Origin, Quaternion.Euler(0, 0, angle / 2) * rightDir * range);
+        Gizmos.DrawRay(Origin, Quaternion.Euler(0, 0, -angle / 2) * rightDir * range);
+    }
 }

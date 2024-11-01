@@ -1,24 +1,47 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class FOVReciver : MonoBehaviour
+public class FOVReceiver : MonoBehaviourPunCallbacks
 {
-    [SerializeField] List<SpriteRenderer> Renderers;    
+    private List<SpriteRenderer> renderers = new List<SpriteRenderer>();
+    private PhotonView photonView;
+
+    private void Awake()
+    {
+        photonView = GetComponent<PhotonView>();
+        CollectRenderers();
+    }
+
+    private void CollectRenderers()
+    {
+        renderers.AddRange(GetComponentsInChildren<SpriteRenderer>(true));
+    }
 
     public void HideSprites()
     {
-        foreach (var renderer in Renderers)
+        if (renderers == null) return;
+
+        foreach (var renderer in renderers)
         {
-            renderer.enabled = false;
+            if (renderer != null)
+            {
+                renderer.enabled = false;
+            }
         }
     }
 
     public void ShowSprites()
     {
-        foreach (var renderer in Renderers)
+        if (renderers == null) return;
+
+        foreach (var renderer in renderers)
         {
-            renderer.enabled = true;
+            if (renderer != null)
+            {
+                renderer.enabled = true;
+            }
         }
     }
 }
