@@ -1,7 +1,7 @@
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GameManager : MonoBehaviourPunCallbacks
@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public List<Transform> SpawnPoints { get { return spawnPoints; } }
     private List<PlayerController> playerList = new List<PlayerController>();
     private Dictionary<PlayerController, Transform> playerSpawns = new Dictionary<PlayerController, Transform>();
+    private Dictionary<int, Transform> assignedSpawnPoints = new Dictionary<int, Transform>();
+    private HashSet<Transform> availableSpawnPoints = new HashSet<Transform>();
     private bool practiceTime = true;
     private bool roundStarted = false;
     private bool inRoom;
@@ -85,16 +87,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         inRoom = true;
     }
 
-    //public void CreateRoom(int MaxPlayers = 16, bool IsPrivate = false)
-    //{
-    //    var roomConfig = new RoomOptions();
-    //    maxPlayers = MaxPlayers;
-    //    roomConfig.MaxPlayers = MaxPlayers;
-    //    roomConfig.IsVisible = IsPrivate;
-    //    PhotonNetwork.CreateRoom(UIManager.Instance.createInput.text, roomConfig);
-    //    inRoom = true;
-    //}
-
     public override void OnJoinedRoom()
     {
         PhotonNetwork.LoadLevel("Gameplay");
@@ -120,20 +112,80 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public void LoadSpawnPoints(List<Transform> spawnLocations)
     {
-        spawnPoints = spawnLocations;
+        spawnPoints = new List<Transform>(spawnLocations);
+        availableSpawnPoints = new HashSet<Transform>(spawnLocations);
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            int[] spawnPointIndex = new int[spawnLocations.Count];
+            for (int i = 0; i < spawnLocations.Count; i++)
+            {
+                spawnPointIndex[i] = i;
+            }
+            photonView.RPC("SyncSpawnPoints", RpcTarget.All, spawnPointIndex);
+        }
     }
 
     private void AddPlayer(PlayerController playerToAdd)
     {
-        if (PhotonNetwork.IsMasterClient && !roomInitialized) roomInitialized = true;
+        if (!PhotonNetwork.IsMasterClient) return;
+
         playerList.Add(playerToAdd);
-        Transform temp = spawnPoints[Random.Range(0, spawnPoints.Count)];
-        playerToAdd.gameObject.transform.position = temp.position;
-        playerSpawns.Add(playerToAdd, temp);
-        playerToAdd.GetComponent<LifeController>().OnDeath += PlayerDeath;
-        pv.RPC("RemoveSpawnPoint", RpcTarget.AllBuffered, spawnPoints.IndexOf(temp));
+
+        Transform spawnPoint = GetAvailableSpawnPoint();
+        if (spawnPoint != null)
+        {
+            int playerActorNumber = playerToAdd.GetComponent<PhotonView>().Owner.ActorNumber;
+            int spawnPointIndex = spawnPoints.IndexOf(spawnPoint);
+
+            photonView.RPC("AssignSpawnPoint", RpcTarget.All, playerActorNumber, spawnPointIndex);
+
+            playerToAdd.gameObject.transform.position = spawnPoint.position;
+            playerSpawns.Add(playerToAdd, spawnPoint);
+            playerToAdd.GetComponent<LifeController>().OnDeath += PlayerDeath;
+        }
+        else
+        {
+            Debug.LogError("No hay spawn points disponibles!");
+        }
     }
 
+    private Transform GetAvailableSpawnPoint()
+    {
+        if (availableSpawnPoints.Count == 0) return null;
+
+        int randomIndex = Random.Range(0, availableSpawnPoints.Count);
+        Transform selectedSpawn = availableSpawnPoints.ElementAt(randomIndex);
+
+        return selectedSpawn;
+    }
+
+    [PunRPC]
+    private void SyncSpawnPoints(int[] indices)
+    {
+        spawnPoints = new List<Transform>();
+        availableSpawnPoints = new HashSet<Transform>();
+
+        foreach (int index in indices)
+        {
+            if (index < spawnPoints.Count)
+            {
+                Transform spawnPoint = spawnPoints[index];
+                availableSpawnPoints.Add(spawnPoint);
+            }
+        }
+    }
+
+    [PunRPC]
+    private void AssignSpawnPoint(int playerActorNumber, int spawnPointIndex)
+    {
+        if (spawnPointIndex >= 0 && spawnPointIndex < spawnPoints.Count)
+        {
+            Transform spawnPoint = spawnPoints[spawnPointIndex];
+            assignedSpawnPoints[playerActorNumber] = spawnPoint;
+            availableSpawnPoints.Remove(spawnPoint);
+        }
+    }
 
     public void PlayerDeath(PlayerController playerToHandle)
     {
@@ -147,14 +199,16 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
-
     private void RespawnPlayer(PlayerController playerToRespawn)
     {
-        Transform spawnPoint = playerSpawns.GetValueOrDefault(playerToRespawn);
-        playerToRespawn.transform.position = spawnPoint.position;
-        OnPlayerRespawn();
-        playerToRespawn.gameObject.SetActive(true);
-        print("Player Respawned");
+        int playerActorNumber = playerToRespawn.GetComponent<PhotonView>().Owner.ActorNumber;
+
+        if (assignedSpawnPoints.TryGetValue(playerActorNumber, out Transform spawnPoint))
+        {
+            playerToRespawn.transform.position = spawnPoint.position;
+            OnPlayerRespawn();
+            playerToRespawn.gameObject.SetActive(true);
+        }
     }
 
     private void RemovePlayer(PlayerController playerToRemove)
@@ -199,5 +253,25 @@ public class GameManager : MonoBehaviourPunCallbacks
         roundStarted = true;
 
         //print("Match Started");
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        base.OnPlayerLeftRoom(otherPlayer);
+
+        if (assignedSpawnPoints.TryGetValue(otherPlayer.ActorNumber, out Transform spawnPoint))
+        {
+            photonView.RPC("ReleaseSpawnPoint", RpcTarget.All, otherPlayer.ActorNumber);
+        }
+    }
+
+    [PunRPC]
+    private void ReleaseSpawnPoint(int playerActorNumber)
+    {
+        if (assignedSpawnPoints.TryGetValue(playerActorNumber, out Transform spawnPoint))
+        {
+            availableSpawnPoints.Add(spawnPoint);
+            assignedSpawnPoints.Remove(playerActorNumber);
+        }
     }
 }
