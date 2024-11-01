@@ -7,8 +7,8 @@ public class Chest : MonoBehaviour, IInteractable
 {
     private PhotonView pv;
     private bool _open = false;
-    [SerializeField] private GameObject[] availableRewards;
-    private ScriptableObject[] _rewards;
+    //[SerializeField] private GameObject[] availableRewards;
+    private ItemBase[] _rewards;
 
     private void Awake()
     {
@@ -20,7 +20,10 @@ public class Chest : MonoBehaviour, IInteractable
         if (_open == false)
         {
             pv.RPC("OpenChest", RpcTarget.AllViaServer);
-            PhotonNetwork.Instantiate(availableRewards[Random.Range(0, availableRewards.Length - 1)].name, new Vector2(Random.Range(transform.position.x - 3, transform.position.x + 3), Random.Range(transform.position.y - 3, transform.position.y + 3)), Quaternion.identity);
+            foreach(var item in _rewards)
+            {
+                item.Spawn(new Vector2(Random.Range(transform.position.x - 3, transform.position.x + 3), Random.Range(transform.position.y - 3, transform.position.y + 3)), Quaternion.identity);
+            }            
             print("interacted");
         }        
     }

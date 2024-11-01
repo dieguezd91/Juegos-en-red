@@ -1,5 +1,6 @@
 public class WeaponItem : CollectableItem
 {
+    private WeaponInfo weaponInfo;
     void Start()
     {
         OnCollected += Test;
@@ -7,7 +8,12 @@ public class WeaponItem : CollectableItem
 
     void Test(PlayerController player)
     {
-        Destroy(this.gameObject);
+        Photon.Pun.PhotonNetwork.Destroy(this.gameObject);
         print("Item collected");
-    } 
+    }
+
+    public void SetInfo(WeaponInfo info)
+    {
+        weaponInfo = info;
+    }
 }
