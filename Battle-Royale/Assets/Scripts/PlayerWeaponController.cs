@@ -1,21 +1,27 @@
-using UnityEngine;
 using Photon.Pun;
+using UnityEngine;
 
 public class PlayerWeaponController : MonoBehaviourPunCallbacks
 {
     private PhotonView _pv;
-    [SerializeField] private Transform shootingPoint;
-    [SerializeField] private GameObject weaponObject;
+    [SerializeField] private Transform arm;
+    [SerializeField] private Transform weaponPlaceHolder;
     [SerializeField] private Transform playerSprite;
-    private GameObject bulletPrefab;
-    private float fireRate = 0.5f;
-    private float damage;
-    private float _nextFireTime = 0f;
-    public Quaternion shootingDirection;
+    [SerializeField] private WeaponSO defaultWeapon;
+
+    private WeaponBase currentWeapon;
+    private Camera mainCamera;
+    private bool isFacingLeft = false;
 
     private void Start()
     {
         _pv = GetComponent<PhotonView>();
+        mainCamera = Camera.main;
+
+        if (_pv.IsMine && defaultWeapon != null)
+        {
+            EquipWeapon(defaultWeapon);
+        }
     }
 
     private void Update()
@@ -23,60 +29,93 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         if (_pv.IsMine)
         {
             Aim();
-            if (Input.GetButton("Fire1") && Time.time >= _nextFireTime)
+            HandleShooting();
+
+            if (Input.GetKeyDown(KeyCode.R))
             {
-                Shoot();
-                _nextFireTime = Time.time + fireRate;
+                currentWeapon?.Reload();
             }
         }
     }
 
     private void Aim()
     {
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         Vector3 aimDirection = mousePosition - transform.position;
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
 
-        weaponObject.transform.rotation = Quaternion.Euler(0, 0, angle);
+        isFacingLeft = Mathf.Abs(angle) > 90;
 
-        if (angle > 90 || angle < -90)
+        // Ajustar el sprite del personaje
+        playerSprite.localScale = new Vector3(isFacingLeft ? -1 : 1, 1, 1);
+
+        // Calcular la rotación del brazo
+        float armRotation;
+        if (isFacingLeft)
         {
-            playerSprite.localScale = new Vector3(-1, 1, 1);
-            weaponObject.transform.localScale = new Vector3(-1, -1, 1);
+            armRotation = angle + 180;
         }
         else
         {
-            playerSprite.localScale = new Vector3(1, 1, 1);
-            weaponObject.transform.localScale = new Vector3(1, 1, 1);
+            armRotation = angle;
+        }
+
+        // Aplicar rotación al brazo
+        arm.rotation = Quaternion.Euler(0, 0, armRotation);
+
+        // Ajustar el arma
+        if (currentWeapon != null)
+        {
+            if (isFacingLeft)
+            {
+                currentWeapon.transform.localScale = new Vector3(1, 1, 1);
+            }
+            else
+            {
+                currentWeapon.transform.localScale = new Vector3(1, 1, 1);
+            }
+        }
+
+        // Mantener el weaponPlaceHolder sin modificaciones
+        weaponPlaceHolder.localScale = Vector3.one;
+        weaponPlaceHolder.localRotation = Quaternion.identity;
+    }
+
+    private void HandleShooting()
+    {
+        if (currentWeapon == null) return;
+
+        bool shouldShoot = currentWeapon.weaponData.automatic ?
+            Input.GetButton("Fire1") : Input.GetButtonDown("Fire1");
+
+        if (shouldShoot && currentWeapon.CanShoot())
+        {
+            // Calcular la dirección del disparo basada en la posición del mouse
+            Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 direction = ((Vector2)(mousePosition - transform.position)).normalized;
+
+            // Ya no necesitamos invertir la dirección, usamos la dirección real del mouse
+            currentWeapon.Shoot(direction);
         }
     }
 
-    private void Shoot()
+    public void EquipWeapon(WeaponSO weaponData)
     {
-        if (bulletPrefab != null)
-        {
-            var bullet = PhotonNetwork.Instantiate(bulletPrefab.name, shootingPoint.position, weaponObject.transform.rotation);
-            var rb = bullet.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                Vector2 shootDirection = (shootingPoint.position - weaponObject.transform.position).normalized;
-                rb.velocity = shootDirection * bullet.GetComponent<BulletPrefab>().bulletType.speed;
-            }
-        }
-    }
+        if (weaponData == null || weaponPlaceHolder == null) return;
 
-    public void UpdateWeaponInfo(WeaponInfo newWeapon)
-    {
-        if (newWeapon != null && weaponObject != null)
+        if (currentWeapon != null)
         {
-            SpriteRenderer weaponSprite = weaponObject.GetComponent<SpriteRenderer>();
-            if (weaponSprite != null && newWeapon.weaponPrefab != null)
-            {
-                weaponSprite.sprite = newWeapon.weaponPrefab.GetComponent<SpriteRenderer>()?.sprite;
-            }
-            bulletPrefab = newWeapon.bulletPrefab;
-            damage = newWeapon.damage;
-            fireRate = newWeapon.fireRate;
+            Destroy(currentWeapon.gameObject);
+        }
+
+        GameObject weaponInstance = Instantiate(weaponData.weaponPrefab, weaponPlaceHolder);
+        weaponInstance.transform.localPosition = Vector3.zero;
+        weaponInstance.transform.localRotation = Quaternion.identity;
+
+        currentWeapon = weaponInstance.GetComponent<WeaponBase>();
+        if (currentWeapon != null)
+        {
+            currentWeapon.Initialize(weaponData);
         }
     }
 }

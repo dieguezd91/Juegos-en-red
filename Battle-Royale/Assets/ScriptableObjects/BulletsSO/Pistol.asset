@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e0759b2ceafa23429f2100ee3d04654, type: 3}
   m_Name: Pistol
   m_EditorClassIdentifier: 
-  speed: 5
-  lifeTime: 5
-  dispersion: 0
-  damage: 5
+  speed: 20
+  lifeTime: 3
+  damage: 20
+  canPierce: 0
+  maxPierceCount: 0
+  damageDropoff: 0.2
+  hasGravity: 0
+  hitEffect: {fileID: 0}
+  hitSound: {fileID: 0}

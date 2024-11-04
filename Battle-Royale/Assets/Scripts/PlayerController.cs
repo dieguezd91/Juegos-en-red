@@ -40,19 +40,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private Vector2 lastDirection = Vector2.up;
 
-    [SerializeField] private WeaponInfo startingWeapon;
-    private int currentWeapon;
-    private WeaponInfo[] equipedWeapons = new WeaponInfo[2];
-
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
 
     public Animator animator;
-
-    private void Awake()
-    {
-        EquipWeapon(startingWeapon, 0);
-        SwitchWeapon(0);
-    }
 
     private void Start()
     {
@@ -166,7 +156,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var healing = new TreeAction(ActionHealing);
         var died = new TreeAction(ActionDied);
 
-        
+
         var imMoving = new TreeQuestion(ImMoving, moving, idle);
         var imHealing = new TreeQuestion(ImHealing, healing, imMoving);
         var imDodge = new TreeQuestion(ImDodge, dodge, imHealing);
@@ -214,17 +204,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (Input.GetKeyDown(KeyCode.E))
         {
             Interact();
-        }
-
-        // Cambiar de arma con teclas 1 y 2
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            SwitchWeapon(0);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            SwitchWeapon(1);
         }
     }
 
@@ -291,50 +270,4 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         catch { }
     }
-
-    #region WEAPON_CONTROL
-    // Equipar un arma
-    public void EquipWeapon(WeaponInfo weapon, int slot)
-    {
-        if (equipedWeapons[slot] == null)
-        {
-            equipedWeapons[slot] = weapon;
-        }
-        else
-        {
-            DiscardWeapon();
-            equipedWeapons[slot] = weapon;
-        }
-    }
-
-    // Descartar el arma en el slot 1
-    private void DiscardWeapon()
-    {
-        if (equipedWeapons[1] != null)
-        {
-            WeaponInfo weapon = equipedWeapons[1];
-            SwitchWeapon(0);
-            equipedWeapons[1] = null;
-            PhotonNetwork.Instantiate(weapon.weaponPrefab.name, new Vector2(transform.position.x - 2, transform.position.y), Quaternion.identity);
-        }
-    }
-
-    public void SwitchWeapon(int weaponSlot)
-    {
-        gameObject.GetComponent<PlayerWeaponController>().UpdateWeaponInfo(equipedWeapons[weaponSlot]);
-        currentWeapon = weaponSlot;
-    }
-
-    public int GetCurrentAmmo()
-    {
-        return _ammo;
-    }
-    #endregion
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawWireSphere(transform.position, interactionRange);
-    }
-
-    
 }
