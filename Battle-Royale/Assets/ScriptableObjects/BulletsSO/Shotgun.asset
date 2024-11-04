@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e0759b2ceafa23429f2100ee3d04654, type: 3}
   m_Name: Shotgun
   m_EditorClassIdentifier: 
-  bulletType: 2
   speed: 20
-  lifeTime: 4
-  dispersion: 0.15
-  damage: 3
+  lifeTime: 0.5
+  damage: 0.3
+  canPierce: 1
+  maxPierceCount: 0
+  damageDropoff: 0.2
+  hitEffect: {fileID: 0}
+  hitSound: {fileID: 0}

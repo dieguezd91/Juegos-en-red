@@ -17,30 +17,43 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
     private int _pierceCount;
     private Rigidbody2D _rb;
 
+    private bool isShotgunPellet = false;
+
     private void Awake()
     {
         _pv = GetComponent<PhotonView>();
         _rb = GetComponent<Rigidbody2D>();
     }
 
-    public void Initialize(BulletTypes type, Vector2 direction)
+    public void Initialize(BulletTypes type, Vector2 direction, bool isPellet = false)
     {
         bulletType = type;
         _initialPosition = transform.position;
         _pierceCount = 0;
-        _currentSpeed = Random.Range(bulletType.speed * 0.8f, bulletType.speed);
-        _currentDamage = bulletType.damage;
+        isShotgunPellet = isPellet;
 
-        // Establecer la velocidad de la bala usando la dirección y velocidad
+        // Los perdigones tienen velocidad más variable
+        if (isShotgunPellet)
+        {
+            _currentSpeed = Random.Range(bulletType.speed * 0.7f, bulletType.speed * 1.1f);
+            _currentDamage = bulletType.damage / 8f; // Dividir el daño entre la cantidad de perdigones
+        }
+        else
+        {
+            _currentSpeed = Random.Range(bulletType.speed * 0.8f, bulletType.speed);
+            _currentDamage = bulletType.damage;
+        }
+
         if (_rb != null)
         {
-            // Importante: Usamos la dirección directamente sin modificaciones
             _rb.velocity = direction.normalized * _currentSpeed;
         }
 
-        if (bulletType.lifeTime > 0)
+        // Los perdigones tienen menor tiempo de vida
+        float lifeTime = isShotgunPellet ? bulletType.lifeTime * 0.7f : bulletType.lifeTime;
+        if (lifeTime > 0)
         {
-            Invoke(nameof(DestroyBullet), bulletType.lifeTime);
+            Invoke(nameof(DestroyBullet), lifeTime);
         }
     }
 
@@ -49,8 +62,11 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
         if (_pv.IsMine && bulletType != null)
         {
             float distance = Vector3.Distance(_initialPosition, transform.position);
-            _currentDamage = bulletType.damage * (1f - (distance * bulletType.damageDropoff));
-            _currentDamage = Mathf.Max(_currentDamage, bulletType.damage * 0.2f);
+
+            // Los perdigones pierden daño más rápido con la distancia
+            float damageDropoff = isShotgunPellet ? bulletType.damageDropoff * 1.5f : bulletType.damageDropoff;
+            _currentDamage = bulletType.damage * (1f - (distance * damageDropoff));
+            _currentDamage = Mathf.Max(_currentDamage, bulletType.damage * 0.1f);
         }
     }
 
@@ -62,10 +78,10 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
         {
             HandlePlayerCollision(collision);
         }
-        else if (collision.CompareTag("Environment"))
-        {
-            DestroyBullet();
-        }
+        //else if (collision.CompareTag("Environment"))
+        //{
+        //    DestroyBullet();
+        //}
     }
 
     private void HandlePlayerCollision(Collider2D collision)
