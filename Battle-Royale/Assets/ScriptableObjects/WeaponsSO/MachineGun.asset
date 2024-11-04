@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383b33b72aafba240b6d139ed52bdf8a, type: 3}
+  m_Name: MachineGun
+  m_EditorClassIdentifier: 
+  weaponName: Machine Gun
+  weaponPrefab: {fileID: 5956566336718996946, guid: 291a24c5221a7f547971c43bf92e2339, type: 3}
+  bulletPrefab: {fileID: 7647438911212485430, guid: 6cd9159b8b9e8d847b3ec7226554ad2b, type: 3}
+  bulletType: {fileID: 11400000, guid: 3950638891380784badcf19b6324d659, type: 2}
+  weaponType: 4
+  fireRate: 0.05
+  reloadTime: 2.5
+  magazineSize: 60
+  bulletSpread: 5
+  automatic: 1
+  shootSound: {fileID: 0}
+  reloadSound: {fileID: 0}
+  muzzleFlashPrefab: {fileID: 0}
+  maxSpread: 20
+  spreadIncreasePerShot: 0.5
+  spreadRecoveryRate: 1
+  recoilAmount: 0.01
+  muzzleFlashDuration: 0.01

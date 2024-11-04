@@ -6,7 +6,7 @@ public enum WeaponType
     Rifle,
     Shotgun,
     SniperRifle,
-    SubmachineGun
+    MachineGun
 }
 
 public interface IWeapon
