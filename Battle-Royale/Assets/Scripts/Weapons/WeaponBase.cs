@@ -4,7 +4,7 @@ using UnityEngine;
 public abstract class WeaponBase : MonoBehaviour, IWeapon
 {
     public WeaponSO weaponData { get; protected set; }
-    protected int currentAmmo;
+    public int currentAmmo;
     protected bool isReloading;
     protected float nextFireTime;
 

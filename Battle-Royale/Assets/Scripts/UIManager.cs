@@ -12,6 +12,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     public static UIManager Instance;
 
     private PlayerController _playerController;
+    private PlayerWeaponController _weaponController;
 
     [SerializeField] private GameObject mainMenuCanvas;    
     [SerializeField] private GameObject hudCanvas;    
@@ -37,6 +38,12 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private Image lifeBar;
     [SerializeField] private Image staminaBar;
     [SerializeField] private Image shieldBar;
+
+    [Header("Weapon UI")]
+    [SerializeField] private TextMeshProUGUI currentWeaponText;
+    [SerializeField] private TextMeshProUGUI ammoText;
+    [SerializeField] private Image weaponIcon;
+
 
     private void Awake()
     {
@@ -77,6 +84,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             UpdateLifeBar();
             UpdateStaminaBar();
             UpdateShieldBar();
+            UpdateAmmoCount();
         }
     }
 
@@ -87,11 +95,53 @@ public class UIManager : MonoBehaviourPunCallbacks
         playBtn.onClick.RemoveAllListeners();
         exitBtn.onClick.RemoveAllListeners();
         PlayerController.OnPlayerControllerInstantiated -= OnPlayerControllerInstantiated;
+        if (_weaponController != null)
+        {
+            _weaponController.OnWeaponChanged -= UpdateWeaponUI;
+        }
     }
 
     private void OnPlayerControllerInstantiated(PlayerController player)
     {
         _playerController = player;
+        _weaponController = player.GetComponent<PlayerWeaponController>();
+
+        if (_weaponController != null)
+        {
+            _weaponController.OnWeaponChanged += UpdateWeaponUI;
+        }
+    }
+
+    private void UpdateWeaponUI(WeaponBase weapon)
+    {
+        if (weapon == null || weapon.weaponData == null) return;
+
+        // Actualizar nombre del arma
+        if (currentWeaponText != null)
+        {
+            currentWeaponText.text = weapon.weaponData.weaponName;
+        }
+
+        // Actualizar icono si existe
+        if (weaponIcon != null && weapon.weaponData.weaponIcon != null)
+        {
+            weaponIcon.sprite = weapon.weaponData.weaponIcon;
+            weaponIcon.enabled = true;
+        }
+
+        UpdateAmmoCount();
+    }
+
+    private void UpdateAmmoCount()
+    {
+        if (_weaponController == null || _weaponController.currentWeapon == null) return;
+
+        if (ammoText != null)
+        {
+            var currentAmmo = _weaponController.currentWeapon.currentAmmo;
+            var maxAmmo = _weaponController.currentWeapon.weaponData.magazineSize;
+            ammoText.text = $"{currentAmmo}/{maxAmmo}";
+        }
     }
 
     public void Play()

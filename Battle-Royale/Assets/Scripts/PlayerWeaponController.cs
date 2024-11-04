@@ -9,7 +9,8 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
     [SerializeField] private Transform playerSprite;
     [SerializeField] private WeaponSO defaultWeapon;
 
-    private WeaponBase currentWeapon;
+    public WeaponBase currentWeapon { get; private set; }
+    public event System.Action<WeaponBase> OnWeaponChanged;
     private Camera mainCamera;
     private bool isFacingLeft = false;
 
@@ -116,6 +117,8 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         if (currentWeapon != null)
         {
             currentWeapon.Initialize(weaponData);
+            // Notificar el cambio de arma
+            OnWeaponChanged?.Invoke(currentWeapon);
         }
     }
 }

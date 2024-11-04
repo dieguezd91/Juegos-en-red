@@ -9,6 +9,7 @@ public class WeaponSO : ScriptableObject
     public GameObject bulletPrefab;
     public BulletTypes bulletType;
     public WeaponType weaponType;
+    public Sprite weaponIcon;
 
     [Header("Stats")]
     public float fireRate = 0.5f;
