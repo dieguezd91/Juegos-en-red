@@ -1,3 +1,4 @@
+using Photon.Pun;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Weapons/Weapon")]
@@ -22,4 +23,14 @@ public class WeaponSO : ScriptableObject
     public AudioClip shootSound;
     public AudioClip reloadSound;
     public GameObject muzzleFlashPrefab;
+
+    public void SpawnWeaponInWorld(Vector3 position, Quaternion rotation)
+    {
+        var weaponPickup = PhotonNetwork.Instantiate("WeaponPickup", position, rotation);
+        var weaponItem = weaponPickup.GetComponent<WeaponItem>();
+        if (weaponItem != null)
+        {
+            weaponItem.SetInfo(this);
+        }
+    }
 }

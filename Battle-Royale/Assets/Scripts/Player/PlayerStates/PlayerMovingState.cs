@@ -14,7 +14,6 @@ public class PlayerMovingState<T> : PlayerStateBase<T>
     public override void Awake()
     {
         base.Awake();
-        Debug.Log("C");
         _playerController.animator.SetBool("IsMoving", true);
     }
 
@@ -43,7 +42,6 @@ public class PlayerMovingState<T> : PlayerStateBase<T>
     public override void Sleep()
     {
         base.Sleep();
-        Debug.Log("D");
         _playerController.animator.SetBool("IsMoving", false);
         _playerController.animator.SetBool("IsSprinting", false);
     }

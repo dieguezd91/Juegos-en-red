@@ -18,8 +18,8 @@ public class WeaponInfo : ItemBase
 
     public override void Spawn(Vector3 position, Quaternion rotation)
     {
-        var temp = Photon.Pun.PhotonNetwork.Instantiate("WeaponCollectable", position, rotation);
-        temp.GetComponent<WeaponItem>().SetInfo(this);
+        var temp = PhotonNetwork.Instantiate("WeaponCollectable", position, rotation);
+        //temp.GetComponent<WeaponItem>().SetInfo(this);
 
     }
 }

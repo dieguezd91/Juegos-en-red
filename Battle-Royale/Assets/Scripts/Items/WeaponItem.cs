@@ -1,18 +1,38 @@
+using Photon.Pun;
+
 public class WeaponItem : CollectableItem
 {
-    private WeaponInfo weaponInfo;
+    private WeaponSO weaponInfo;
+    private PhotonView photonView;
+
+    void Awake()
+    {
+        photonView = GetComponent<PhotonView>();
+    }
+
     void Start()
     {
-        OnCollected += Test;
+        OnCollected += HandleWeaponCollection;
     }
 
-    void Test(PlayerController player)
+    void HandleWeaponCollection(PlayerController player)
     {
-        Photon.Pun.PhotonNetwork.Destroy(this.gameObject);
-        print("Item collected");
+        if (weaponInfo != null)
+        {
+            var weaponController = player.GetComponent<PlayerWeaponController>();
+            if (weaponController != null)
+            {
+                weaponController.EquipWeapon(weaponInfo);
+
+                if (photonView.IsMine)
+                {
+                    PhotonNetwork.Destroy(gameObject);
+                }
+            }
+        }
     }
 
-    public void SetInfo(WeaponInfo info)
+    public void SetInfo(WeaponSO info)
     {
         weaponInfo = info;
     }

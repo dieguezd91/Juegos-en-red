@@ -12,7 +12,7 @@ public class LifeController : MonoBehaviourPunCallbacks
     [SerializeField] public float currentHp;
     [SerializeField] public float maxShield;
     [SerializeField] public float currentShield;
-    [SerializeField] public float shieldDamageReduction = 0.5f; // 50% damage reduction
+    [SerializeField] public float shieldDamageReduction = 0.5f;
 
     private PhotonView _pv;
 
@@ -96,7 +96,6 @@ public class LifeController : MonoBehaviourPunCallbacks
         Debug.Log("Healing started...");
         yield return new WaitForSeconds(HealingDuration);
 
-        // Curación completada
         CompleteHealing(HealingAmount);
     }
 

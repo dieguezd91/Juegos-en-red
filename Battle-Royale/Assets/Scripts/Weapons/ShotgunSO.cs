@@ -7,6 +7,6 @@ public class ShotgunSO : WeaponSO
 {
     [Header("Shotgun Specific")]
     public int pelletCount = 8;
-    public float pelletSpread = 15f; // Dispersión más amplia que las armas normales
-    public float effectiveRange = 10f; // Rango efectivo más corto
+    public float pelletSpread = 15f;
+    public float effectiveRange = 10f;
 }

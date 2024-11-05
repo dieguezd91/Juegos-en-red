@@ -36,10 +36,9 @@ public class PlayerHealingState<T> : PlayerStateBase<T>
     {
         if (_playerController.LifeController._isHealing)
         {
-            _playerController.StopAllCoroutines(); // Detener la corutina de curación
+            _playerController.StopAllCoroutines();
             Debug.Log("Healing interrupted!");
 
-            // Cambiar el estado a Moving, dependiendo de la situación
             _playerController.LifeController._isHealing = false;
             _root.Execute();
         }

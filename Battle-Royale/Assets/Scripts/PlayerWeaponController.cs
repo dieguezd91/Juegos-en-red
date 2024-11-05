@@ -1,4 +1,5 @@
 using Photon.Pun;
+using System;
 using UnityEngine;
 
 public class PlayerWeaponController : MonoBehaviourPunCallbacks
@@ -10,7 +11,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
     [SerializeField] private WeaponSO defaultWeapon;
 
     public WeaponBase currentWeapon { get; private set; }
-    public event System.Action<WeaponBase> OnWeaponChanged;
+    public event Action<WeaponBase> OnWeaponChanged;
     private Camera mainCamera;
     private bool isFacingLeft = false;
 
@@ -47,10 +48,8 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
 
         isFacingLeft = Mathf.Abs(angle) > 90;
 
-        // Ajustar el sprite del personaje
         playerSprite.localScale = new Vector3(isFacingLeft ? -1 : 1, 1, 1);
 
-        // Calcular la rotación del brazo
         float armRotation;
         if (isFacingLeft)
         {
@@ -61,10 +60,8 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
             armRotation = angle;
         }
 
-        // Aplicar rotación al brazo
         arm.rotation = Quaternion.Euler(0, 0, armRotation);
 
-        // Ajustar el arma
         if (currentWeapon != null)
         {
             if (isFacingLeft)
@@ -77,7 +74,6 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
             }
         }
 
-        // Mantener el weaponPlaceHolder sin modificaciones
         weaponPlaceHolder.localScale = Vector3.one;
         weaponPlaceHolder.localRotation = Quaternion.identity;
     }
@@ -91,11 +87,9 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
 
         if (shouldShoot && currentWeapon.CanShoot())
         {
-            // Calcular la dirección del disparo basada en la posición del mouse
             Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
             Vector2 direction = ((Vector2)(mousePosition - transform.position)).normalized;
 
-            // Ya no necesitamos invertir la dirección, usamos la dirección real del mouse
             currentWeapon.Shoot(direction);
         }
     }
@@ -117,7 +111,6 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         if (currentWeapon != null)
         {
             currentWeapon.Initialize(weaponData);
-            // Notificar el cambio de arma
             OnWeaponChanged?.Invoke(currentWeapon);
         }
     }

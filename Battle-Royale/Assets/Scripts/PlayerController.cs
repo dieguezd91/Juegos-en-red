@@ -253,21 +253,45 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    private void Interact()
+    public void Interact()
     {
-        Collider2D[] interactable = new Collider2D[1];
-        interactable[0] = Physics2D.OverlapCircle(transform.position, interactionRange, interactionLayer);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, interactionRange, interactionLayer);
+        Collider2D closestCollider = null;
+        float closestDistance = Mathf.Infinity;
 
-        try
+        foreach (Collider2D col in hitColliders)
         {
-            if (interactable[0] != null)
+            if (col.gameObject == gameObject) continue;
+
+            IInteractable interactable = col.GetComponent<IInteractable>();
+            if (interactable != null)
             {
-                if (interactable[0].TryGetComponent<IInteractable>(out IInteractable interactTarget))
+                float distance = Vector2.Distance(transform.position, col.transform.position);
+                if (distance < closestDistance)
                 {
-                    interactTarget.Interact();
+                    closestDistance = distance;
+                    closestCollider = col;
                 }
             }
         }
-        catch { }
+
+        if (closestCollider != null)
+        {
+            IInteractable closestInteractable = closestCollider.GetComponent<IInteractable>();
+            if (closestInteractable != null)
+            {
+                closestInteractable.Interact();
+            }
+        }
+    }
+
+    public void Interact(LayerMask mask)
+    {
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, interactionRange, mask);
+        foreach (Collider2D col in hitColliders)
+        {
+            IInteractable interactable = col.GetComponent<IInteractable>();
+            if (interactable != null) interactable.Interact();
+        }
     }
 }

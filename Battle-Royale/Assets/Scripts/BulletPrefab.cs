@@ -32,11 +32,10 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
         _pierceCount = 0;
         isShotgunPellet = isPellet;
 
-        // Los perdigones tienen velocidad más variable
         if (isShotgunPellet)
         {
             _currentSpeed = Random.Range(bulletType.speed * 0.7f, bulletType.speed * 1.1f);
-            _currentDamage = bulletType.damage / 8f; // Dividir el daño entre la cantidad de perdigones
+            _currentDamage = bulletType.damage / 8f;
         }
         else
         {
@@ -49,7 +48,6 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
             _rb.velocity = direction.normalized * _currentSpeed;
         }
 
-        // Los perdigones tienen menor tiempo de vida
         float lifeTime = isShotgunPellet ? bulletType.lifeTime * 0.7f : bulletType.lifeTime;
         if (lifeTime > 0)
         {
@@ -63,7 +61,6 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
         {
             float distance = Vector3.Distance(_initialPosition, transform.position);
 
-            // Los perdigones pierden daño más rápido con la distancia
             float damageDropoff = isShotgunPellet ? bulletType.damageDropoff * 1.5f : bulletType.damageDropoff;
             _currentDamage = bulletType.damage * (1f - (distance * damageDropoff));
             _currentDamage = Mathf.Max(_currentDamage, bulletType.damage * 0.1f);
@@ -78,10 +75,6 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
         {
             HandlePlayerCollision(collision);
         }
-        //else if (collision.CompareTag("Environment"))
-        //{
-        //    DestroyBullet();
-        //}
     }
 
     private void HandlePlayerCollision(Collider2D collision)

@@ -98,10 +98,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             SceneManager.ChangeScene(newScene);
         }
-        else
-        {
-            Debug.LogError("SceneController is not initialized. Cannot change scene.");
-        }
     }
 
     public void Quit()
@@ -247,8 +243,6 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         practiceTime = false;
         roundStarted = true;
-
-        //print("Match Started");
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
