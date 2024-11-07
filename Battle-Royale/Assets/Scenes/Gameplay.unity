@@ -229,7 +229,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b35d9e97da8fdd48aae85acfd5ca1a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnPoints: []
+  spawnPoints:
+  - {fileID: 197115439}
+  - {fileID: 1189088253}
+  - {fileID: 546513868}
 --- !u!4 &293091806
 Transform:
   m_ObjectHideFlags: 0
