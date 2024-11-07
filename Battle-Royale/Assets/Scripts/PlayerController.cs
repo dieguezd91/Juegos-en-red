@@ -5,6 +5,8 @@ using Photon.Pun;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
+    public PlayerModel model;
+    
     private FSM<PlayerStateEnum> _fsm;
     private ITreeNode _root;
     public PlayerSO PlayerData;
@@ -19,8 +21,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] private float dashDuration = 0.4f;
     [SerializeField] private float dashCooldown = 3f;
     [SerializeField] public float maxStamina = 100f;
-    [SerializeField] private float staminaRegenRate = 2.5f;
-    [SerializeField] private float staminaDrainRate = 15f;
+    //[SerializeField] private float staminaRegenRate = 2.5f;
+    //[SerializeField] private float staminaDrainRate = 15f;
     [SerializeField] private float dashStaminaCost = 40f;
 
     [SerializeField] private float interactionRange;
@@ -29,7 +31,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private Vector2 _inputMovement;
     public Vector2 InputMovement => _inputMovement;
 
-    public float currentStamina;
+    //public float currentStamina;
     public bool isSprinting;
 
     private bool isDashing;
@@ -46,10 +48,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+        model = new PlayerModel(PlayerData);
+        
         pv = GetComponent<PhotonView>();
         animator = GetComponentInChildren<Animator>();
         _rb = GetComponent<Rigidbody2D>();
-        currentStamina = PlayerData.MaxStamina;
+        //currentStamina = PlayerData.MaxStamina;
         LifeController = GetComponent<LifeController>();
         if (pv.IsMine)
         {
@@ -75,7 +79,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void FixedUpdate()
     {
-        if (pv.IsMine/* && !isDashing*/ && !ImDodge() && !ImHealing())
+        if (pv.IsMine && !ImDodge() && !ImHealing())
         {
             Move();
         }
@@ -183,11 +187,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
             lastDirection = _inputMovement;
         }
 
-        if (Input.GetKey(KeyCode.LeftShift) && currentStamina > 0)
+        if (Input.GetKey(KeyCode.LeftShift) && model.CurrentStamina > 0)
         {
             isSprinting = true;
-            currentStamina -= staminaDrainRate * Time.deltaTime;
-            currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
+            model.CurrentStamina -= model.StaminaDrainRate * Time.deltaTime;
+            model.CurrentStamina = Mathf.Clamp(model.CurrentStamina, 0, maxStamina);
         }
         else
         {
@@ -195,7 +199,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         // Presionar Space para hacer el dash
-        if (Input.GetKeyDown(KeyCode.Space) && canDash && currentStamina >= dashStaminaCost)
+        if (Input.GetKeyDown(KeyCode.Space) && canDash && model.CurrentStamina >= dashStaminaCost)
         {
             isDashing = true;
             StartCoroutine(Dash());
@@ -221,8 +225,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         canDash = false;
 
         // Consumir stamina
-        currentStamina -= dashStaminaCost;
-        currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
+        model.CurrentStamina -= dashStaminaCost;
+        model.CurrentStamina = Mathf.Clamp(model.CurrentStamina, 0, maxStamina);
 
         // Direccion del dash (ultima direccion de movimiento si no hay input actual)
         Vector2 dashDirection = _inputMovement == Vector2.zero ? lastDirection : _inputMovement;
@@ -242,12 +246,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         while (true)
         {
             // Regenerar stamina si no esta corriendo ni haciendo dash
-            if (!isSprinting && !isDashing && currentStamina < maxStamina)
-            {
-                currentStamina += staminaRegenRate/* * Time.deltaTime*/;
-                currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
-            }
-
+            // if (!isSprinting && !isDashing && currentStamina < maxStamina)
+            // {
+            //     currentStamina += staminaRegenRate/* * Time.deltaTime*/;
+            //     currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
+            // }
+            model.RegenerateStamina();
             // Regenerar stamina continuamente
             yield return new WaitForSeconds(1f);
         }

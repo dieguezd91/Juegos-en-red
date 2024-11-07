@@ -121,8 +121,6 @@ MonoBehaviour:
   dashDuration: 0.3
   dashCooldown: 2.5
   maxStamina: 100
-  staminaRegenRate: 2.5
-  staminaDrainRate: 15
   dashStaminaCost: 40
   interactionRange: 0.8
   interactionLayer:
