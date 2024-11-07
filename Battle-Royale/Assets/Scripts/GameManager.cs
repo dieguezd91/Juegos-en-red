@@ -155,8 +155,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void SyncSpawnPoints(int[] indices)
     {
-        spawnPoints = new List<Transform>();
-        availableSpawnPoints = new HashSet<Transform>();
+        //spawnPoints = new List<Transform>();
+        //availableSpawnPoints = new HashSet<Transform>();
 
         foreach (int index in indices)
         {
@@ -193,6 +193,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private void RespawnPlayer(PlayerController playerToRespawn)
     {
+        print("Player Respawn start");
         int playerActorNumber = playerToRespawn.GetComponent<PhotonView>().Owner.ActorNumber;
 
         if (assignedSpawnPoints.TryGetValue(playerActorNumber, out Transform spawnPoint))
@@ -201,6 +202,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             OnPlayerRespawn();
             playerToRespawn.gameObject.SetActive(true);
         }
+
+        print("Player Respawned");
     }
 
     private void RemovePlayer(PlayerController playerToRemove)

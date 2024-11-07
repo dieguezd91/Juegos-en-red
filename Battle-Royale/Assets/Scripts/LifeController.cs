@@ -26,6 +26,18 @@ public class LifeController : MonoBehaviourPunCallbacks
         GameManager.Instance.OnPlayerRespawn += FullRestore;
     }
 
+    //TESTING ONLY************
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            ApplyDamage(1000);
+        }
+
+    }
+
+    //TESTING ONLY************
+
     [PunRPC]
     public void ApplyDamage(float damage)
     {
@@ -71,6 +83,7 @@ public class LifeController : MonoBehaviourPunCallbacks
         {
             //PhotonNetwork.Destroy(gameObject);
             OnDeath(gameObject.GetComponent<PlayerController>());
+            print("On death");
         }
     }
 
