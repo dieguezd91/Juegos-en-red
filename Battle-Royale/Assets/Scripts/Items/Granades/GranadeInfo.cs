@@ -20,6 +20,6 @@ public class GranadeInfo : ItemBase
 
     public void Throw()
     {
-
+        // instantiate explosive granade prefab
     }
 }
