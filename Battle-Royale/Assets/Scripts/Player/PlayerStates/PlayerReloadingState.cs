@@ -28,6 +28,6 @@ public class PlayerReloadingState<T> : PlayerStateBase<T>
     }
     bool CheckState()
     {
-        return _playerController.IsDashing || _playerController.LifeController.currentHp > 0;
+        return _playerController.model.IsDashing || _playerController.LifeController.currentHp > 0;
     }
 }

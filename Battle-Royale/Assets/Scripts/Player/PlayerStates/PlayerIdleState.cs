@@ -16,6 +16,8 @@ public class PlayerIdleState<T> : PlayerStateBase<T>
         if (_playerController.view.Animator != null)
         {
             _playerController.view.Animator.SetBool("IsIdle", true);
+            _playerController.view.Animator.SetBool("IsMoving", false);
+            _playerController.view.Animator.SetBool("IsSprinting", false);
         }
     }
 
@@ -41,6 +43,6 @@ public class PlayerIdleState<T> : PlayerStateBase<T>
     }
     bool CheckState()
     {
-        return _playerController.InputMovement != Vector2.zero || _playerController.IsDashing || _playerController.LifeController.currentHp < 0f;
+        return _playerController.InputMovement != Vector2.zero || _playerController.model.IsDashing || _playerController.LifeController.currentHp < 0f;
     }
 }
