@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 5654495051834946605}
   - component: {fileID: 8528791190181879423}
   - component: {fileID: 2630659901260837683}
+  - component: {fileID: 9195601304943224537}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -111,6 +112,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57cd67aff5c635c42ba2a672801f6c3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  view: {fileID: 0}
   PlayerData: {fileID: 11400000, guid: 74a3822d87a0a5d4dba4fc01e6fdd20b, type: 2}
   LifeController: {fileID: 0}
   _currentState: 0
@@ -121,16 +123,12 @@ MonoBehaviour:
   dashDuration: 0.3
   dashCooldown: 2.5
   maxStamina: 100
-  staminaRegenRate: 2.5
-  staminaDrainRate: 15
   dashStaminaCost: 40
   interactionRange: 0.8
   interactionLayer:
     serializedVersion: 2
     m_Bits: 512
-  currentStamina: 0
   isSprinting: 0
-  animator: {fileID: 0}
 --- !u!114 &1253433008755915443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,6 +277,18 @@ Rigidbody2D:
   m_SleepingMode: 0
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &9195601304943224537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4756130146139878315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ccb63e723185de4eb39ad2c9d89f4f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5409963554079505968
 GameObject:
   m_ObjectHideFlags: 0

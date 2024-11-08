@@ -189,7 +189,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         if (_playerController.pv.IsMine)
         {
-            var staminaPercentage = _playerController.currentStamina / _playerController.maxStamina;
+            var staminaPercentage = _playerController.model.CurrentStamina / _playerController.model.MaxStamina;
             staminaBar.fillAmount = staminaPercentage;
             staminaBar.color = GetStaminaColor(staminaPercentage);
         }
