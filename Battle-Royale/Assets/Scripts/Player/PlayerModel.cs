@@ -15,6 +15,11 @@ public class PlayerModel
     public int CurrentWeapon { get; set; }
     public WeaponInfo[] EquippedWeapons { get; set; }
 
+    public float StaminaRegenRate { get; set; }
+    public float StaminaDrainRate { get; set; }
+    public float DashDuration { get; set; }
+    
+    
     public PlayerModel(PlayerSO playerData)
     {
         PlayerData = playerData;
@@ -25,5 +30,23 @@ public class PlayerModel
         LastDirection = Vector2.up;
         CanDash = true;
         EquippedWeapons = new WeaponInfo[2];
+        StaminaDrainRate = playerData.StaminaDrainRate;
+        StaminaRegenRate = playerData.StaminaRegenRate;
+        DashDuration = playerData.DashDuration;
+        
+    }
+    public void RegenerateStamina()
+    {
+        if (!IsSprinting && !IsDashing && CurrentStamina < MaxStamina)
+        {
+            CurrentStamina += StaminaRegenRate;
+            CurrentStamina = Mathf.Clamp(CurrentStamina, 0, MaxStamina);
+        }
+    }
+
+    public void StaminaCost(float cost)
+    {
+        CurrentStamina -= cost;
+        CurrentStamina = Mathf.Clamp(CurrentStamina, 0, MaxStamina);
     }
 }
