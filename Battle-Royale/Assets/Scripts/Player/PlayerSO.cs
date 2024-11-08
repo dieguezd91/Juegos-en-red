@@ -10,10 +10,12 @@ public class PlayerSO : ScriptableObject
     [SerializeField] private float _maxStamina;
     [SerializeField] private float _staminaDrainRate;
     [SerializeField] private float _staminaRegenRate;
+    [SerializeField] private float _dashDuration;
     public float MaxHP => _maxHP;
     public float MaxShield => _maxShield;
     public float MaxStamina => _maxStamina;
     public float StaminaDrainRate => _staminaDrainRate;
     public float StaminaRegenRate => _staminaRegenRate;
+    public float DashDuration => _dashDuration;
 
 }

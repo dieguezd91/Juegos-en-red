@@ -19,11 +19,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] private float speedMovement = 5f;
     [SerializeField] private float sprintSpeed = 8f;
     [SerializeField] private float dashSpeed = 15f;
-    [SerializeField] private float dashDuration = 0.4f;
     [SerializeField] private float dashCooldown = 3f;
     [SerializeField] public float maxStamina = 100f;
-    //[SerializeField] private float staminaRegenRate = 2.5f;
-    //[SerializeField] private float staminaDrainRate = 15f;
     [SerializeField] private float dashStaminaCost = 40f;
 
     [SerializeField] private float interactionRange;
@@ -31,21 +28,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private Vector2 _inputMovement;
     public Vector2 InputMovement => _inputMovement;
-
-    //public float currentStamina;
-    public bool isSprinting;
-
-    private bool isDashing;
-    public bool IsDashing => isDashing;
-
-    private bool canDash = true;
+    
     private int _ammo;
 
     private Vector2 lastDirection = Vector2.up;
 
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
-
-    //public Animator animator;
 
     private void Start()
     {
@@ -53,9 +41,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         view = GetComponent<PlayerView>();
         
         pv = GetComponent<PhotonView>();
-        //animator = GetComponentInChildren<Animator>();
         _rb = GetComponent<Rigidbody2D>();
-        //currentStamina = PlayerData.MaxStamina;
         LifeController = GetComponent<LifeController>();
         if (pv.IsMine)
         {
@@ -142,7 +128,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #region QUESTIONS-PLAYER
     bool ImAlive() => LifeController.currentHp > 0f;
     bool ImMoving() => InputMovement != Vector2.zero;
-    bool ImDodge() => isDashing;
+    bool ImDodge() => model.IsDashing;
     bool ImHealing() => LifeController._isHealing;
     //bool ImReloading() => _isReloading;
     #endregion
@@ -181,21 +167,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
             lastDirection = _inputMovement;
         }
 
-        if (Input.GetKey(KeyCode.LeftShift) && model.CurrentStamina > 0)
+        if (Input.GetKey(KeyCode.LeftShift) && model.CurrentStamina > 0 && ImMoving())
         {
-            isSprinting = true;
+            model.IsSprinting = true;
             model.CurrentStamina -= model.StaminaDrainRate * Time.deltaTime;
             model.CurrentStamina = Mathf.Clamp(model.CurrentStamina, 0, maxStamina);
         }
         else
         {
-            isSprinting = false;
+            model.IsSprinting = false;
         }
 
         // Presionar Space para hacer el dash
-        if (Input.GetKeyDown(KeyCode.Space) && canDash && model.CurrentStamina >= dashStaminaCost)
+        if (Input.GetKeyDown(KeyCode.Space) && model.CanDash && model.CurrentStamina >= dashStaminaCost)
         {
-            isDashing = true;
+            model.IsDashing = true;
             StartCoroutine(Dash());
         }
 
@@ -207,7 +193,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void Move()
     {
-        float movementSpeed = isSprinting ? sprintSpeed : speedMovement;
+        float movementSpeed = model.IsSprinting ? sprintSpeed : speedMovement;
 
         _rb.velocity = _inputMovement * movementSpeed;
         _rb.rotation = 0f;
@@ -215,36 +201,31 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private IEnumerator Dash()
     {
-        isDashing = true;
-        canDash = false;
+        model.IsDashing = true;
+        model.CanDash = false;
 
         // Consumir stamina
-        model.CurrentStamina -= dashStaminaCost;
-        model.CurrentStamina = Mathf.Clamp(model.CurrentStamina, 0, maxStamina);
+        // model.CurrentStamina -= dashStaminaCost;
+        // model.CurrentStamina = Mathf.Clamp(model.CurrentStamina, 0, maxStamina);
+        model.StaminaCost(dashStaminaCost);
 
         // Direccion del dash (ultima direccion de movimiento si no hay input actual)
         Vector2 dashDirection = _inputMovement == Vector2.zero ? lastDirection : _inputMovement;
         _rb.velocity = dashDirection * dashSpeed;
 
-        yield return new WaitForSeconds(dashDuration);
+        yield return new WaitForSeconds(model.DashDuration);
 
-        isDashing = false;
+        model.IsDashing = false;
 
         // Esperar el cooldown antes de permitir otro dash
         yield return new WaitForSeconds(dashCooldown);
-        canDash = true;
+        model.CanDash = true;
     }
 
     private IEnumerator RegenerateStamina()
     {
         while (true)
         {
-            // Regenerar stamina si no esta corriendo ni haciendo dash
-            // if (!isSprinting && !isDashing && currentStamina < maxStamina)
-            // {
-            //     currentStamina += staminaRegenRate/* * Time.deltaTime*/;
-            //     currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
-            // }
             model.RegenerateStamina();
             // Regenerar stamina continuamente
             yield return new WaitForSeconds(1f);

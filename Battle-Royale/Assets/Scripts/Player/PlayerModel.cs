@@ -17,8 +17,9 @@ public class PlayerModel
 
     public float StaminaRegenRate { get; set; }
     public float StaminaDrainRate { get; set; }
-    // public float StaminaRegenRate = 2.5f;
-    // public float StaminaDrainRate = 15f;
+    public float DashDuration { get; set; }
+    
+    
     public PlayerModel(PlayerSO playerData)
     {
         PlayerData = playerData;
@@ -31,6 +32,8 @@ public class PlayerModel
         EquippedWeapons = new WeaponInfo[2];
         StaminaDrainRate = playerData.StaminaDrainRate;
         StaminaRegenRate = playerData.StaminaRegenRate;
+        DashDuration = playerData.DashDuration;
+        
     }
     public void RegenerateStamina()
     {
@@ -39,5 +42,11 @@ public class PlayerModel
             CurrentStamina += StaminaRegenRate;
             CurrentStamina = Mathf.Clamp(CurrentStamina, 0, MaxStamina);
         }
+    }
+
+    public void StaminaCost(float cost)
+    {
+        CurrentStamina -= cost;
+        CurrentStamina = Mathf.Clamp(CurrentStamina, 0, MaxStamina);
     }
 }
