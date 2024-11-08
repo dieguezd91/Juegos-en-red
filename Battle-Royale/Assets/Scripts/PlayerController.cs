@@ -6,6 +6,7 @@ using Photon.Pun;
 public class PlayerController : MonoBehaviourPunCallbacks
 {
     public PlayerModel model;
+    public PlayerView view;
     
     private FSM<PlayerStateEnum> _fsm;
     private ITreeNode _root;
@@ -44,14 +45,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
 
-    public Animator animator;
+    //public Animator animator;
 
     private void Start()
     {
         model = new PlayerModel(PlayerData);
+        view = GetComponent<PlayerView>();
         
         pv = GetComponent<PhotonView>();
-        animator = GetComponentInChildren<Animator>();
+        //animator = GetComponentInChildren<Animator>();
         _rb = GetComponent<Rigidbody2D>();
         //currentStamina = PlayerData.MaxStamina;
         LifeController = GetComponent<LifeController>();
@@ -66,14 +68,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        //if (pv.IsMine)
-        //{
-        //    HandleInput();
-        //}
-        //if (LifeController.CanHeal() && !LifeController._isHealing && Input.GetKey(KeyCode.K)) //Input Provisorio
-        //{
-        //    LifeController.StartHealing();
-        //}
         _fsm.OnUpdate();
     }
 

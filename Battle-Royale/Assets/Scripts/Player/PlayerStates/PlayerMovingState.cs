@@ -14,7 +14,7 @@ public class PlayerMovingState<T> : PlayerStateBase<T>
     public override void Awake()
     {
         base.Awake();
-        _playerController.animator.SetBool("IsMoving", true);
+        _playerController.view.Animator.SetBool("IsMoving", true);
     }
 
     public override void Execute()
@@ -27,13 +27,13 @@ public class PlayerMovingState<T> : PlayerStateBase<T>
 
         if (_playerController.isSprinting)
         {
-            _playerController.animator.SetBool("IsSprinting", true);
-            _playerController.animator.SetBool("IsMoving", false);
+            _playerController.view.Animator.SetBool("IsSprinting", true);
+            _playerController.view.Animator.SetBool("IsMoving", false);
         }
         else
         {
-            _playerController.animator.SetBool("IsSprinting", false);
-            _playerController.animator.SetBool("IsMoving", true);
+            _playerController.view.Animator.SetBool("IsSprinting", false);
+            _playerController.view.Animator.SetBool("IsMoving", true);
         }
 
         if (CheckState()) _root.Execute();
@@ -42,8 +42,8 @@ public class PlayerMovingState<T> : PlayerStateBase<T>
     public override void Sleep()
     {
         base.Sleep();
-        _playerController.animator.SetBool("IsMoving", false);
-        _playerController.animator.SetBool("IsSprinting", false);
+        _playerController.view.Animator.SetBool("IsMoving", false);
+        _playerController.view.Animator.SetBool("IsSprinting", false);
     }
 
     bool CheckState()

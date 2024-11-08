@@ -13,9 +13,9 @@ public class PlayerIdleState<T> : PlayerStateBase<T>
     public override void Awake()
     {
         base.Awake();
-        if (_playerController.animator != null)
+        if (_playerController.view.Animator != null)
         {
-            _playerController.animator.SetBool("IsIdle", true);
+            _playerController.view.Animator.SetBool("IsIdle", true);
         }
     }
 
@@ -34,9 +34,9 @@ public class PlayerIdleState<T> : PlayerStateBase<T>
     public override void Sleep()
     {
         base.Sleep();
-        if (_playerController.animator != null)
+        if (_playerController.view.Animator != null)
         {
-            _playerController.animator.SetBool("IsIdle", false);
+            _playerController.view.Animator.SetBool("IsIdle", false);
         }
     }
     bool CheckState()
