@@ -7,39 +7,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
 {
     public PlayerModel model;
     public PlayerView view;
-    
     private FSM<PlayerStateEnum> _fsm;
     private ITreeNode _root;
     public PlayerSO PlayerData;
     public LifeController LifeController;
-    public PlayerStateEnum _currentState = PlayerStateEnum.Idle;
-
     public PhotonView pv;
     private Rigidbody2D _rb;
-    [SerializeField] private float speedMovement = 5f;
-    [SerializeField] private float sprintSpeed = 8f;
-    [SerializeField] private float dashSpeed = 15f;
-    [SerializeField] private float dashCooldown = 3f;
-    [SerializeField] public float maxStamina = 100f;
-    [SerializeField] private float dashStaminaCost = 40f;
-
-    [SerializeField] private float interactionRange;
-    [SerializeField] private LayerMask interactionLayer;
 
     private Vector2 _inputMovement;
     public Vector2 InputMovement => _inputMovement;
-    
-    private int _ammo;
-
     private Vector2 lastDirection = Vector2.up;
-
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
+    
+    //private int _ammo;
 
     private void Start()
     {
         model = new PlayerModel(PlayerData);
         view = GetComponent<PlayerView>();
-        
         pv = GetComponent<PhotonView>();
         _rb = GetComponent<Rigidbody2D>();
         LifeController = GetComponent<LifeController>();
@@ -169,9 +154,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (Input.GetKey(KeyCode.LeftShift) && model.CurrentStamina > 0 && ImMoving())
         {
-            model.IsSprinting = true;
-            model.CurrentStamina -= model.StaminaDrainRate * Time.deltaTime;
-            model.CurrentStamina = Mathf.Clamp(model.CurrentStamina, 0, maxStamina);
+            model.Sprint(model.StaminaDrainRate);
         }
         else
         {
@@ -179,7 +162,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         // Presionar Space para hacer el dash
-        if (Input.GetKeyDown(KeyCode.Space) && model.CanDash && model.CurrentStamina >= dashStaminaCost)
+        if (Input.GetKeyDown(KeyCode.Space) && model.CanDash && model.CurrentStamina >= model.DashStaminaCost)
         {
             model.IsDashing = true;
             StartCoroutine(Dash());
@@ -193,8 +176,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void Move()
     {
-        float movementSpeed = model.IsSprinting ? sprintSpeed : speedMovement;
-
+        float movementSpeed = model.IsSprinting ? model.SprintSpeed : model.SpeedMovement;
         _rb.velocity = _inputMovement * movementSpeed;
         _rb.rotation = 0f;
     }
@@ -205,20 +187,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
         model.CanDash = false;
 
         // Consumir stamina
-        // model.CurrentStamina -= dashStaminaCost;
-        // model.CurrentStamina = Mathf.Clamp(model.CurrentStamina, 0, maxStamina);
-        model.StaminaCost(dashStaminaCost);
+        model.StaminaCost(model.DashStaminaCost);
 
         // Direccion del dash (ultima direccion de movimiento si no hay input actual)
         Vector2 dashDirection = _inputMovement == Vector2.zero ? lastDirection : _inputMovement;
-        _rb.velocity = dashDirection * dashSpeed;
+        _rb.velocity = dashDirection * model.DashSpeed;
 
         yield return new WaitForSeconds(model.DashDuration);
 
         model.IsDashing = false;
 
         // Esperar el cooldown antes de permitir otro dash
-        yield return new WaitForSeconds(dashCooldown);
+        yield return new WaitForSeconds(model.DashCooldown);
         model.CanDash = true;
     }
 
@@ -226,15 +206,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         while (true)
         {
-            model.RegenerateStamina();
             // Regenerar stamina continuamente
+            model.RegenerateStamina();
             yield return new WaitForSeconds(1f);
         }
     }
 
     public void Interact()
     {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, interactionRange, interactionLayer);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, model.InteractionRange, model.InteractionLayer);
         Collider2D closestCollider = null;
         float closestDistance = Mathf.Infinity;
 
@@ -266,7 +246,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     public void Interact(LayerMask mask)
     {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, interactionRange, mask);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, model.InteractionRange, mask);
         foreach (Collider2D col in hitColliders)
         {
             IInteractable interactable = col.GetComponent<IInteractable>();
