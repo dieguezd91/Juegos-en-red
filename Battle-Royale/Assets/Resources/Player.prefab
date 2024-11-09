@@ -120,15 +120,11 @@ MonoBehaviour:
   speedMovement: 8
   sprintSpeed: 16
   dashSpeed: 20
-  dashDuration: 0.3
   dashCooldown: 2.5
-  maxStamina: 100
-  dashStaminaCost: 40
   interactionRange: 0.8
   interactionLayer:
     serializedVersion: 2
     m_Bits: 512
-  isSprinting: 0
 --- !u!114 &1253433008755915443
 MonoBehaviour:
   m_ObjectHideFlags: 0
