@@ -22,16 +22,23 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject playPanel;
     [SerializeField] private GameObject loadingPanel;
     [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private GameObject RoomCreationPanel;
 
     [SerializeField] public TMP_InputField createInput;
     [SerializeField] public TMP_InputField joinInput;
-    [SerializeField] private GameObject createInputGo;
+    //[SerializeField] private GameObject createInputGo;
     [SerializeField] private GameObject joinInputGo;
 
     [SerializeField] private Button createButton;
+    [SerializeField] private Button createRoomButton;
+    [SerializeField] private Button backToMenuCR;
     [SerializeField] private Button joinButton;
     [SerializeField] private Button playBtn;
     [SerializeField] private Button exitBtn;
+    [SerializeField] private Toggle isPrivate;
+    private bool isPrivateValue;
+    [SerializeField] private TMP_Dropdown maxPlayers;
+    private int maxPlayersValue;
 
     [Header ("HUD")]
     [SerializeField] private GameObject timer;
@@ -57,9 +64,15 @@ public class UIManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         playBtn.onClick.AddListener(Play);
-        createButton.onClick.AddListener(GameManager.Instance.CreateRoom);
+        backToMenuCR.onClick.AddListener(ShowHideRoomCreateScreen);
+        createRoomButton.onClick.AddListener(ShowHideRoomCreateScreen);
+        createButton.onClick.AddListener(RequestRoomCreation);
         joinButton.onClick.AddListener(GameManager.Instance.JoinRoom);
         exitBtn.onClick.AddListener(GameManager.Instance.Quit);
+        maxPlayers.onValueChanged.AddListener(SetMaxPlayers);
+
+        maxPlayersValue = maxPlayers.value;
+        isPrivateValue = isPrivate.isOn;
     }
 
     private void Update()
@@ -99,6 +112,24 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             _weaponController.OnWeaponChanged -= UpdateWeaponUI;
         }
+    }
+
+    private void SetMaxPlayers(int value)
+    {
+        if(value < 14)
+        {
+            maxPlayersValue = value + 2;
+        }
+        else
+        {
+            maxPlayersValue = 1;
+        }
+        
+    }
+
+    private void RequestRoomCreation()
+    {
+        GameManager.Instance.CreateRoom(maxPlayersValue, isPrivateValue);
     }
 
     private void OnPlayerControllerInstantiated(PlayerController player)
@@ -150,6 +181,19 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             if(!playPanel.activeInHierarchy) 
                 playPanel.SetActive(true);
+        }
+    }
+
+    public void ShowHideRoomCreateScreen()
+    {
+        if (RoomCreationPanel != null)
+        {
+            if (!RoomCreationPanel.activeInHierarchy)
+                RoomCreationPanel.SetActive(true);
+            else if (RoomCreationPanel.activeInHierarchy)
+            {
+                RoomCreationPanel.SetActive(false);
+            }
         }
     }
 

@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public SceneController SceneManager { get; private set; }
 
     [SerializeField] public float roundDuration;
-    [SerializeField] private int maxPlayers = 16;
+    [SerializeField] private int maxPlayers = 2;
 
     private List<Transform> spawnPoints = new List<Transform>();
     public List<Transform> SpawnPoints { get { return spawnPoints; } }
@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                     pv.RPC("UpdateMaxPlayers", RpcTarget.AllBuffered, maxPlayers);
                 }
 
-                if (roomInitialized && roundStarted == false && playerList.Count == maxPlayers)
+                if (roundStarted == false && roomInitialized && playerList.Count == maxPlayers)
                 {
                     OnPracticeTimeOver();
                     pv.RPC("StartMatch", RpcTarget.All);
@@ -82,9 +82,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         inRoom = true;
     }
 
-    public void CreateRoom()
+    public void CreateRoom(int _maxPlayers, bool isPrivate)
     {
         var roomConfig = new RoomOptions();
+        roomConfig.MaxPlayers = _maxPlayers;
+        maxPlayers = _maxPlayers;
+        roomConfig.IsVisible = isPrivate;
         PhotonNetwork.CreateRoom(UIManager.Instance.createInput.text, roomConfig);
         inRoom = true;
     }
