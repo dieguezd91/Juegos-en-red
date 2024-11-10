@@ -121,8 +121,6 @@ MonoBehaviour:
   sprintSpeed: 16
   dashSpeed: 20
   dashCooldown: 2.5
-  maxStamina: 100
-  dashStaminaCost: 40
   interactionRange: 0.8
   interactionLayer:
     serializedVersion: 2
