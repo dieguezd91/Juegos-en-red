@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private bool practiceTime = true;
     private bool roundStarted = false;
     private bool inRoom;
-    private bool roomInitialized = false;
+    //private bool roomInitialized = false;
     public bool PracticeTime { get { return practiceTime; } }
 
     public event System.Action OnPracticeTimeOver = delegate { };
@@ -51,6 +51,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         if (!PhotonNetwork.IsConnected)
             PhotonNetwork.ConnectUsingSettings();
+
+        OnPracticeTimeOver += Test;
+    }
+
+    private void Test()
+    {
+        print("OnRoundStarted");
     }
 
     private void Update()
@@ -59,12 +66,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                if (roomInitialized)
+                if (inRoom)
                 {
                     pv.RPC("UpdateMaxPlayers", RpcTarget.AllBuffered, maxPlayers);
                 }
 
-                if (roundStarted == false && roomInitialized && playerList.Count == maxPlayers)
+                if (roundStarted == false && inRoom && playerList.Count == maxPlayers)
                 {
                     OnPracticeTimeOver();
                     pv.RPC("StartMatch", RpcTarget.All);
@@ -247,7 +254,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         OnPracticeTimeOver();
-        print("Practice time Over");
+        print("Match started");
 
         practiceTime = false;
         roundStarted = true;

@@ -69,10 +69,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         createButton.onClick.AddListener(RequestRoomCreation);
         joinButton.onClick.AddListener(GameManager.Instance.JoinRoom);
         exitBtn.onClick.AddListener(GameManager.Instance.Quit);
-        maxPlayers.onValueChanged.AddListener(SetMaxPlayers);
+        //maxPlayers.onValueChanged.AddListener(SetMaxPlayers);
 
-        maxPlayersValue = maxPlayers.value;
-        isPrivateValue = isPrivate.isOn;
+        //maxPlayersValue = maxPlayers.value;
+        //isPrivateValue = isPrivate.isOn;
     }
 
     private void Update()
@@ -114,22 +114,24 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    private void SetMaxPlayers(int value)
+    private int SetMaxPlayers()
     {
-        if(value < 14)
-        {
-            maxPlayersValue = value + 2;
-        }
-        else
-        {
-            maxPlayersValue = 1;
-        }
-        
+        //if(value < 14)
+        //{
+        //maxPlayersValue = value + 2;
+
+        return maxPlayers.value + 2;
+        //}
+        //else
+        //{
+        //    maxPlayersValue = 1;
+        //}
+
     }
 
     private void RequestRoomCreation()
     {
-        GameManager.Instance.CreateRoom(maxPlayersValue, isPrivateValue);
+        GameManager.Instance.CreateRoom(SetMaxPlayers(), isPrivate.isOn);
     }
 
     private void OnPlayerControllerInstantiated(PlayerController player)
