@@ -23,3 +23,7 @@ MonoBehaviour:
   _sprintSpeed: 8
   _dashSpeed: 15
   _dashCooldown: 3
+  _interactionRange: 2
+  _interactionLayer:
+    serializedVersion: 2
+    m_Bits: 512
