@@ -115,16 +115,7 @@ MonoBehaviour:
   view: {fileID: 0}
   PlayerData: {fileID: 11400000, guid: 74a3822d87a0a5d4dba4fc01e6fdd20b, type: 2}
   LifeController: {fileID: 0}
-  _currentState: 0
   pv: {fileID: 0}
-  speedMovement: 8
-  sprintSpeed: 16
-  dashSpeed: 20
-  dashCooldown: 2.5
-  interactionRange: 0.8
-  interactionLayer:
-    serializedVersion: 2
-    m_Bits: 512
 --- !u!114 &1253433008755915443
 MonoBehaviour:
   m_ObjectHideFlags: 0

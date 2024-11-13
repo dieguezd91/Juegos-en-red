@@ -51,6 +51,10 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private TextMeshProUGUI ammoText;
     [SerializeField] private Image weaponIcon;
 
+    [Header("Countdown")]
+    [SerializeField] private GameObject countdownPanel;
+    [SerializeField] private TextMeshProUGUI countdownText;
+
 
     private void Awake()
     {
@@ -58,7 +62,9 @@ public class UIManager : MonoBehaviourPunCallbacks
         else Destroy(gameObject);
         DontDestroyOnLoad(gameObject);
 
-        PlayerController.OnPlayerControllerInstantiated += OnPlayerControllerInstantiated;        
+        PlayerController.OnPlayerControllerInstantiated += OnPlayerControllerInstantiated;
+
+        HideCountdown();
     }
 
     private void Start()
@@ -73,6 +79,12 @@ public class UIManager : MonoBehaviourPunCallbacks
 
         //maxPlayersValue = maxPlayers.value;
         //isPrivateValue = isPrivate.isOn;
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnCountdownUpdate += UpdateCountdownDisplay;
+            GameManager.Instance.OnCountdownComplete += HideCountdown;
+        }
     }
 
     private void Update()
@@ -88,8 +100,12 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             mainMenuCanvas.SetActive(false);
             hudCanvas.SetActive(true);
-            var remainingTime = GameManager.Instance.roundDuration;
-            timer.gameObject.GetComponent<TextMeshProUGUI>().text = FormatTime(remainingTime);
+
+            float remainingTime = GameManager.Instance.GetCurrentRoundTime();
+            if (timer != null && timer.gameObject != null)
+            {
+                timer.gameObject.GetComponent<TextMeshProUGUI>().text = FormatTime(remainingTime);
+            }
         }
 
         if (_playerController != null && _playerController.pv.IsMine)
@@ -98,6 +114,14 @@ public class UIManager : MonoBehaviourPunCallbacks
             UpdateStaminaBar();
             UpdateShieldBar();
             UpdateAmmoCount();
+        }
+
+        if (GameManager.Instance != null && (!GameManager.Instance.PracticeTime || !GameManager.Instance.IsCountingDown))
+        {
+            if (countdownPanel != null && countdownPanel.activeSelf)
+            {
+                HideCountdown();
+            }
         }
     }
 
@@ -111,6 +135,11 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (_weaponController != null)
         {
             _weaponController.OnWeaponChanged -= UpdateWeaponUI;
+        }
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnCountdownUpdate -= UpdateCountdownDisplay;
+            GameManager.Instance.OnCountdownComplete -= HideCountdown;
         }
     }
 
@@ -268,8 +297,45 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private string FormatTime(float time)
     {
-        var minutes = Mathf.FloorToInt((time % 3600) / 60);
+        time = Mathf.Max(0, time);
+        var minutes = Mathf.FloorToInt(time / 60);
         var seconds = Mathf.FloorToInt(time % 60);
         return $"{minutes:D2}:{seconds:D2}";
+    }
+
+    private void UpdateCountdownDisplay(int currentCount)
+    {
+        if (countdownPanel != null && countdownText != null &&
+            GameManager.Instance.SceneManager.SceneIndex == "Gameplay" &&
+            GameManager.Instance.PracticeTime &&
+            GameManager.Instance.IsCountingDown)
+        {
+            countdownPanel.SetActive(true);
+            countdownText.gameObject.SetActive(true);
+            countdownText.text = currentCount.ToString();
+
+            if (currentCount <= 3)
+            {
+                countdownText.fontSize = 72;
+                countdownText.color = Color.red;
+            }
+            else
+            {
+                countdownText.fontSize = 48;
+                countdownText.color = Color.white;
+            }
+        }
+    }
+
+    private void HideCountdown()
+    {
+        if (countdownPanel != null)
+        {
+            countdownPanel.SetActive(false);
+        }
+        if (countdownText != null)
+        {
+            countdownText.gameObject.SetActive(false);
+        }
     }
 }

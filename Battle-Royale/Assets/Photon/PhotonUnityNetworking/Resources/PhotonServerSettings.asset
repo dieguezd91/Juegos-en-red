@@ -50,6 +50,13 @@ MonoBehaviour:
   - ReleaseSpawnPoint
   - SyncSpawnPoints
   - DestroyWeapon
+  - EndMatch
+  - StartCountdown
+  - EnsureCountdownHidden
+  - StartNetworkCountdown
+  - SyncMatchStart
+  - SyncPhaseStart
+  - SyncZoneStart
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

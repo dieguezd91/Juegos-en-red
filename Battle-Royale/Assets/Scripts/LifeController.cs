@@ -58,8 +58,6 @@ public class LifeController : MonoBehaviourPunCallbacks
                 currentHp -= remainingDamage;
             }
 
-            Debug.Log($"Current HP: {currentHp}, Current Shield: {currentShield}");
-
             if (currentHp <= 0)
             {
                 Die();
