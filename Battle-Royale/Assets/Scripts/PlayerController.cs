@@ -171,6 +171,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (Input.GetKeyDown(KeyCode.E))
         {
             Interact();
+            print("Player Interacted");
         }
     }
 

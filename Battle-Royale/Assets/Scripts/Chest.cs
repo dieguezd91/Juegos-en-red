@@ -18,6 +18,7 @@ public class Chest : MonoBehaviour, IInteractable
 
     public void Interact()
     {
+        print("Chest Interacted");
         if (_open == false && pv != null)
         {
             pv.RPC("OpenChest", RpcTarget.AllViaServer);

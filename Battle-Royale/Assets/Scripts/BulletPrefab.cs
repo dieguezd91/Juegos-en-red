@@ -75,6 +75,10 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
         {
             HandlePlayerCollision(collision);
         }
+        else if (collision.gameObject.layer == 11/*Wall layer*/)
+        {
+            DestroyBullet();
+        }
     }
 
     private void HandlePlayerCollision(Collider2D collision)
