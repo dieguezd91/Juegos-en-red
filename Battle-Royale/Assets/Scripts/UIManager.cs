@@ -116,17 +116,13 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private int SetMaxPlayers()
     {
-        //if(value < 14)
-        //{
-        //maxPlayersValue = value + 2;
+        if(maxPlayers.value <= 14)
+        {
+            return maxPlayers.value + 2;
+        }
 
-        return maxPlayers.value + 2;
-        //}
-        //else
-        //{
-        //    maxPlayersValue = 1;
-        //}
-
+        return 1;
+            
     }
 
     private void RequestRoomCreation()

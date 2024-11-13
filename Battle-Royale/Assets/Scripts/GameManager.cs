@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
                 if (roundStarted == false && inRoom && playerList.Count == maxPlayers)
                 {
-                    OnPracticeTimeOver();
+                    //OnPracticeTimeOver();
                     pv.RPC("StartMatch", RpcTarget.All);
                     roundStarted = true;
                 }
@@ -218,9 +218,31 @@ public class GameManager : MonoBehaviourPunCallbacks
         print("Player Respawned");
     }
 
-    private void RemovePlayer(PlayerController playerToRemove)
+    public void RemovePlayer(PlayerController playerToRemove)
     {
+        if (playerToRemove.pv.IsMine)
+        {
+            PhotonNetwork.LeaveRoom();
+            ResetBools();
+            ClearLists();            
+            ChangeScene("MainMenu");
+        }
+    }
 
+    private void ClearLists()
+    {
+        playerList.Clear();
+        playerSpawns.Clear();
+        spawnPoints.Clear();
+        availableSpawnPoints.Clear();
+        assignedSpawnPoints.Clear();
+    }
+
+    private void ResetBools()
+    {
+        inRoom = false;
+        roundStarted = false;
+        practiceTime = true;
     }
 
     public void GetGameController(GameController controller)
@@ -254,6 +276,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         OnPracticeTimeOver();
+        OnPracticeTimeOver = delegate { };
         print("Match started");
 
         practiceTime = false;
