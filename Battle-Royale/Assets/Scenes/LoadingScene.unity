@@ -2020,6 +2020,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1051773697}
   m_CullTransparentMesh: 1
+--- !u!114 &1104312681 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4868074057054663433, guid: f5e33618aec12d543b4695e81aa0bc2a, type: 3}
+  m_PrefabInstance: {fileID: 2007677684}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1107523979
 GameObject:
   m_ObjectHideFlags: 0
@@ -3557,20 +3568,28 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4687316611586000695, guid: f5e33618aec12d543b4695e81aa0bc2a, type: 3}
+      propertyPath: backToMainMenu
+      value: 
+      objectReference: {fileID: 1104312681}
+    - target: {fileID: 4687316611586000695, guid: f5e33618aec12d543b4695e81aa0bc2a, type: 3}
+      propertyPath: createRoomButton
+      value: 
+      objectReference: {fileID: 2007677686}
+    - target: {fileID: 4687316611586000695, guid: f5e33618aec12d543b4695e81aa0bc2a, type: 3}
       propertyPath: RoomCreationPanel
       value: 
       objectReference: {fileID: 1791286654}
     - target: {fileID: 4796186274134927933, guid: f5e33618aec12d543b4695e81aa0bc2a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 661.2604
       objectReference: {fileID: 0}
     - target: {fileID: 4796186274134927933, guid: f5e33618aec12d543b4695e81aa0bc2a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 571.2007
       objectReference: {fileID: 0}
     - target: {fileID: 4796186274134927933, guid: f5e33618aec12d543b4695e81aa0bc2a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -6.050702
       objectReference: {fileID: 0}
     - target: {fileID: 4796186274134927933, guid: f5e33618aec12d543b4695e81aa0bc2a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3740,6 +3759,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8613079994953086388, guid: f5e33618aec12d543b4695e81aa0bc2a, type: 3}
   m_PrefabInstance: {fileID: 2007677684}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2007677686 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5639241093701874060, guid: f5e33618aec12d543b4695e81aa0bc2a, type: 3}
+  m_PrefabInstance: {fileID: 2007677684}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2102808436
 GameObject:
   m_ObjectHideFlags: 0

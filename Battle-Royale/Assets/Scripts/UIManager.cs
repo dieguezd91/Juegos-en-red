@@ -29,6 +29,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     //[SerializeField] private GameObject createInputGo;
     [SerializeField] private GameObject joinInputGo;
 
+    [SerializeField] private Button backToMainMenu;
     [SerializeField] private Button createButton;
     [SerializeField] private Button createRoomButton;
     [SerializeField] private Button backToMenuCR;
@@ -69,6 +70,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+        backToMainMenu.onClick.AddListener(BackToMainMenuScreen);
         playBtn.onClick.AddListener(Play);
         backToMenuCR.onClick.AddListener(ShowHideRoomCreateScreen);
         createRoomButton.onClick.AddListener(ShowHideRoomCreateScreen);
@@ -211,6 +213,13 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
+    public void BackToMainMenuScreen()
+    {
+        if (playPanel != null)
+        {
+            playPanel.SetActive(false);
+        }
+    }
     public void ShowHideRoomCreateScreen()
     {
         if (RoomCreationPanel != null)
