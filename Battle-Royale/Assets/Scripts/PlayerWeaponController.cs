@@ -27,7 +27,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
     }
 
     private void Update()
-    {
+    {        
         if (_pv.IsMine)
         {
             Aim();
@@ -76,6 +76,8 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
 
         weaponPlaceHolder.localScale = Vector3.one;
         weaponPlaceHolder.localRotation = Quaternion.identity;
+
+        _pv.RPC("TransmitRotation", RpcTarget.Others, armRotation, _pv.ViewID);
     }
 
     private void HandleShooting()
@@ -113,5 +115,15 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
             currentWeapon.Initialize(weaponData);
             OnWeaponChanged?.Invoke(currentWeapon);
         }
+    }
+    
+    [PunRPC]
+    private void TransmitRotation(float rotationValue, int id)
+    {
+        if (_pv.ViewID == id)
+        {
+            arm.rotation = Quaternion.Euler(0, 0, rotationValue);
+        }
+        
     }
 }
