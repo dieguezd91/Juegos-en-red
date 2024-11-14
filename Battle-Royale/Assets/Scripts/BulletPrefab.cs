@@ -1,7 +1,7 @@
 using Photon.Pun;
 using UnityEngine;
 
-public class BulletPrefab : MonoBehaviourPunCallbacks
+public class BulletPrefab : MonoBehaviourPunCallbacks, IPunObservable
 {
     [SerializeField] private BulletTypes bulletType;
     public BulletTypes BulletType
@@ -16,8 +16,8 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
     private Vector3 _initialPosition;
     private int _pierceCount;
     private Rigidbody2D _rb;
-
     private bool isShotgunPellet = false;
+    private bool isDestroyed = false;
 
     private void Awake()
     {
@@ -51,7 +51,10 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
         float lifeTime = isShotgunPellet ? bulletType.lifeTime * 0.7f : bulletType.lifeTime;
         if (lifeTime > 0)
         {
-            Invoke(nameof(DestroyBullet), lifeTime);
+            if (_pv.IsMine)
+            {
+                Invoke(nameof(NetworkDestroyBullet), lifeTime);
+            }
         }
     }
 
@@ -60,7 +63,6 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
         if (_pv.IsMine && bulletType != null)
         {
             float distance = Vector3.Distance(_initialPosition, transform.position);
-
             float damageDropoff = isShotgunPellet ? bulletType.damageDropoff * 1.5f : bulletType.damageDropoff;
             _currentDamage = bulletType.damage * (1f - (distance * damageDropoff));
             _currentDamage = Mathf.Max(_currentDamage, bulletType.damage * 0.1f);
@@ -69,15 +71,15 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!_pv.IsMine || bulletType == null) return;
+        if (!_pv.IsMine || bulletType == null || isDestroyed) return;
 
         if (collision.CompareTag("Player"))
         {
             HandlePlayerCollision(collision);
         }
-        else if (collision.gameObject.layer == 11/*Wall layer*/)
+        else if (collision.gameObject.layer == 11)
         {
-            DestroyBullet();
+            NetworkDestroyBullet();
         }
     }
 
@@ -106,16 +108,46 @@ public class BulletPrefab : MonoBehaviourPunCallbacks
             }
             else
             {
-                DestroyBullet();
+                NetworkDestroyBullet();
             }
         }
     }
 
-    private void DestroyBullet()
+    private void NetworkDestroyBullet()
+    {
+        if (!_pv.IsMine || isDestroyed) return;
+
+        isDestroyed = true;
+        _pv.RPC("DestroyBulletRPC", RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void DestroyBulletRPC()
     {
         if (_pv.IsMine)
         {
             PhotonNetwork.Destroy(gameObject);
+        }
+        else
+        {
+            gameObject.SetActive(false);
+            Destroy(gameObject, 0.1f);
+        }
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(_currentDamage);
+            stream.SendNext(isDestroyed);
+            stream.SendNext(_pierceCount);
+        }
+        else
+        {
+            _currentDamage = (float)stream.ReceiveNext();
+            isDestroyed = (bool)stream.ReceiveNext();
+            _pierceCount = (int)stream.ReceiveNext();
         }
     }
 }
