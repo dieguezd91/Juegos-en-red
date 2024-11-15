@@ -50,7 +50,11 @@ public class UIManager : MonoBehaviourPunCallbacks
     [Header("Weapon UI")]
     [SerializeField] private TextMeshProUGUI currentWeaponText;
     [SerializeField] private TextMeshProUGUI ammoText;
+    [SerializeField] private TextMeshProUGUI lethalGrenadeAmount;
+    [SerializeField] private TextMeshProUGUI tacticalGrenadeAmount;
     [SerializeField] private Image weaponIcon;
+    [SerializeField] private Image grenadeIcon;
+    [SerializeField] private Image tacticalGrenadeIcon;
 
     [Header("Countdown")]
     [SerializeField] private GameObject countdownPanel;
@@ -345,6 +349,38 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (countdownText != null)
         {
             countdownText.gameObject.SetActive(false);
+        }
+    }
+
+    public void UpdateGrenadeAmounts(int lethalAmount, int tacticalAmount)
+    {
+        if (lethalGrenadeAmount != null)
+        {
+            lethalGrenadeAmount.text = lethalAmount.ToString();
+            grenadeIcon.gameObject.SetActive(lethalAmount > 0);
+        }
+
+        if (tacticalGrenadeAmount != null)
+        {
+            tacticalGrenadeAmount.text = tacticalAmount.ToString();
+            tacticalGrenadeIcon.gameObject.SetActive(tacticalAmount > 0);
+        }
+    }
+
+    public void SetGrenadeIcons(Sprite lethalSprite, Sprite tacticalSprite)
+    {
+        if (grenadeIcon != null && lethalSprite != null)
+        {
+            grenadeIcon.sprite = lethalSprite;
+            grenadeIcon.preserveAspect = true;
+            grenadeIcon.enabled = true;
+        }
+
+        if (tacticalGrenadeIcon != null && tacticalSprite != null)
+        {
+            tacticalGrenadeIcon.sprite = tacticalSprite;
+            tacticalGrenadeIcon.preserveAspect = true;
+            tacticalGrenadeIcon.enabled = true;
         }
     }
 }

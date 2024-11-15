@@ -169,8 +169,12 @@ MonoBehaviour:
   flashGrenadePrefab: {fileID: 1662882327138443619, guid: 7a77572eef0614848906019e9c328de5, type: 3}
   throwForce: 5
   maxThrowDistance: 5
-  maxGrenades: 2
-  currentGrenades: 2
+  maxLethalGrenades: 3
+  maxTacticalGrenades: 2
+  currentLethalGrenades: 0
+  currentTacticalGrenades: 0
+  grenadeSprite: {fileID: -946809644, guid: 649bc00ade051fb43990e08f3e7b3428, type: 3}
+  flashGrenadeSprite: {fileID: -1772132724, guid: 8d6eb7951ea2fc24a93d440f30c8596a, type: 3}
 --- !u!114 &8275570159581135667
 MonoBehaviour:
   m_ObjectHideFlags: 0
