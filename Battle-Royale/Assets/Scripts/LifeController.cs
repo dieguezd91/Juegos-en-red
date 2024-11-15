@@ -1,20 +1,22 @@
 using UnityEngine;
 using Photon.Pun;
+using System.Collections;
 
 public class LifeController : MonoBehaviourPunCallbacks
 {
     public PlayerSO PlayerData;
-    
+
     public float HealingAmount;
     public float HealingDuration;
     public bool _isHealing = false;
-
     [SerializeField] public float currentHp;
     [SerializeField] public float maxShield;
     [SerializeField] public float currentShield;
     [SerializeField] public float shieldDamageReduction = 0.5f;
 
     private PhotonView _pv;
+    private PhotonView lastDamageDealer;
+    public int kills = 0;
 
     public System.Action<PlayerController> OnDeath = delegate { };
 
@@ -24,6 +26,11 @@ public class LifeController : MonoBehaviourPunCallbacks
         currentHp = PlayerData.MaxHP;
         currentShield = 0f;
         GameManager.Instance.OnPlayerRespawn += FullRestore;
+
+        if (_pv.IsMine)
+        {
+            UpdateUI();
+        }
     }
 
     //TESTING ONLY************
@@ -33,18 +40,17 @@ public class LifeController : MonoBehaviourPunCallbacks
         {
             ApplyDamage(1000);
         }
-
     }
-
     //TESTING ONLY************
 
     [PunRPC]
-    public void ApplyDamage(float damage)
+    public void ApplyDamage(float damage, PhotonView damageDealer = null)
     {
         if (_pv.IsMine)
         {
-            float remainingDamage = damage;
+            lastDamageDealer = damageDealer;
 
+            float remainingDamage = damage;
             if (currentShield > 0)
             {
                 float shieldDamage = Mathf.Min(currentShield, damage * shieldDamageReduction);
@@ -52,7 +58,6 @@ public class LifeController : MonoBehaviourPunCallbacks
                 remainingDamage -= shieldDamage / shieldDamageReduction;
             }
 
-            // Aplicar el daño restante a la salud
             if (remainingDamage > 0)
             {
                 currentHp -= remainingDamage;
@@ -63,7 +68,6 @@ public class LifeController : MonoBehaviourPunCallbacks
                 Die();
             }
 
-            // Sincronizar la salud y el escudo
             _pv.RPC("SyncHealthAndShield", RpcTarget.All, currentHp, currentShield);
         }
     }
@@ -79,9 +83,34 @@ public class LifeController : MonoBehaviourPunCallbacks
     {
         if (_pv.IsMine)
         {
-            //PhotonNetwork.Destroy(gameObject);
+            if (lastDamageDealer != null && lastDamageDealer != _pv)
+            {
+                lastDamageDealer.RPC("AddKill", RpcTarget.All);
+            }
+
             OnDeath(gameObject.GetComponent<PlayerController>());
             print("On death");
+        }
+    }
+
+    [PunRPC]
+    private void AddKill()
+    {
+        kills++;
+        if (_pv.IsMine)
+        {
+            UpdateUI();
+        }
+    }
+
+    private void UpdateUI()
+    {
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdatePlayerStats(
+                GameManager.Instance.GetPlayersAlive(),
+                kills
+            );
         }
     }
 
@@ -102,11 +131,9 @@ public class LifeController : MonoBehaviourPunCallbacks
         StartCoroutine(HealingCoroutine());
     }
 
-    private System.Collections.IEnumerator HealingCoroutine()
+    private IEnumerator HealingCoroutine()
     {
-        Debug.Log("Healing started...");
         yield return new WaitForSeconds(HealingDuration);
-
         CompleteHealing(HealingAmount);
     }
 
@@ -118,12 +145,19 @@ public class LifeController : MonoBehaviourPunCallbacks
             _pv.RPC("SyncHealthAndShield", RpcTarget.All, currentHp, currentHp);
             _isHealing = false;
         }
-        Debug.Log("Healing Complete: " + currentHp + "HP");
     }
 
     private void FullRestore()
     {
         currentHp = PlayerData.MaxHP;
         currentShield = maxShield;
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnPlayerRespawn -= FullRestore;
+        }
     }
 }

@@ -18,6 +18,7 @@ public class BulletPrefab : MonoBehaviourPunCallbacks, IPunObservable
     private Rigidbody2D _rb;
     private bool isShotgunPellet = false;
     private bool isDestroyed = false;
+    private PhotonView shooterPV;
 
     private void Awake()
     {
@@ -25,12 +26,13 @@ public class BulletPrefab : MonoBehaviourPunCallbacks, IPunObservable
         _rb = GetComponent<Rigidbody2D>();
     }
 
-    public void Initialize(BulletTypes type, Vector2 direction, bool isPellet = false)
+    public void Initialize(BulletTypes type, Vector2 direction, PhotonView shooter, bool isPellet = false)
     {
         bulletType = type;
         _initialPosition = transform.position;
         _pierceCount = 0;
         isShotgunPellet = isPellet;
+        shooterPV = shooter;
 
         if (isShotgunPellet)
         {
@@ -91,7 +93,7 @@ public class BulletPrefab : MonoBehaviourPunCallbacks, IPunObservable
             var lifeController = collision.GetComponent<LifeController>();
             if (lifeController != null)
             {
-                lifeController.photonView.RPC("ApplyDamage", RpcTarget.All, _currentDamage);
+                lifeController.photonView.RPC("ApplyDamage", RpcTarget.All, _currentDamage, shooterPV);
 
                 if (bulletType.hitEffect != null)
                 {

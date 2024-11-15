@@ -46,6 +46,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private Image lifeBar;
     [SerializeField] private Image staminaBar;
     [SerializeField] private Image shieldBar;
+    [SerializeField] private TextMeshProUGUI playersAliveText;
+    [SerializeField] private TextMeshProUGUI playerKillsText;
 
     [Header("Weapon UI")]
     [SerializeField] private TextMeshProUGUI currentWeaponText;
@@ -381,6 +383,19 @@ public class UIManager : MonoBehaviourPunCallbacks
             tacticalGrenadeIcon.sprite = tacticalSprite;
             tacticalGrenadeIcon.preserveAspect = true;
             tacticalGrenadeIcon.enabled = true;
+        }
+    }
+
+    public void UpdatePlayerStats(int playersAlive, int kills)
+    {
+        if (playersAliveText != null)
+        {
+            playersAliveText.text = $"Players: {playersAlive}";
+        }
+
+        if (playerKillsText != null)
+        {
+            playerKillsText.text = $"Kills: {kills}";
         }
     }
 }

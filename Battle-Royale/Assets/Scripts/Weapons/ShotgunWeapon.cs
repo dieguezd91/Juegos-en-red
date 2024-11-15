@@ -1,15 +1,18 @@
-using UnityEngine;
 using Photon.Pun;
+using UnityEngine;
 
 public class ShotgunWeapon : WeaponBase
 {
     [SerializeField] private Transform shootPoint;
     [SerializeField] private int pelletCount = 8;
     private AudioSource audioSource;
+    private PhotonView weaponPhotonView;
 
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
+        weaponPhotonView = GetComponentInParent<PhotonView>();
+
         if (shootPoint == null)
         {
             shootPoint = transform;
@@ -24,12 +27,9 @@ public class ShotgunWeapon : WeaponBase
         {
             float spread = Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread);
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + spread;
-
             Quaternion rotation = Quaternion.Euler(0, 0, angle);
-
             Vector2 randomOffset = Random.insideUnitCircle * 0.1f;
             Vector3 spawnPosition = shootPoint.position + (Vector3)randomOffset;
-
             Vector2 spreadDirection = rotation * Vector2.right;
 
             GameObject bullet = PhotonNetwork.Instantiate(
@@ -41,7 +41,7 @@ public class ShotgunWeapon : WeaponBase
             var bulletController = bullet.GetComponent<BulletPrefab>();
             if (bulletController != null)
             {
-                bulletController.Initialize(weaponData.bulletType, spreadDirection, true);
+                bulletController.Initialize(weaponData.bulletType, spreadDirection, weaponPhotonView, true);
             }
         }
 

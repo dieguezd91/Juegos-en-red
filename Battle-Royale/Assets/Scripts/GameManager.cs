@@ -47,6 +47,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public event GameEvent OnPlayerRespawn;
 
     private GameController gameController;
+    private HashSet<int> activePlayerIds = new HashSet<int>();
 
     private void Awake()
     {
@@ -76,14 +77,12 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             pv.RPC("UpdateMaxPlayers", RpcTarget.AllBuffered, maxPlayers);
 
             int currentPlayers = PhotonNetwork.CurrentRoom.PlayerCount;
-            Debug.Log($"Current Players: {currentPlayers}, Max Players: {maxPlayers}, Practice Time: {practiceTime}, Is Counting: {isCountingDown}, Round Started: {roundStarted}");
 
             if (!roundStarted &&
                 !isCountingDown &&
                 practiceTime &&
                 currentPlayers == maxPlayers)
             {
-                Debug.Log("Starting countdown");
                 double startTime = PhotonNetwork.Time;
                 pv.RPC("StartNetworkCountdown", RpcTarget.All, startTime);
             }
@@ -112,7 +111,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         if (currentRoundTime <= 0 && PhotonNetwork.IsMasterClient)
         {
-            Debug.Log("Round time ended");
             pv.RPC("EndMatch", RpcTarget.All);
         }
     }
@@ -181,11 +179,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         if (gameController != null)
         {
             gameController.OnPlayerSpawn += AddPlayer;
-            Debug.Log("GameController registered successfully");
-        }
-        else
-        {
-            Debug.Log("Failed to register GameController");
         }
     }
 
@@ -209,6 +202,16 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     public override void OnJoinedRoom()
     {
+        base.OnJoinedRoom();
+
+        inRoom = true;
+        ClearLists();
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdatePlayerStats(PhotonNetwork.CurrentRoom.PlayerCount, 0);
+        }
+
         PhotonNetwork.LoadLevel("Gameplay");
     }
 
@@ -230,22 +233,30 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     public void AddPlayer(PlayerController playerToAdd)
     {
+        if (playerToAdd == null || playerToAdd.pv == null)
+        {
+            return;
+        }
+
+        int playerId = playerToAdd.pv.ViewID;
+
+        // Verificar si el jugador ya existe
         if (!playerList.Contains(playerToAdd))
         {
             playerList.Add(playerToAdd);
-            Debug.Log($"Player added. Total players: {playerList.Count}");
 
             if (PhotonNetwork.IsMasterClient)
             {
                 Transform spawnPoint = GetAvailableSpawnPoint();
                 if (spawnPoint != null)
                 {
-                    int playerActorNumber = playerToAdd.GetComponent<PhotonView>().Owner.ActorNumber;
+                    int playerActorNumber = playerToAdd.pv.Owner.ActorNumber;
                     int spawnPointIndex = spawnPoints.IndexOf(spawnPoint);
                     pv.RPC("AssignSpawnPoint", RpcTarget.All, playerActorNumber, spawnPointIndex);
 
                     playerToAdd.transform.position = spawnPoint.position;
                     playerSpawns[playerToAdd] = spawnPoint;
+
                     LifeController lifeController = playerToAdd.GetComponent<LifeController>();
                     if (lifeController != null)
                     {
@@ -253,6 +264,23 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                     }
                 }
             }
+
+            // Sincronizar la lista de jugadores
+            if (PhotonNetwork.IsMasterClient)
+            {
+                pv.RPC("SyncPlayerCount", RpcTarget.All, GetPlayersAlive());
+            }
+
+            UpdateAllPlayersUI();
+        }
+    }
+
+    [PunRPC]
+    private void SyncPlayerCount(int count)
+    {
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdatePlayerStats(count, 0);
         }
     }
 
@@ -322,10 +350,25 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (playerToRemove.pv.IsMine)
         {
+            // Remover el ID del jugador antes de salir
+            if (playerToRemove.pv != null)
+            {
+                activePlayerIds.Remove(playerToRemove.pv.ViewID);
+            }
+
             PhotonNetwork.LeaveRoom();
             ResetBools();
             ClearLists();
             ChangeScene("MainMenu");
+        }
+        else
+        {
+            // Si es otro jugador, solo actualizar la UI
+            if (playerToRemove.pv != null)
+            {
+                activePlayerIds.Remove(playerToRemove.pv.ViewID);
+            }
+            UpdateAllPlayersUI();
         }
     }
 
@@ -353,6 +396,14 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 {
                     playersToKeep.Add(player);
                 }
+                else
+                {
+                    // Remover el ID del jugador que se fue
+                    if (player != null && player.pv != null)
+                    {
+                        activePlayerIds.Remove(player.pv.ViewID);
+                    }
+                }
             }
 
             playerList = playersToKeep;
@@ -367,6 +418,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             photonView.RPC("ReleaseSpawnPoint", RpcTarget.All, otherPlayer.ActorNumber);
         }
+
+        UpdateAllPlayersUI();
     }
 
     [PunRPC]
@@ -443,11 +496,20 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         StartActualMatch();
     }
 
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        base.OnPlayerEnteredRoom(newPlayer);
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdatePlayerStats(PhotonNetwork.CurrentRoom.PlayerCount, 0);
+        }
+    }
+
     private void StartActualMatch()
     {
         if (roundStarted) return;
 
-        Debug.Log("Starting actual match");
         foreach (PlayerController player in playerList)
         {
             if (player != null)
@@ -459,7 +521,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         practiceTime = false;
         roundStarted = true;
 
-        // Iniciar el tiempo de ronda
+        UpdateAllPlayersUI();
+
         if (PhotonNetwork.IsMasterClient)
         {
             roundStartTimeStamp = PhotonNetwork.Time;
@@ -501,7 +564,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     private void SyncMatchStart()
     {
-        Debug.Log("SyncMatchStart called");
         isCountingDown = false;
         practiceTime = false;
         roundStarted = true;
@@ -518,8 +580,27 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             OnPracticeTimeOver();
         }
+    }
 
-        Debug.Log($"Match synchronized. Time: {currentRoundTime}");
+    public int GetPlayersAlive()
+    {
+        if (practiceTime)
+        {
+            return PhotonNetwork.CurrentRoom.PlayerCount;
+        }
+        return playerList.Count;
+    }
+
+    private void UpdateAllPlayersUI()
+    {
+        if (!PhotonNetwork.InRoom) return;
+
+        int currentPlayers = GetPlayersAlive();
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdatePlayerStats(currentPlayers, 0);
+        }
     }
 
     public void Quit()

@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public Vector2 InputMovement => _inputMovement;
     private Vector2 lastDirection = Vector2.up;
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
-    
+    private bool isInitialized = false;
     //private int _ammo;
 
     private void Start()
@@ -35,6 +35,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         InitializedTree();
         InitializedFSM();
+        isInitialized = true;
+    }
+
+    public bool IsInitialized()
+    {
+        return isInitialized && pv != null;
     }
 
     private void Update()
