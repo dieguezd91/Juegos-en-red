@@ -15,6 +15,7 @@ public class FlashGrenade : MonoBehaviour
     private bool hasExploded = false;
     private float countdown;
     private Rigidbody2D rb;
+    private int throwerId;
 
     private void Start()
     {
@@ -23,6 +24,11 @@ public class FlashGrenade : MonoBehaviour
         grenadeRenderer = GetComponent<SpriteRenderer>();
         flashEffect = GetComponent<FlashEffect>();
         countdown = explosionDelay;
+
+        if (_pv.InstantiationData != null && _pv.InstantiationData.Length > 0)
+        {
+            throwerId = (int)_pv.InstantiationData[0];
+        }
     }
 
     private void Update()
@@ -60,31 +66,22 @@ public class FlashGrenade : MonoBehaviour
 
     private IEnumerator ExplosionSequence()
     {
-        if (grenadeRenderer != null)
-        {
-            grenadeRenderer.enabled = false;
-        }
-
-        if (GetComponent<Collider2D>() != null)
-        {
-            GetComponent<Collider2D>().enabled = false;
-        }
-        if (rb != null)
-        {
-            rb.simulated = false;
-        }
+        if (grenadeRenderer != null) grenadeRenderer.enabled = false;
+        if (GetComponent<Collider2D>() != null) GetComponent<Collider2D>().enabled = false;
+        if (rb != null) rb.simulated = false;
 
         Collider2D[] playersInRadius = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
+
         foreach (Collider2D playerCollider in playersInRadius)
         {
             PhotonView playerPV = playerCollider.GetComponent<PhotonView>();
-            if (playerPV != null)
+            if (playerPV != null && playerPV.ViewID != throwerId)
             {
                 _pv.RPC("RPC_ApplyFlashEffect", RpcTarget.All, playerPV.ViewID, flashDuration);
             }
         }
 
-        yield return new WaitForSeconds(flashDuration + (1f / flashEffect.fadeOutSpeed));
+        yield return new WaitForSeconds(flashDuration + 1f);
 
         if (_pv.IsMine)
         {

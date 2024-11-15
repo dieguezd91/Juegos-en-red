@@ -1,12 +1,13 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class FlashEffect : MonoBehaviour
 {
+    public static FlashEffect Instance { get; private set; }
+
     [SerializeField] private Image flashPanel;
     [SerializeField] public float fadeOutSpeed = 1f;
-
     private Coroutine flashCoroutine;
 
     public void ShowFlash(float duration)
