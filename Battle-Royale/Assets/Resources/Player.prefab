@@ -166,10 +166,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   grenadePrefab: {fileID: 6281604895549927941, guid: e31136057f107b44eb401c785a66fd8d, type: 3}
+  flashGrenadePrefab: {fileID: 1662882327138443619, guid: 7a77572eef0614848906019e9c328de5, type: 3}
   throwForce: 5
   maxThrowDistance: 5
   maxGrenades: 2
-  currentGrenades: 1
+  currentGrenades: 2
 --- !u!114 &8275570159581135667
 MonoBehaviour:
   m_ObjectHideFlags: 0

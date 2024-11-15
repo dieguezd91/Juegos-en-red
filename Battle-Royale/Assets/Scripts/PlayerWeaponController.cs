@@ -123,7 +123,6 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         if (_pv.ViewID == id)
         {
             arm.rotation = Quaternion.Euler(0, 0, rotationValue);
-        }
-        
+        }        
     }
 }
