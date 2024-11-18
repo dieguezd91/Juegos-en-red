@@ -63,6 +63,7 @@ MonoBehaviour:
   - RPC_InitiateExplosion
   - AddKill
   - SyncPlayerCount
+  - EquipWeaponRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -22,7 +22,7 @@ public class WeaponItem : CollectableItem
             var weaponController = player.GetComponent<PlayerWeaponController>();
             if (weaponController != null)
             {
-                weaponController.EquipWeapon(weaponInfo);
+                weaponController.EquipWeapon(weaponInfo, player.gameObject.GetComponent<PlayerWeaponController>().pv.ViewID);
 
                 if (photonView.IsMine)
                 {

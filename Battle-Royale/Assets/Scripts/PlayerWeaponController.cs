@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerWeaponController : MonoBehaviourPunCallbacks
 {
     private PhotonView _pv;
+    public PhotonView pv { get { return _pv; } }
     [SerializeField] private Transform arm;
     [SerializeField] private Transform weaponPlaceHolder;
     [SerializeField] private Transform playerSprite;
@@ -20,14 +21,12 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         _pv = GetComponent<PhotonView>();
         mainCamera = Camera.main;
 
-        if (_pv.IsMine && defaultWeapon != null)
-        {
-            EquipWeapon(defaultWeapon);
-        }
+        EquipWeapon(defaultWeapon, _pv.ViewID);
+       
     }
 
     private void Update()
-    {        
+    {
         if (_pv.IsMine)
         {
             Aim();
@@ -77,7 +76,8 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         weaponPlaceHolder.localScale = Vector3.one;
         weaponPlaceHolder.localRotation = Quaternion.identity;
 
-        _pv.RPC("TransmitRotation", RpcTarget.Others, armRotation, _pv.ViewID);
+        _pv.RPC("TransmitRotation", RpcTarget.Others, armRotation, isFacingLeft,_pv.ViewID);
+        
     }
 
     private void HandleShooting()
@@ -96,33 +96,46 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         }
     }
 
-    public void EquipWeapon(WeaponSO weaponData)
+    [PunRPC]
+    public void EquipWeaponRPC(int weaponId, int id)
     {
-        if (weaponData == null || weaponPlaceHolder == null) return;
-
-        if (currentWeapon != null)
+        WeaponSO weaponData = WeaponDictionary.GetWeapon(weaponId);
+        //if (_pv == null) EquipWeaponRPC(weaponId, viewID);
+        if (_pv.ViewID == id)
         {
-            Destroy(currentWeapon.gameObject);
-        }
+            if (weaponData == null || weaponPlaceHolder == null) return;
 
-        GameObject weaponInstance = Instantiate(weaponData.weaponPrefab, weaponPlaceHolder);
-        weaponInstance.transform.localPosition = Vector3.zero;
-        weaponInstance.transform.localRotation = Quaternion.identity;
+            if (currentWeapon != null)
+            {
+                Destroy(currentWeapon.gameObject);
+            }
 
-        currentWeapon = weaponInstance.GetComponent<WeaponBase>();
-        if (currentWeapon != null)
-        {
-            currentWeapon.Initialize(weaponData);
-            OnWeaponChanged?.Invoke(currentWeapon);
+            GameObject weaponInstance = Instantiate(weaponData.weaponPrefab, weaponPlaceHolder);
+            weaponInstance.transform.localPosition = Vector3.zero;
+            weaponInstance.transform.localRotation = Quaternion.identity;
+
+            currentWeapon = weaponInstance.GetComponent<WeaponBase>();
+            if (currentWeapon != null)
+            {
+                currentWeapon.Initialize(weaponData);
+                OnWeaponChanged?.Invoke(currentWeapon);
+            }
         }
     }
-    
+
+    public void EquipWeapon(WeaponSO weaponData, int id)
+    {
+        int weaponId = WeaponDictionary.GetWeaponID(weaponData);
+        _pv.RPC("EquipWeaponRPC", RpcTarget.AllBuffered, weaponId, id);
+    }
+
     [PunRPC]
-    private void TransmitRotation(float rotationValue, int id)
+    private void TransmitRotation(float armRotationValue, bool direction, int id)
     {
         if (_pv.ViewID == id)
         {
-            arm.rotation = Quaternion.Euler(0, 0, rotationValue);
-        }        
+            arm.rotation = Quaternion.Euler(0, 0, armRotationValue);
+            playerSprite.localScale = new Vector3(direction ? -1 : 1, 1, 1);
+        }
     }
 }
