@@ -23,6 +23,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         if (_pv.IsMine && defaultWeapon != null)
         {
             EquipWeapon(defaultWeapon);
+            //_pv.RPC("EquipWeaponRPC", RpcTarget.AllViaServer, defaultWeapon);
         }
     }
 
@@ -77,7 +78,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         weaponPlaceHolder.localScale = Vector3.one;
         weaponPlaceHolder.localRotation = Quaternion.identity;
 
-        _pv.RPC("TransmitRotation", RpcTarget.Others, armRotation, _pv.ViewID);
+        _pv.RPC("TransmitRotation", RpcTarget.Others, armRotation, isFacingLeft, _pv.ViewID);
     }
 
     private void HandleShooting()
@@ -96,33 +97,51 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         }
     }
 
+    [PunRPC]
+    public void EquipWeaponRPC(int weaponId, int viewID)
+    {
+        WeaponSO weaponData = WeaponDictionary.GetWeapon(weaponId);
+
+        if (viewID == _pv.ViewID)
+        {
+            if (weaponData == null || weaponPlaceHolder == null) return;
+
+            if (currentWeapon != null)
+            {
+                Destroy(currentWeapon.gameObject);
+            }
+
+            GameObject weaponInstance = Instantiate(weaponData.weaponPrefab, weaponPlaceHolder);
+            weaponInstance.transform.localPosition = Vector3.zero;
+            weaponInstance.transform.localRotation = Quaternion.identity;
+
+            currentWeapon = weaponInstance.GetComponent<WeaponBase>();
+            if (currentWeapon != null)
+            {
+                currentWeapon.Initialize(weaponData);
+                OnWeaponChanged?.Invoke(currentWeapon);
+            }
+        }        
+    }
+
     public void EquipWeapon(WeaponSO weaponData)
     {
-        if (weaponData == null || weaponPlaceHolder == null) return;
-
-        if (currentWeapon != null)
-        {
-            Destroy(currentWeapon.gameObject);
-        }
-
-        GameObject weaponInstance = Instantiate(weaponData.weaponPrefab, weaponPlaceHolder);
-        weaponInstance.transform.localPosition = Vector3.zero;
-        weaponInstance.transform.localRotation = Quaternion.identity;
-
-        currentWeapon = weaponInstance.GetComponent<WeaponBase>();
-        if (currentWeapon != null)
-        {
-            currentWeapon.Initialize(weaponData);
-            OnWeaponChanged?.Invoke(currentWeapon);
-        }
+        int weaponId = WeaponDictionary.GetWeaponID(weaponData);
+        _pv.RPC("EquipWeaponRPC", RpcTarget.All, weaponId, _pv.ViewID);
     }
-    
+
     [PunRPC]
-    private void TransmitRotation(float rotationValue, int id)
+    private void TransmitRotation(float rotationValue, bool direction,int id)
     {
         if (_pv.ViewID == id)
         {
             arm.rotation = Quaternion.Euler(0, 0, rotationValue);
+<<<<<<< Updated upstream
         }        
+=======
+            isFacingLeft = direction;
+        }
+        
+>>>>>>> Stashed changes
     }
 }
