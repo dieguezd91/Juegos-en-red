@@ -64,6 +64,19 @@ public class Chest : MonoBehaviour, IInteractable
         }
     }
 
+    private void SpawnRewards()
+    {
+        foreach (WeaponSO weapon in _weaponRewards)
+        {
+            SpawnWeapon(weapon);
+        }
+
+        foreach (ItemBase item in _itemRewards)
+        {
+
+        }
+    }
+
     [PunRPC]
     private void OpenChest()
     {

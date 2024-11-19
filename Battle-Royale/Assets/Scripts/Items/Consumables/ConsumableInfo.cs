@@ -29,12 +29,15 @@ public class ConsumableInfo : ItemBase
                 break;
 
             case 1:
+                user.GetComponent<LifeController>().RestoreShield(recoveryAmount);
                 break;
 
             case 2:
+                user.GetComponent<PlayerModel>().RechargeStamina(recoveryAmount);
                 break;
 
             case 3:
+
                 break;
 
             default:

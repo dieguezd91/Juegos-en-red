@@ -179,6 +179,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Interact();
             print("Player Interacted");
         }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1) && model.itemsInventory[0] != null)
+        {
+            model.itemsInventory[0].Use(this);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2) && model.itemsInventory[1] != null)
+        {
+            model.itemsInventory[1].Use(this);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+
+        }
     }
 
     private void Move()
@@ -260,4 +273,46 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (interactable != null) interactable.Interact();
         }
     }
+
+    public void AddItemToInventory(ItemBase item)
+    {
+        if (item.GetType() == typeof(ConsumableInfo))
+        {
+            if (model.itemsInventory[0] == null)
+            {
+                model.itemsInventory[0] = item as ConsumableInfo;
+            }
+            else if (model.itemsInventory[1] == null)
+            {
+                model.itemsInventory[1] = item as ConsumableInfo;
+            }
+            else
+            {
+                print("inventory is full, please use an Item and then try again");
+            }
+        }
+        else if (item.GetType() == typeof(GranadeInfo))
+        {
+            if (model.granadeInventory[0] == null)
+            {
+                model.granadeInventory[0] = item as GranadeInfo;
+            }
+            else if (model.granadeInventory[1] == null)
+            {
+                model.granadeInventory[1] = item as GranadeInfo;
+            }
+            else
+            {
+                print("inventory is full, please use a Item and then try again");
+            }
+        }
+    }
+
+    //private void DropItem(ItemBase item)
+    //{
+    //    if(item.GetType() == typeof(GranadeInfo))
+    //    {
+    //        PhotonNetwork.Instantiate()
+    //    }
+    //}
 }

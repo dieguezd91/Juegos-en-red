@@ -12,4 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd8c973711d93b541baf46dbc29b5e59, type: 3}
   m_Name: ConsumablesLootTable
   m_EditorClassIdentifier: 
-  items: []
+  items:
+  - {fileID: 11400000, guid: 7468dcf13bf91b543a768209f529676c, type: 2}
+  - {fileID: 11400000, guid: 4364f3aee95682145a9c568918435992, type: 2}
+  - {fileID: 11400000, guid: 9aee3d73db4d9a044ba3a4e806102a4d, type: 2}
