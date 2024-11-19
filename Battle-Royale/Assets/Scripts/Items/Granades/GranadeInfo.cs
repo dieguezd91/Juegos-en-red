@@ -5,17 +5,20 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewGranade", menuName = "ItemInfo/GranadeInfo")]
 public class GranadeInfo : ItemBase
 {
-    [SerializeField] float bounciness;
+    [SerializeField] private float bounciness;
 
-    [SerializeField] float damage;
+    [SerializeField] private float damage;
 
-    [SerializeField] float range;
+    [SerializeField] private float range;
 
-    [SerializeField] GameObject prefab;
+    [SerializeField] private GameObject prefab;
+
+    public GameObject Prefab { get { return prefab; } }
 
     public override void Spawn(Vector3 position, Quaternion rotation)
     {
-        throw new System.NotImplementedException();
+        var temp = Photon.Pun.PhotonNetwork.Instantiate("GranadeCollectable", position, rotation);
+        temp.GetComponent<GranadeItem>().SetInfo(this);
     }
 
     public void Throw()

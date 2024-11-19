@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using Photon.Pun;
 
 public class WeaponItem : CollectableItem
@@ -34,6 +37,6 @@ public class WeaponItem : CollectableItem
 
     public void SetInfo(WeaponSO info)
     {
-        weaponInfo = info;
+        weaponInfo = info;        
     }
 }

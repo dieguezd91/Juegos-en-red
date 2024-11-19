@@ -5,9 +5,11 @@ using UnityEngine;
 public class GranadeItem : CollectableItem
 {
     private GranadeInfo granadeInfo;
+    private System.Action OnInfoAssigned = delegate { };
     void Start()
     {
         OnCollected += Test;
+        OnInfoAssigned += SetSprite;
     }
 
     void Test(PlayerController player)
@@ -20,5 +22,11 @@ public class GranadeItem : CollectableItem
     public void SetInfo(GranadeInfo info)
     {
         granadeInfo = info;
+        OnInfoAssigned();
+    }
+
+    private void SetSprite()
+    {
+        gameObject.GetComponent<SpriteRenderer>().sprite = granadeInfo.Icon;
     }
 }

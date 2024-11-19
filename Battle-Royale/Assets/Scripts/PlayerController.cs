@@ -20,6 +20,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public static event System.Action<PlayerController> OnPlayerControllerInstantiated;
     private bool isInitialized = false;
     //private int _ammo;
+    private ItemBase itemSelected;
+    private bool dropMode = false;
 
     private void Start()
     {
@@ -180,18 +182,52 @@ public class PlayerController : MonoBehaviourPunCallbacks
             print("Player Interacted");
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha1) && model.itemsInventory[0] != null)
+        if (Input.GetKeyDown(KeyCode.G))
         {
-            model.itemsInventory[0].Use(this);
+            dropMode = !dropMode;
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha2) && model.itemsInventory[1] != null)
-        {
-            model.itemsInventory[1].Use(this);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
 
+        //Use & Discard Item-----------------------------------
+        if(dropMode == false)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                model.granadeInventory[0].Throw();
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha4))
+            {
+                model.granadeInventory[1].Throw();
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha5) && model.itemsInventory[0] != null)
+            {
+                model.itemsInventory[0].Use(this);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha6) && model.itemsInventory[1] != null)
+            {
+                model.itemsInventory[1].Use(this);
+            }
         }
+        else if (dropMode == true)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                DropItem(model.granadeInventory[0]);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha4))
+            {
+                DropItem(model.granadeInventory[1]);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha5) && model.itemsInventory[0] != null)
+            {
+                DropItem(model.itemsInventory[0]);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha6) && model.itemsInventory[1] != null)
+            {
+                DropItem(model.itemsInventory[1]);
+            }
+        }
+//----------------------------------------------------------------
+        
     }
 
     private void Move()
@@ -308,11 +344,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    //private void DropItem(ItemBase item)
-    //{
-    //    if(item.GetType() == typeof(GranadeInfo))
-    //    {
-    //        PhotonNetwork.Instantiate()
-    //    }
-    //}
+    private void DropItem(ItemBase item)
+    {
+        if (item.GetType() == typeof(GranadeInfo))
+        {
+            GranadeInfo granade = item as GranadeInfo;
+
+            granade.Spawn(transform.forward*3, Quaternion.identity);
+        }
+    }
 }

@@ -7,6 +7,8 @@ public abstract class ItemBase : ScriptableObject
     [SerializeField] protected float weight;
 
     [SerializeField] protected Sprite icon;
+    
+    public Sprite Icon { get { return icon; } }
 
     //[SerializeField] protected GameObject prefab;
     //public GameObject Prefab { get { return prefab; } }
