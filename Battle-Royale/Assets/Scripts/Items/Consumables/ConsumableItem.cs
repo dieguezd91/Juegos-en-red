@@ -19,6 +19,8 @@ public class ConsumableItem : CollectableItem
         print("Consumable collected");
     }
 
+    
+
     private void AddToInventory(PlayerController player)
     {
         player.AddItemToInventory(consumableInfo);

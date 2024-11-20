@@ -190,15 +190,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //Use & Discard Item-----------------------------------
         if(dropMode == false)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha3))
-            {
-                model.granadeInventory[0].Throw();
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha4))
-            {
-                model.granadeInventory[1].Throw();
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha5) && model.itemsInventory[0] != null)
+            //if (Input.GetKeyDown(KeyCode.Alpha3))
+            //{
+            //    model.granadeInventory[0].Throw();
+            //}
+            //else if (Input.GetKeyDown(KeyCode.Alpha4))
+            //{
+            //    model.granadeInventory[1].Throw();
+            //}
+            if (Input.GetKeyDown(KeyCode.Alpha5) && model.itemsInventory[0] != null)
             {
                 model.itemsInventory[0].Use(this);
             }
@@ -209,15 +209,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else if (dropMode == true)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha3))
-            {
-                DropItem(model.granadeInventory[0]);
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha4))
-            {
-                DropItem(model.granadeInventory[1]);
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha5) && model.itemsInventory[0] != null)
+            //if (Input.GetKeyDown(KeyCode.Alpha3))
+            //{
+            //    DropItem(model.granadeInventory[0]);
+            //}
+            //else if (Input.GetKeyDown(KeyCode.Alpha4))
+            //{
+            //    DropItem(model.granadeInventory[1]);
+            //}
+            if (Input.GetKeyDown(KeyCode.Alpha5) && model.itemsInventory[0] != null)
             {
                 DropItem(model.itemsInventory[0]);
             }
@@ -317,10 +317,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (model.itemsInventory[0] == null)
             {
                 model.itemsInventory[0] = item as ConsumableInfo;
+                UIManager.Instance.SetItemIcon(0, item.Icon);
             }
             else if (model.itemsInventory[1] == null)
             {
                 model.itemsInventory[1] = item as ConsumableInfo;
+                UIManager.Instance.SetItemIcon(1, item.Icon);
             }
             else
             {

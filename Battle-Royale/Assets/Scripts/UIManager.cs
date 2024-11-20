@@ -55,6 +55,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private TextMeshProUGUI lethalGrenadeAmount;
     [SerializeField] private TextMeshProUGUI tacticalGrenadeAmount;
     [SerializeField] private Image weaponIcon;
+    [SerializeField] private Image item01Icon;
+    [SerializeField] private Image item02Icon;
     [SerializeField] private Image grenadeIcon;
     [SerializeField] private Image tacticalGrenadeIcon;
 
@@ -196,6 +198,9 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
 
         UpdateAmmoCount();
+
+        item01Icon.enabled = false;
+        item02Icon.enabled = false;
     }
 
     private void UpdateAmmoCount()
@@ -396,6 +401,36 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (playerKillsText != null)
         {
             playerKillsText.text = $"Kills: {kills}";
+        }
+    }
+
+    public void SetItemIcon(int index, Sprite icon)
+    {
+        if (index == 0)
+        {
+            if(icon != null)
+            {
+                item01Icon.sprite = icon;
+                item01Icon.enabled = true;
+            }
+            else
+            {
+                item01Icon.enabled = false;
+            }
+            
+        }
+        else if (index > 0)
+        {
+            if (icon != null)
+            {
+                item02Icon.sprite = icon;
+                item02Icon.enabled = true;
+            }
+            else
+            {
+                item02Icon.enabled = false;
+            }
+
         }
     }
 }
