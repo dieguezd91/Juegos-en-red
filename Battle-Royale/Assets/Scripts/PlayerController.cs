@@ -182,50 +182,30 @@ public class PlayerController : MonoBehaviourPunCallbacks
             print("Player Interacted");
         }
 
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            dropMode = !dropMode;
-        }
-
-        //Use & Discard Item-----------------------------------
+        //Use Item-----------------------------------
         if(dropMode == false)
-        {
-            //if (Input.GetKeyDown(KeyCode.Alpha3))
-            //{
-            //    model.granadeInventory[0].Throw();
-            //}
-            //else if (Input.GetKeyDown(KeyCode.Alpha4))
-            //{
-            //    model.granadeInventory[1].Throw();
-            //}
+        {           
             if (Input.GetKeyDown(KeyCode.Alpha5) && model.itemsInventory[0] != null)
             {
-                model.itemsInventory[0].Use(this);
+                if (model.itemsInventory[0] != null)
+                {
+                    model.itemsInventory[0].Use(this);
+                    model.itemsInventory[0] = null;
+                    UIManager.Instance.SetItemIcon(0, null);
+                    model.itemInventoryFull = false;
+                }               
             }
             else if (Input.GetKeyDown(KeyCode.Alpha6) && model.itemsInventory[1] != null)
             {
-                model.itemsInventory[1].Use(this);
+                if (model.itemsInventory[1] != null)
+                {
+                    model.itemsInventory[1].Use(this);
+                    model.itemsInventory[1] = null;
+                    UIManager.Instance.SetItemIcon(1, null);
+                    model.itemInventoryFull = false;
+                }                
             }
-        }
-        else if (dropMode == true)
-        {
-            //if (Input.GetKeyDown(KeyCode.Alpha3))
-            //{
-            //    DropItem(model.granadeInventory[0]);
-            //}
-            //else if (Input.GetKeyDown(KeyCode.Alpha4))
-            //{
-            //    DropItem(model.granadeInventory[1]);
-            //}
-            if (Input.GetKeyDown(KeyCode.Alpha5) && model.itemsInventory[0] != null)
-            {
-                DropItem(model.itemsInventory[0]);
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha6) && model.itemsInventory[1] != null)
-            {
-                DropItem(model.itemsInventory[1]);
-            }
-        }
+        }        
 //----------------------------------------------------------------
         
     }
@@ -312,38 +292,48 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     public void AddItemToInventory(ItemBase item)
     {
-        if (item.GetType() == typeof(ConsumableInfo))
+        if (model.itemInventoryFull == false)
         {
-            if (model.itemsInventory[0] == null)
+            if (item.GetType() == typeof(ConsumableInfo))
             {
-                model.itemsInventory[0] = item as ConsumableInfo;
-                UIManager.Instance.SetItemIcon(0, item.Icon);
-            }
-            else if (model.itemsInventory[1] == null)
-            {
-                model.itemsInventory[1] = item as ConsumableInfo;
-                UIManager.Instance.SetItemIcon(1, item.Icon);
-            }
-            else
-            {
-                print("inventory is full, please use an Item and then try again");
+                if (model.itemsInventory[0] == null)
+                {
+                    model.itemsInventory[0] = item as ConsumableInfo;
+                    UIManager.Instance.SetItemIcon(0, item.Icon);
+                }
+                else if (model.itemsInventory[1] == null)
+                {
+                    model.itemsInventory[1] = item as ConsumableInfo;
+                    UIManager.Instance.SetItemIcon(1, item.Icon);
+                }
+                else
+                {
+                    print("inventory is full, please use an Item and then try again");
+                }
+
+                if (model.itemsInventory[0] != null && model.itemsInventory[1] != null)
+                {
+                    model.itemInventoryFull = true;
+                    print("inventory full");
+                }
             }
         }
-        else if (item.GetType() == typeof(GranadeInfo))
-        {
-            if (model.granadeInventory[0] == null)
-            {
-                model.granadeInventory[0] = item as GranadeInfo;
-            }
-            else if (model.granadeInventory[1] == null)
-            {
-                model.granadeInventory[1] = item as GranadeInfo;
-            }
-            else
-            {
-                print("inventory is full, please use a Item and then try again");
-            }
-        }
+        
+        //else if (item.GetType() == typeof(GranadeInfo))
+        //{
+        //    if (model.granadeInventory[0] == null)
+        //    {
+        //        model.granadeInventory[0] = item as GranadeInfo;
+        //    }
+        //    else if (model.granadeInventory[1] == null)
+        //    {
+        //        model.granadeInventory[1] = item as GranadeInfo;
+        //    }
+        //    else
+        //    {
+        //        print("inventory is full, please use a Item and then try again");
+        //    }
+        //}
     }
 
     private void DropItem(ItemBase item)

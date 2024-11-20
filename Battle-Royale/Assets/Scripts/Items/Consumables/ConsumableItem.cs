@@ -10,20 +10,17 @@ public class ConsumableItem : CollectableItem
     {
         OnCollected += AddToInventory;        
         OnInfoAssigned += SetSprite;
-        OnCollected += Test;
     }
-
-    void Test(PlayerController player)
-    {        
-        Photon.Pun.PhotonNetwork.Destroy(this.gameObject);
-        print("Consumable collected");
-    }
-
     
 
     private void AddToInventory(PlayerController player)
     {
-        player.AddItemToInventory(consumableInfo);
+        if(player.model.itemInventoryFull == false)
+        {
+            player.AddItemToInventory(consumableInfo);
+            Photon.Pun.PhotonNetwork.Destroy(this.gameObject);
+            print("Consumable collected");
+        }        
     }
 
     public void SetInfo(ConsumableInfo info)

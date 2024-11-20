@@ -16,6 +16,9 @@ public class PlayerModel
     public WeaponInfo[] EquippedWeapons { get; set; }
     public ConsumableInfo[] itemsInventory { get; set; }
     public GranadeInfo[] granadeInventory { get; set; }
+
+    public bool itemInventoryFull = false;
+
     public float StaminaRegenRate { get; set; }
     public float StaminaDrainRate { get; set; }
     public float DashDuration { get; set; }
@@ -47,7 +50,7 @@ public class PlayerModel
         DashCooldown = playerData.DashCooldown;
         InteractionRange = playerData.InteractionRange;
         InteractionLayer = playerData.InteractionLayer;
-        itemsInventory = new ConsumableInfo[2];
+        itemsInventory = new ConsumableInfo[2];        
         granadeInventory = new GranadeInfo[2];
     }
     public void RegenerateStamina()

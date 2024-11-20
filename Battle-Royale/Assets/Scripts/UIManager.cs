@@ -416,6 +416,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             else
             {
                 item01Icon.enabled = false;
+                print("icon deactivated");
             }
             
         }
@@ -429,6 +430,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             else
             {
                 item02Icon.enabled = false;
+                print("icon deactivated");
             }
 
         }
