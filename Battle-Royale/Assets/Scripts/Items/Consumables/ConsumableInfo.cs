@@ -33,7 +33,7 @@ public class ConsumableInfo : ItemBase
                 break;
 
             case 2:
-                user.GetComponent<PlayerModel>().RechargeStamina(recoveryAmount);
+                user.GetComponent<PlayerController>().model.RechargeStamina(recoveryAmount);
                 break;
 
             case 3:

@@ -99,6 +99,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 521ec9234d73bcb40a7aa08af9fc490f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _itemRewards:
+  - {fileID: 0}
+  - {fileID: 0}
   spreadRadius: 3
 --- !u!61 &21665576285792913
 BoxCollider2D:

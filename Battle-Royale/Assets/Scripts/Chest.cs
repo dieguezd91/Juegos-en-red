@@ -6,8 +6,8 @@ public class Chest : MonoBehaviour, IInteractable
 {
     private PhotonView pv;
     private bool _open = false;
-    private WeaponSO[] _weaponRewards;
-    private ItemBase[] _itemRewards;
+    private WeaponSO[] _weaponRewards = new WeaponSO[0];
+    [SerializeField] private ItemBase[] _itemRewards = new ItemBase[1];
 
     [SerializeField] private float spreadRadius = 3f;
 
@@ -73,7 +73,7 @@ public class Chest : MonoBehaviour, IInteractable
 
         foreach (ItemBase item in _itemRewards)
         {
-
+            item.Spawn(GetRandomPosition(), Quaternion.identity);
         }
     }
 

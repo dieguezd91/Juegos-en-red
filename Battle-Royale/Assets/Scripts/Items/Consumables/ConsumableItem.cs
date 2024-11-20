@@ -8,9 +8,9 @@ public class ConsumableItem : CollectableItem
     private System.Action OnInfoAssigned = delegate { };
     void Start()
     {
-        OnCollected += AddToInventory;
-        OnCollected += Test;
+        OnCollected += AddToInventory;        
         OnInfoAssigned += SetSprite;
+        OnCollected += Test;
     }
 
     void Test(PlayerController player)

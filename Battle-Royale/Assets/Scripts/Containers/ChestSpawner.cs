@@ -12,7 +12,10 @@ public class ChestSpawner : MonoBehaviour
 
     private float currentWeight = 80;
     private List<GameObject> chestsSpawned = new List<GameObject>();
-
+    private void Awake()
+    {
+        consumablesLootTable.GetMaxWeight();
+    }
     private void Start()
     {
         StartSpawning();

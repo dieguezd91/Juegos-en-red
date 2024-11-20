@@ -6,21 +6,35 @@ using UnityEngine;
 public class LootTable : ScriptableObject
 {
     [SerializeField] ItemBase[] items;
+    private bool gettingMaxWeight = false;
+    private bool hasMaxWeight = false;
+    private float maxWeight;
 
-    public float GetMaxWeight()
+    public void GetMaxWeight()
     {
+        gettingMaxWeight = true;
+        if (items == null)
+        {
+            Debug.Log("item pool is null");
+        }
         float weight = 0;
         foreach (var item in items)
         {
+            if (item == null)
+            {
+                Debug.Log("Item Does not exist");
+            }
             weight += item.Weight;
+            Debug.Log("Loaded Weight ="+item.Weight);
         }
-
-        return weight;
+        Debug.Log("Max Weight"+weight);
+        hasMaxWeight = true;
+        maxWeight = weight;
     }
 
     public ItemBase DrawItem()
     {
-        var temp = Random.Range(0, GetMaxWeight());
+        float temp = Random.Range(1, maxWeight);
 
         foreach (var item in items)
         {
@@ -30,6 +44,14 @@ public class LootTable : ScriptableObject
             }
             else return item;
         }
+
+        Debug.Log("Draw Failed");
+        if(items == null)
+        {
+            Debug.Log("item pool is null");
+        }
+        Debug.Log("chosen weight: " + temp);
+        
         return null;
     }
 }

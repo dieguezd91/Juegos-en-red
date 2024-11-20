@@ -2985,8 +2985,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnPoints:
   - {fileID: 1061513264}
-  - {fileID: 1077271436}
-  - {fileID: 1338559353}
   chestPrefab: {fileID: 4912555600620394333, guid: f53687176bbd1c243abf97748e705130, type: 3}
   weaponLootTable: {fileID: 11400000, guid: 86263a7737c1bcb469e3b58178ab3aa2, type: 2}
   granadeLootTable: {fileID: 11400000, guid: e5885b01ea2f1f147afcd04a0d06b270, type: 2}
@@ -49169,7 +49167,6 @@ MonoBehaviour:
   minRadius: 0.1
   initialRadius: 0.5
   damagePerSecondOutside: 10
-  zoneRenderer: {fileID: 0}
 --- !u!1 &1413787822
 GameObject:
   m_ObjectHideFlags: 0
