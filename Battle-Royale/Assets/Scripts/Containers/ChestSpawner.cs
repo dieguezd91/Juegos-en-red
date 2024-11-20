@@ -11,10 +11,13 @@ public class ChestSpawner : MonoBehaviour
     [SerializeField] LootTable consumablesLootTable;
 
     private float currentWeight = 80;
+
+    
+
     private List<GameObject> chestsSpawned = new List<GameObject>();
     private void Awake()
     {
-        consumablesLootTable.GetMaxWeight();
+
     }
     private void Start()
     {
@@ -68,7 +71,7 @@ public class ChestSpawner : MonoBehaviour
 
             tempWeaponList.Add(weaponLootTable.DrawWeapon());
 
-            tempList.Add(granadeLootTable.DrawItem());
+            //tempList.Add(granadeLootTable.DrawItem());            
             tempList.Add(consumablesLootTable.DrawItem());
             tempList.Add(consumablesLootTable.DrawItem());
 
