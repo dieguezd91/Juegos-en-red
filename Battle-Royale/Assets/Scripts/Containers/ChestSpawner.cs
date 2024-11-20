@@ -21,7 +21,11 @@ public class ChestSpawner : MonoBehaviour
     }
     private void Start()
     {
-        StartSpawning();
+        if (PhotonNetwork.IsMasterClient)
+        {
+            StartSpawning();
+        }
+        
     }
 
     private void SpawnChests()

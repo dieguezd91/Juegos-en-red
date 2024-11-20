@@ -21,25 +21,7 @@ public class Chest : MonoBehaviour, IInteractable
         print("Chest Interacted");
         if (_open == false && pv != null)
         {
-            pv.RPC("OpenChest", RpcTarget.AllViaServer);
-
-            if (_weaponRewards != null)
-            {
-                foreach (var weapon in _weaponRewards)
-                {
-                    if (weapon != null)
-                        SpawnWeapon(weapon);
-                }
-            }
-
-            if (_itemRewards != null)
-            {
-                foreach (var item in _itemRewards)
-                {
-                    if (item != null)
-                        item.Spawn(GetRandomPosition(), Quaternion.identity);
-                }
-            }
+            pv.RPC("OpenChest", RpcTarget.AllViaServer);            
 
             Debug.Log("Chest interacted");
         }
@@ -84,6 +66,7 @@ public class Chest : MonoBehaviour, IInteractable
         var spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
             spriteRenderer.color = Color.red;
+        SpawnRewards();
         Debug.Log("Chest opened");
     }
 
@@ -97,5 +80,18 @@ public class Chest : MonoBehaviour, IInteractable
     {
         if (items != null)
             _itemRewards = items.ToArray();
+        for(int i = 0; i < _itemRewards.Length; i++)
+        {
+            pv.RPC("TransmitItem", RpcTarget.Others, ItemDictionary.GetItemID(_itemRewards[i]), i, pv.ViewID);
+        }
+    }
+
+    [PunRPC]
+    private void TransmitItem(int itemId, int index, int chestId)
+    {
+        if(pv.ViewID == chestId)
+        {
+          _itemRewards[index] = ItemDictionary.GetItem(itemId);
+        }
     }
 }
