@@ -90,6 +90,9 @@ public class UIManager : MonoBehaviourPunCallbacks
         //maxPlayersValue = maxPlayers.value;
         //isPrivateValue = isPrivate.isOn;
 
+        item01Icon.enabled = false;
+        item02Icon.enabled = false;
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnCountdownUpdate += UpdateCountdownDisplay;
@@ -197,10 +200,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             weaponIcon.enabled = true;
         }
 
-        UpdateAmmoCount();
-
-        item01Icon.enabled = false;
-        item02Icon.enabled = false;
+        UpdateAmmoCount();        
     }
 
     private void UpdateAmmoCount()

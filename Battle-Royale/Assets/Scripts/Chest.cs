@@ -18,12 +18,10 @@ public class Chest : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        print("Chest Interacted");
+        //print("Chest Interacted");
         if (_open == false && pv != null)
         {
-            pv.RPC("OpenChest", RpcTarget.AllViaServer);            
-
-            Debug.Log("Chest interacted");
+            pv.RPC("OpenChest", RpcTarget.AllViaServer);
         }
     }
 
@@ -42,7 +40,7 @@ public class Chest : MonoBehaviour, IInteractable
         if (weaponItem != null)
         {
             weaponItem.SetInfo(weapon);
-            Debug.Log($"Spawned weapon: {weapon.weaponName}");
+            //Debug.Log($"Spawned weapon: {weapon.weaponName}");
         }
     }
 
@@ -67,7 +65,7 @@ public class Chest : MonoBehaviour, IInteractable
         if (spriteRenderer != null)
             spriteRenderer.color = Color.red;
         SpawnRewards();
-        Debug.Log("Chest opened");
+        //Debug.Log("Chest opened");
     }
 
     public void FillChestWithWeapons(List<WeaponSO> weapons)

@@ -8,8 +8,7 @@ public class ConsumableItem : CollectableItem
     private System.Action OnInfoAssigned = delegate { };
     void Start()
     {
-        OnCollected += AddToInventory;        
-        OnInfoAssigned += SetSprite;
+        OnCollected += AddToInventory;
     }
     
 
@@ -26,11 +25,12 @@ public class ConsumableItem : CollectableItem
     public void SetInfo(ConsumableInfo info)
     {
         consumableInfo = info;
-        OnInfoAssigned();
+        SetSprite();
     }
 
     private void SetSprite()
     {
         gameObject.GetComponent<SpriteRenderer>().sprite = consumableInfo.Icon;
+        //print("sprite set");
     }
 }

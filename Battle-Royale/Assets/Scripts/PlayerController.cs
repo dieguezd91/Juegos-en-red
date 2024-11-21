@@ -179,7 +179,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (Input.GetKeyDown(KeyCode.E))
         {
             Interact();
-            print("Player Interacted");
+            //print("Player Interacted");
         }
 
         //Use Item-----------------------------------
@@ -317,32 +317,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     print("inventory full");
                 }
             }
-        }
-        
-        //else if (item.GetType() == typeof(GranadeInfo))
-        //{
-        //    if (model.granadeInventory[0] == null)
-        //    {
-        //        model.granadeInventory[0] = item as GranadeInfo;
-        //    }
-        //    else if (model.granadeInventory[1] == null)
-        //    {
-        //        model.granadeInventory[1] = item as GranadeInfo;
-        //    }
-        //    else
-        //    {
-        //        print("inventory is full, please use a Item and then try again");
-        //    }
-        //}
+        }  
+       
     }
 
-    private void DropItem(ItemBase item)
-    {
-        if (item.GetType() == typeof(GranadeInfo))
-        {
-            GranadeInfo granade = item as GranadeInfo;
+    //private void DropItem(ItemBase item)
+    //{
+    //    if (item.GetType() == typeof(GranadeInfo))
+    //    {
+    //        GranadeInfo granade = item as GranadeInfo;
 
-            granade.Spawn(transform.forward*3, Quaternion.identity);
-        }
-    }
+    //        granade.Spawn(transform.forward*3, Quaternion.identity);
+    //    }
+    //}
 }

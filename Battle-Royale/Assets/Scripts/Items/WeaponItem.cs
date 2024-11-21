@@ -27,10 +27,7 @@ public class WeaponItem : CollectableItem
             {
                 weaponController.EquipWeapon(weaponInfo, player.gameObject.GetComponent<PlayerWeaponController>().pv.ViewID);
 
-                if (photonView.IsMine)
-                {
-                    PhotonNetwork.Destroy(gameObject);
-                }
+                PhotonNetwork.Destroy(this.gameObject);
             }
         }
     }

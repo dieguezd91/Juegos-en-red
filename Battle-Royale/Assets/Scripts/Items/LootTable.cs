@@ -18,7 +18,6 @@ public class LootTable : ScriptableObject
         foreach (var item in items)
         {           
             weight += item.Weight;
-            Debug.Log("Loaded Weight ="+item.Weight);
         }
         maxWeight = weight;
         
@@ -39,8 +38,6 @@ public class LootTable : ScriptableObject
                 else return item;
             }          
         }
-
-        Debug.Log("Draw failed");
 
         return items[Random.Range(0, items.Length-1)];
     }        
