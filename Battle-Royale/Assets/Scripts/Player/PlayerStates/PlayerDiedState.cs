@@ -9,6 +9,7 @@ public class PlayerDiedState<T> : PlayerStateBase<T>
     {
         base.Awake();
         Debug.Log("DiedENTER");
+        GameManager.Instance.AssignNewMasterClient();
     }
 
     public override void Execute()

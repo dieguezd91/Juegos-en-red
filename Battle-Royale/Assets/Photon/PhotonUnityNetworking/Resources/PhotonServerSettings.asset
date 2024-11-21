@@ -67,6 +67,7 @@ MonoBehaviour:
   - TransmitItem
   - SyncAddPlayer
   - SetPlayerNickname
+  - NotifyMapReady
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

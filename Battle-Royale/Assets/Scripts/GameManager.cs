@@ -251,14 +251,20 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             MaxPlayers = _maxPlayers,
             IsVisible = !isPrivate,
+            PlayerTtl = 600000,
+            EmptyRoomTtl = 0,
             CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
             {
                 { "UsedNicknames", new string[0] }
             }
+            
         };
         maxPlayers = _maxPlayers;
         PhotonNetwork.CreateRoom(UIManager.Instance.createInput.text, roomConfig);
         inRoom = true;
+        
+        PhotonView mapView = PhotonNetwork.Instantiate("MapPrefab", Vector3.zero, Quaternion.identity, 0).GetComponent<PhotonView>();
+        mapView.RPC("NotifyMapReady", RpcTarget.All);
     }
 
     public override void OnJoinedRoom()
@@ -275,6 +281,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             }
             return;
         }
+        
 
         // Agregar el nickname a la lista de la sala
         AddNicknameToRoom(PhotonNetwork.NickName);
@@ -288,6 +295,22 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         PhotonNetwork.LoadLevel("Gameplay");
+        if (PhotonNetwork.IsMasterClient)
+        {
+            // Instanciar el mapa si no existe
+            if (GameObject.Find("MapPrefab(Clone)") == null)
+            {
+                //PhotonNetwork.Instantiate("MapPrefab", Vector3.zero, Quaternion.identity, 0);
+                PhotonView mapView = PhotonNetwork.Instantiate("MapPrefab", Vector3.zero, Quaternion.identity, 0).GetComponent<PhotonView>();
+                mapView.RPC("NotifyMapReady", RpcTarget.All);
+            }
+        }
+    }
+    [PunRPC]
+    private void NotifyMapReady()
+    {
+        Debug.Log("Map is ready and synchronized.");
+        // Realiza aquí cualquier lógica adicional para notificar a los jugadores.
     }
 
     private bool IsNicknameInUse(string nickname)
@@ -518,6 +541,11 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         if (PhotonNetwork.IsMasterClient)
         {
+            AssignNewMasterClient();
+        }
+        
+        if (PhotonNetwork.IsMasterClient)
+        {
             List<PlayerController> playersToKeep = new List<PlayerController>();
 
             foreach (PlayerController player in playerList)
@@ -543,7 +571,27 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         UpdateAllPlayersUI();
     }
+    public void AssignNewMasterClient()
+    {
+        Player bestCandidate = null;
 
+        // Ejemplo: Seleccionar el jugador con el ID más bajo como MasterClient
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            if (bestCandidate == null || player.ActorNumber < bestCandidate.ActorNumber)
+            {
+                bestCandidate = player;
+            }
+        }
+
+        if (bestCandidate != null)
+        {
+            PhotonNetwork.SetMasterClient(bestCandidate);
+            Debug.Log($"Se asignó manualmente a {bestCandidate.NickName} como nuevo MasterClient.");
+        }
+    }
+
+    
     [PunRPC]
     private void EndMatch()
     {
@@ -637,7 +685,14 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     private void StartActualMatch()
     {
         if (roundStarted) return;
-
+        if (PhotonNetwork.IsMasterClient)
+        {
+            // Instanciar el mapa solo si aún no existe
+            if (GameObject.Find("MapPrefab(Clone)") == null)
+            {
+                PhotonNetwork.Instantiate("MapPrefab", Vector3.zero, Quaternion.identity, 0);
+            }
+        }
         foreach (PlayerController player in playerList)
         {
             if (player != null)
@@ -653,6 +708,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         if (PhotonNetwork.IsMasterClient)
         {
+            //PhotonNetwork.Instantiate("MapPrefab", Vector3.zero, Quaternion.identity);
             roundStartTimeStamp = PhotonNetwork.Time;
             pv.RPC("SyncMatchStart", RpcTarget.All);
         }
