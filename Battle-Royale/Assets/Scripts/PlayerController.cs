@@ -175,15 +175,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
             model.IsDashing = true;
             StartCoroutine(Dash());
         }
-
+        
         if (Input.GetKeyDown(KeyCode.E))
         {
             Interact();
             //print("Player Interacted");
         }
 
-        //Use Item-----------------------------------
-        if(dropMode == false)
+//-------------------------------Use Item----------------------------
+        if (dropMode == false)
         {           
             if (Input.GetKeyDown(KeyCode.Alpha5) && model.itemsInventory[0] != null)
             {
@@ -206,8 +206,29 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 }                
             }
         }        
-//----------------------------------------------------------------
-        
+//----------------------------------------------------------------------------
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            if(gameObject.GetComponent<PlayerWeaponController>().CheckWeaponSlot(1) != null)
+            {
+                gameObject.GetComponent<PlayerWeaponController>().SwitchWeapon(1);
+            }
+            else
+            {
+                print("No weapon detected on slot 1");
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            if (gameObject.GetComponent<PlayerWeaponController>().CheckWeaponSlot(0) != null)
+            {
+                gameObject.GetComponent<PlayerWeaponController>().SwitchWeapon(0);
+            }
+            else
+            {
+                print("No weapon detected on slot 0");
+            }
+        }
     }
 
     private void Move()

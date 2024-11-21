@@ -20,20 +20,20 @@ public class WeaponItem : CollectableItem
 
     void HandleWeaponCollection(PlayerController player)
     {
-        if (weaponInfo != null)
+        var weaponController = player.gameObject.GetComponent<PlayerWeaponController>();
+        bool weaponSlotsfull = weaponController.WeaponSlotsFull;
+        if (!weaponSlotsfull)
         {
-            var weaponController = player.GetComponent<PlayerWeaponController>();
-            if (weaponController != null)
-            {
-                weaponController.EquipWeapon(weaponInfo, player.gameObject.GetComponent<PlayerWeaponController>().pv.ViewID);
-
-                PhotonNetwork.Destroy(this.gameObject);
-            }
+            weaponController.CollectWeapon(weaponInfo);
+            PhotonNetwork.Destroy(this.gameObject);
         }
+
     }
 
-    public void SetInfo(WeaponSO info)
+    
+    public void SetInfo(WeaponSO info) //Must be executed be whoever spawns this WeaponItem
     {
-        weaponInfo = info;        
+        weaponInfo = info;
+        gameObject.GetComponent<SpriteRenderer>().sprite = weaponInfo.weaponIcon;
     }
 }

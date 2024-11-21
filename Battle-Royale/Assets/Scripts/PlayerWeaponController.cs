@@ -11,6 +11,10 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
     [SerializeField] private Transform playerSprite;
     [SerializeField] private WeaponSO defaultWeapon;
 
+    private WeaponSO[] weaponSlots = new WeaponSO[2];
+    private bool weaponSlotsFull = false;
+    public bool WeaponSlotsFull { get { return weaponSlotsFull; } }
+
     public WeaponBase currentWeapon { get; private set; }
     public event Action<WeaponBase> OnWeaponChanged;
     private Camera mainCamera;
@@ -21,7 +25,8 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         _pv = GetComponent<PhotonView>();
         mainCamera = Camera.main;
 
-        EquipWeapon(defaultWeapon, _pv.ViewID);
+        weaponSlots[0] = defaultWeapon;
+        EquipWeapon(_pv.ViewID, 0);
        
     }
 
@@ -123,10 +128,73 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         }
     }
 
-    public void EquipWeapon(WeaponSO weaponData, int id)
+    private void EquipWeapon(int photonId, int weaponSlot = 1)
     {
-        int weaponId = WeaponDictionary.GetWeaponID(weaponData);
-        _pv.RPC("EquipWeaponRPC", RpcTarget.AllBuffered, weaponId, id);
+        int weaponId = WeaponDictionary.GetWeaponID(weaponSlots[weaponSlot]);
+        _pv.RPC("EquipWeaponRPC", RpcTarget.AllBuffered, weaponId, photonId);
+    }
+
+    public void CollectWeapon(WeaponSO weaponData)
+    {
+        int chosenSlot = 0;
+        for (int i = 1; i < weaponSlots.Length; i++)
+        {
+            if (weaponSlots[i] == null)
+            {
+                weaponSlots[i] = weaponData;
+                chosenSlot = i;
+                print("Weapon equiped on slot "+i);
+                break;
+            }          
+        }
+
+        int count = 0;
+        for(int i= 0; i < weaponSlots.Length; i++)
+        {
+            if(weaponSlots[i] == null)
+            {
+                weaponSlotsFull = false;
+                break;
+            }
+            else
+            {
+                count++;
+            }
+        }
+
+        if(count == weaponSlots.Length - 1)
+        {
+            weaponSlotsFull = true;
+            print("weapon slot full");
+        }
+
+        if (currentWeapon == weaponSlots[0])
+        {
+            EquipWeapon(_pv.ViewID, chosenSlot);
+        }
+    }
+
+    public void DropWeapon(int weaponSlot = 1)
+    {
+        weaponSlots[weaponSlot].SpawnWeaponInWorld(new Vector3(transform.position.x, transform.position.y, transform.position.z + 3), Quaternion.identity);
+        weaponSlots[weaponSlot] = null;
+    }
+
+    public void SwitchWeapon(int weaponSlot)
+    {
+        EquipWeapon(_pv.ViewID, weaponSlot);
+    }
+
+    public WeaponSO CheckWeaponSlot(int slot)
+    {
+        if (slot < weaponSlots.Length)
+        {
+            return weaponSlots[slot];
+        }
+
+        print("Error. Tried to access weapon slot " + slot);
+        return null;
+        
     }
 
     [PunRPC]

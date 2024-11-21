@@ -153,7 +153,7 @@ MonoBehaviour:
   arm: {fileID: 6926726929081896047}
   weaponPlaceHolder: {fileID: 5202084446395136200}
   playerSprite: {fileID: 1090483642068446955}
-  defaultWeapon: {fileID: 11400000, guid: b4efdf5ef958c2442bfc846b5d9b2608, type: 2}
+  defaultWeapon: {fileID: 11400000, guid: 6c7890dbda737e948ab569a2d941feba, type: 2}
 --- !u!114 &-4929117486304870105
 MonoBehaviour:
   m_ObjectHideFlags: 0
