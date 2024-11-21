@@ -82,6 +82,7 @@ public class BulletPrefab : MonoBehaviourPunCallbacks, IPunObservable
         else if (collision.gameObject.layer == 11)
         {
             NetworkDestroyBullet();
+            print("bullet-wall collision");
         }
     }
 
