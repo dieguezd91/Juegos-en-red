@@ -6,6 +6,7 @@ public abstract class WeaponBase : MonoBehaviour, IWeapon
     public WeaponSO weaponData { get; protected set; }
     public int currentAmmo;
     protected bool isReloading;
+    public bool IsReloading { get { return isReloading; } }
     protected float nextFireTime;
 
     public virtual void Initialize(WeaponSO data)

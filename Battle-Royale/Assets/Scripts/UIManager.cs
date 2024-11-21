@@ -52,6 +52,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     [Header("Weapon UI")]
     [SerializeField] private TextMeshProUGUI currentWeaponText;
     [SerializeField] private TextMeshProUGUI ammoText;
+    [SerializeField] private GameObject weaponReloadIndicator;
+    [SerializeField] private Image reloadTimer;
     [SerializeField] private TextMeshProUGUI lethalGrenadeAmount;
     [SerializeField] private TextMeshProUGUI tacticalGrenadeAmount;
     [SerializeField] private Image weaponIcon;
@@ -108,6 +110,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 
         item01Icon.enabled = false;
         item02Icon.enabled = false;
+        weaponReloadIndicator.SetActive(false);
 
         createButton.interactable = false;
         joinButton.interactable = false;
@@ -236,7 +239,19 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             var currentAmmo = _weaponController.currentWeapon.currentAmmo;
             var maxAmmo = _weaponController.currentWeapon.weaponData.magazineSize;
-            ammoText.text = $"{currentAmmo}/{maxAmmo}";
+            ammoText.text = $"{currentAmmo}/{maxAmmo}";            
+        }
+
+        if (_weaponController.currentWeapon.IsReloading)
+        {
+            print("reloading = " + _weaponController.currentWeapon.IsReloading);
+            weaponReloadIndicator.SetActive(true);
+            reloadTimer.fillAmount -= Time.deltaTime / _weaponController.currentWeapon.weaponData.reloadTime;
+        }
+        else if (weaponReloadIndicator.activeSelf && _weaponController.currentWeapon.IsReloading == false)
+        {
+            weaponReloadIndicator.SetActive(false);
+            reloadTimer.fillAmount = 1;
         }
     }
 
@@ -543,5 +558,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(errorDisplayTime);
         HideError();
         errorCoroutine = null;
+    }
+
+    private void UpdateReloadCircle()
+    {
+
     }
 }
