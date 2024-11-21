@@ -162,7 +162,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
             }
         }
 
-        if(count == weaponSlots.Length - 1)
+        if(count == weaponSlots.Length)
         {
             weaponSlotsFull = true;
             print("weapon slot full");
@@ -181,6 +181,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         SwitchWeapon(0);
         weaponSlots[weaponSlot].SpawnWeaponInWorld(new Vector3(transform.position.x + 3, transform.position.y, transform.position.z), Quaternion.identity);
         weaponSlots[weaponSlot] = null;
+        weaponSlotsFull = false;
     }
 
     public void SwitchWeapon(int weaponSlot)

@@ -20,11 +20,9 @@ public class WeaponItem : CollectableItem
 
     void HandleWeaponCollection(PlayerController player)
     {
-        var weaponController = player.gameObject.GetComponent<PlayerWeaponController>();
-        bool weaponSlotsfull = weaponController.WeaponSlotsFull;
-        if (!weaponSlotsfull)
+        if (!player.gameObject.GetComponent<PlayerWeaponController>().WeaponSlotsFull)
         {
-            weaponController.CollectWeapon(weaponInfo);
+            player.gameObject.GetComponent<PlayerWeaponController>().CollectWeapon(weaponInfo);
             PhotonNetwork.Destroy(this.gameObject);
         }
 
