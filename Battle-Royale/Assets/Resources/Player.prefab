@@ -65,6 +65,7 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 8294108036728248618}
+  - {fileID: 1391522466767744102}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -449,6 +450,7 @@ GameObject:
   - component: {fileID: 219453316816946359}
   - component: {fileID: 5486560594146684804}
   - component: {fileID: 339469153270874819}
+  - component: {fileID: 1391522466767744102}
   m_Layer: 7
   m_Name: Body
   m_TagString: Untagged
@@ -544,6 +546,45 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1391522466767744102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6803196018453078604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 4
+    SynchronizeType: 1
+    Name: IsMoving
+  - Type: 4
+    SynchronizeType: 1
+    Name: IsSprinting
+  - Type: 4
+    SynchronizeType: 1
+    Name: IsIdle
+  - Type: 4
+    SynchronizeType: 1
+    Name: IsMovingWithWeapon
+  - Type: 4
+    SynchronizeType: 1
+    Name: IsSprintingWithWeapon
+  - Type: 4
+    SynchronizeType: 1
+    Name: IsIdleWithWeapon
+  - Type: 4
+    SynchronizeType: 1
+    Name: IsDashing
+  m_SynchronizeLayers:
+  - SynchronizeType: 1
+    LayerIndex: 0
 --- !u!1 &8648791315735877163
 GameObject:
   m_ObjectHideFlags: 0
