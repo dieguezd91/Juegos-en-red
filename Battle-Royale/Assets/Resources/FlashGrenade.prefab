@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 2766341965200390045}
   - component: {fileID: 1833368125246315690}
   - component: {fileID: 6441545806512029935}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: FlashGrenade
-  m_TagString: Untagged
+  m_TagString: Grenade
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 3860908000423857924}
   - component: {fileID: 8332704263546167168}
   - component: {fileID: 2239154863547137525}
-  m_Layer: 5
+  m_Layer: 13
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -282,7 +282,7 @@ GameObject:
   - component: {fileID: 1348204744913576356}
   - component: {fileID: 664502935954359067}
   - component: {fileID: 8467381277708316093}
-  m_Layer: 5
+  m_Layer: 13
   m_Name: Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}

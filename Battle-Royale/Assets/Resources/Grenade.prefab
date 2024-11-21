@@ -15,9 +15,9 @@ GameObject:
   - component: {fileID: 1703735728302755299}
   - component: {fileID: 1604313336180100575}
   - component: {fileID: 581999934635261074}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Grenade
-  m_TagString: Untagged
+  m_TagString: Grenade
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -239,7 +239,7 @@ GameObject:
   - component: {fileID: 7237177766281071324}
   - component: {fileID: 2917333097553044373}
   - component: {fileID: 4910662765587521442}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: ExplosionRange
   m_TagString: Untagged
   m_Icon: {fileID: 0}

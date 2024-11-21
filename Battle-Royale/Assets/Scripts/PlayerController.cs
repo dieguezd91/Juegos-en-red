@@ -30,14 +30,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
         pv = GetComponent<PhotonView>();
         _rb = GetComponent<Rigidbody2D>();
         LifeController = GetComponent<LifeController>();
-        if (pv.IsMine)
-        {
-            OnPlayerControllerInstantiated?.Invoke(this);
-            StartCoroutine(RegenerateStamina());
-        }
+
         InitializedTree();
         InitializedFSM();
         isInitialized = true;
+
+        OnPlayerControllerInstantiated?.Invoke(this);
+
+        if (pv.IsMine)
+        {
+            StartCoroutine(RegenerateStamina());
+        }
     }
 
     public bool IsInitialized()

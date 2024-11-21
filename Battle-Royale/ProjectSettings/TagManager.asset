@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Bullet
   - TimerText
+  - Grenade
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - ViewTarget
   - Wall
   - Weapon
-  - 
+  - Grenade
   - 
   - 
   - 

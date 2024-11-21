@@ -7,7 +7,6 @@ public class GameController : MonoBehaviourPunCallbacks
 {
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
-
     private float waitTime = 0.3f;
     private float currentWaitTime;
     private bool initialized = false;
@@ -22,6 +21,21 @@ public class GameController : MonoBehaviourPunCallbacks
         {
             GameManager.Instance.GetGameController(this);
         }
+    }
+
+    private void OnEnable()
+    {
+        PlayerController.OnPlayerControllerInstantiated += HandlePlayerInstantiated;
+    }
+
+    private void OnDisable()
+    {
+        PlayerController.OnPlayerControllerInstantiated -= HandlePlayerInstantiated;
+    }
+
+    private void HandlePlayerInstantiated(PlayerController player)
+    {
+        OnPlayerSpawn?.Invoke(player);
     }
 
     private void Update()
@@ -42,15 +56,11 @@ public class GameController : MonoBehaviourPunCallbacks
     private void SpawnPlayer()
     {
         if (!PhotonNetwork.IsConnected || isSpawning) return;
-
         try
         {
             isSpawning = true;
-
             if (playerPrefab == null)
-            {
                 return;
-            }
 
             Vector2 spawnPosition = new Vector2(Random.Range(-4, 4), Random.Range(-4, 4));
             GameObject playerGO = PhotonNetwork.Instantiate(
@@ -59,14 +69,10 @@ public class GameController : MonoBehaviourPunCallbacks
                 Quaternion.identity
             );
 
-            if (playerGO == null)
-            {
-                return;
-            }
-
-            StartCoroutine(SetupPlayerCoroutine(playerGO));
+            if (playerGO != null)
+                StartCoroutine(SetupPlayerCoroutine(playerGO));
         }
-        catch (System.Exception e)
+        catch
         {
             isSpawning = false;
         }
@@ -74,41 +80,31 @@ public class GameController : MonoBehaviourPunCallbacks
 
     private IEnumerator SetupPlayerCoroutine(GameObject playerGO)
     {
-        yield return new WaitForEndOfFrame();
-
-        try
-        {
-            PlayerController playerController = playerGO.GetComponent<PlayerController>();
-            PhotonView playerPV = playerGO.GetComponent<PhotonView>();
-
-            if (playerController == null || playerPV == null)
-            {
-                yield break;
-            }
-
-            if (playerPV.IsMine)
-            {
-                if (virtualCamera != null)
-                {
-                    virtualCamera.Follow = playerGO.transform;
-                }
-
-                if (playerController.IsInitialized())
-                {
-                    OnPlayerSpawn?.Invoke(playerController);
-                }
-            }
-
-            initialized = true;
-        }
-        catch (System.Exception e)
-        {
-            Debug.Log($"Error en SetupPlayerCoroutine");
-        }
-        finally
+        if (playerGO == null)
         {
             isSpawning = false;
+            yield break;
         }
+
+        yield return new WaitForEndOfFrame();
+
+        PlayerController playerController = playerGO.GetComponent<PlayerController>();
+        PhotonView playerPV = playerGO.GetComponent<PhotonView>();
+
+        if (playerController == null || playerPV == null)
+        {
+            isSpawning = false;
+            yield break;
+        }
+
+        // Configurar la cámara solo para el jugador local
+        if (playerPV.IsMine && virtualCamera != null)
+        {
+            virtualCamera.Follow = playerGO.transform;
+        }
+
+        isSpawning = false;
+        initialized = true;
     }
 
     public override void OnLeftRoom()

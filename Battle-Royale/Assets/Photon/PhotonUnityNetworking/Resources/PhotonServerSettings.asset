@@ -65,6 +65,7 @@ MonoBehaviour:
   - SyncPlayerCount
   - EquipWeaponRPC
   - TransmitItem
+  - SyncAddPlayer
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
