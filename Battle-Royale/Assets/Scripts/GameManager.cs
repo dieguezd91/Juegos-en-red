@@ -1,5 +1,6 @@
 using Photon.Pun;
 using Photon.Realtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,12 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
-    public static GameManager Instance;
+    private static GameManager instance;
+    public static GameManager Instance
+    {
+        get { return instance; }
+        private set { instance = value; }
+    }
 
     private PhotonView pv;
     public SceneController SceneManager { get; private set; }
@@ -47,17 +53,20 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public event GameEvent OnPlayerRespawn;
 
     private GameController gameController;
-    private HashSet<int> activePlayerIds = new HashSet<int>();
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+            pv = GetComponent<PhotonView>();
+        }
+        else if (instance != this)
+        {
             Destroy(gameObject);
-
-        DontDestroyOnLoad(gameObject);
-        pv = GetComponent<PhotonView>();
+            return;
+        }
     }
 
     private void Start()
@@ -101,6 +110,31 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+
+    public override void OnLeftRoom()
+    {
+        RemoveNicknameFromRoom(PhotonNetwork.NickName);
+        base.OnLeftRoom();
+
+        if (instance == this)
+        {
+            instance = null;
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (gameController != null)
+        {
+            gameController.OnPlayerSpawn -= AddPlayer;
+        }
+
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
 
     private void UpdateRoundTime()
     {
@@ -172,28 +206,55 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         StartCoroutine(CountdownRoutine());
     }
 
-
     public void GetGameController(GameController controller)
     {
         gameController = controller;
         if (gameController != null)
         {
             gameController.OnPlayerSpawn += AddPlayer;
+
+            // Verificar jugadores existentes
+            PlayerController[] existingPlayers = FindObjectsOfType<PlayerController>();
+            foreach (var player in existingPlayers)
+            {
+                if (player.IsInitialized() && !playerList.Contains(player))
+                {
+                    AddPlayer(player);
+                }
+            }
         }
     }
 
     public void JoinRoom()
     {
+        if (string.IsNullOrEmpty(PhotonNetwork.NickName))
+        {
+            UIManager.Instance.ShowError("Please set a nickname first");
+            UIManager.Instance.ShowNicknamePanel();
+            return;
+        }
+
         PhotonNetwork.JoinRoom(UIManager.Instance.joinInput.text);
         inRoom = true;
     }
 
     public void CreateRoom(int _maxPlayers, bool isPrivate)
     {
+        if (string.IsNullOrEmpty(PhotonNetwork.NickName))
+        {
+            UIManager.Instance.ShowError("Please set a nickname first");
+            UIManager.Instance.ShowNicknamePanel();
+            return;
+        }
+
         var roomConfig = new RoomOptions
         {
             MaxPlayers = _maxPlayers,
-            IsVisible = isPrivate
+            IsVisible = !isPrivate,
+            CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
+            {
+                { "UsedNicknames", new string[0] }
+            }
         };
         maxPlayers = _maxPlayers;
         PhotonNetwork.CreateRoom(UIManager.Instance.createInput.text, roomConfig);
@@ -204,6 +265,20 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         base.OnJoinedRoom();
 
+        if (IsNicknameInUse(PhotonNetwork.NickName))
+        {
+            PhotonNetwork.LeaveRoom();
+            UIManager.Instance.ShowError("Nickname already in use. Please choose another one");
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowNicknamePanel();
+            }
+            return;
+        }
+
+        // Agregar el nickname a la lista de la sala
+        AddNicknameToRoom(PhotonNetwork.NickName);
+
         inRoom = true;
         ClearLists();
 
@@ -213,6 +288,49 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         PhotonNetwork.LoadLevel("Gameplay");
+    }
+
+    private bool IsNicknameInUse(string nickname)
+    {
+        if (PhotonNetwork.CurrentRoom != null)
+        {
+            string[] usedNicknames = (string[])PhotonNetwork.CurrentRoom.CustomProperties["UsedNicknames"];
+            if (usedNicknames != null)
+            {
+                return usedNicknames.Contains(nickname);
+            }
+        }
+        return false;
+    }
+
+    private void AddNicknameToRoom(string nickname)
+    {
+        if (PhotonNetwork.CurrentRoom != null)
+        {
+            var properties = PhotonNetwork.CurrentRoom.CustomProperties;
+            string[] currentNicknames = (string[])properties.GetValueOrDefault("UsedNicknames", new string[0]);
+
+            string[] newNicknames = new string[currentNicknames.Length + 1];
+            Array.Copy(currentNicknames, newNicknames, currentNicknames.Length);
+            newNicknames[currentNicknames.Length] = nickname;
+
+            properties["UsedNicknames"] = newNicknames;
+            PhotonNetwork.CurrentRoom.SetCustomProperties(properties);
+        }
+    }
+
+    private void RemoveNicknameFromRoom(string nickname)
+    {
+        if (PhotonNetwork.CurrentRoom != null)
+        {
+            var properties = PhotonNetwork.CurrentRoom.CustomProperties;
+            string[] currentNicknames = (string[])properties.GetValueOrDefault("UsedNicknames", new string[0]);
+
+            string[] newNicknames = currentNicknames.Where(n => n != nickname).ToArray();
+
+            properties["UsedNicknames"] = newNicknames;
+            PhotonNetwork.CurrentRoom.SetCustomProperties(properties);
+        }
     }
 
     public void LoadSpawnPoints(List<Transform> spawnLocations)
@@ -231,20 +349,21 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+    private bool HasPlayer(int playerId)
+    {
+        return playerList.Any(p => p != null && p.pv != null && p.pv.ViewID == playerId);
+    }
+
     public void AddPlayer(PlayerController playerToAdd)
     {
         if (playerToAdd == null || playerToAdd.pv == null)
-        {
             return;
-        }
 
         int playerId = playerToAdd.pv.ViewID;
+        bool playerExists = playerList.Any(p => p != null && p.pv != null && p.pv.ViewID == playerId);
 
-        // Verificar si el jugador ya existe
-        if (!playerList.Contains(playerToAdd))
+        if (!playerExists)
         {
-            playerList.Add(playerToAdd);
-
             if (PhotonNetwork.IsMasterClient)
             {
                 Transform spawnPoint = GetAvailableSpawnPoint();
@@ -265,12 +384,30 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 }
             }
 
-            // Sincronizar la lista de jugadores
-            if (PhotonNetwork.IsMasterClient)
-            {
-                pv.RPC("SyncPlayerCount", RpcTarget.All, GetPlayersAlive());
-            }
+            playerList.Add(playerToAdd);
+            pv.RPC("SyncPlayerCount", RpcTarget.All, GetPlayersAlive());
+            UpdateAllPlayersUI();
+        }
+    }
 
+    [PunRPC]
+    private void SyncAddPlayer(int playerId)
+    {
+        if (!playerList.Any(p => p != null && p.pv != null && p.pv.ViewID == playerId))
+        {
+            PhotonView[] views = FindObjectsOfType<PhotonView>();
+            foreach (PhotonView view in views)
+            {
+                if (view.ViewID == playerId)
+                {
+                    PlayerController player = view.GetComponent<PlayerController>();
+                    if (player != null)
+                    {
+                        playerList.Add(player);
+                        break;
+                    }
+                }
+            }
             UpdateAllPlayersUI();
         }
     }
@@ -288,7 +425,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (availableSpawnPoints.Count == 0) return null;
 
-        int randomIndex = Random.Range(0, availableSpawnPoints.Count);
+        int randomIndex = UnityEngine.Random.Range(0, availableSpawnPoints.Count);
         Transform selectedSpawn = availableSpawnPoints.ElementAt(randomIndex);
 
         return selectedSpawn;
@@ -348,14 +485,11 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     public void RemovePlayer(PlayerController playerToRemove)
     {
+        if (playerToRemove == null || playerToRemove.pv == null) return;
+
         if (playerToRemove.pv.IsMine)
         {
-            // Remover el ID del jugador antes de salir
-            if (playerToRemove.pv != null)
-            {
-                activePlayerIds.Remove(playerToRemove.pv.ViewID);
-            }
-
+            playerList.Remove(playerToRemove);
             PhotonNetwork.LeaveRoom();
             ResetBools();
             ClearLists();
@@ -363,11 +497,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            // Si es otro jugador, solo actualizar la UI
-            if (playerToRemove.pv != null)
-            {
-                activePlayerIds.Remove(playerToRemove.pv.ViewID);
-            }
+            playerList.Remove(playerToRemove);
             UpdateAllPlayersUI();
         }
     }
@@ -396,14 +526,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 {
                     playersToKeep.Add(player);
                 }
-                else
-                {
-                    // Remover el ID del jugador que se fue
-                    if (player != null && player.pv != null)
-                    {
-                        activePlayerIds.Remove(player.pv.ViewID);
-                    }
-                }
             }
 
             playerList = playersToKeep;
@@ -427,6 +549,12 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         ResetBools();
         ClearLists();
+
+        if (Instance == this)
+        {
+            CleanupManager();
+        }
+
         PhotonNetwork.LoadLevel("MainMenu");
     }
 
@@ -612,11 +740,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 #endif
     }
 
-    private void OnDestroy()
+    public void CleanupManager()
     {
-        if (gameController != null)
+        ClearLists();
+        if (instance == this)
         {
-            gameController.OnPlayerSpawn -= AddPlayer;
+            instance = null;
         }
+        Destroy(gameObject);
     }
 }

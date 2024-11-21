@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using TMPro;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
@@ -23,6 +24,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private ItemBase itemSelected;
     private bool dropMode = false;
 
+    [SerializeField] private TextMeshProUGUI nicknameText;
+    private string nickname;
+    [SerializeField] private Transform nicknameCanvas;
+
     private void Start()
     {
         model = new PlayerModel(PlayerData);
@@ -30,14 +35,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
         pv = GetComponent<PhotonView>();
         _rb = GetComponent<Rigidbody2D>();
         LifeController = GetComponent<LifeController>();
-        if (pv.IsMine)
-        {
-            OnPlayerControllerInstantiated?.Invoke(this);
-            StartCoroutine(RegenerateStamina());
-        }
+
         InitializedTree();
         InitializedFSM();
         isInitialized = true;
+
+        if (pv.IsMine)
+        {
+            pv.RPC("SetPlayerNickname", RpcTarget.AllBuffered, PhotonNetwork.NickName);
+        }
+
+        OnPlayerControllerInstantiated?.Invoke(this);
+
+        if (pv.IsMine)
+        {
+            StartCoroutine(RegenerateStamina());
+        }
     }
 
     public bool IsInitialized()
@@ -57,6 +70,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Move();
         }
     }
+
+    private void LateUpdate()
+    {
+        if (nicknameCanvas != null)
+        {
+            nicknameCanvas.localScale = Vector3.one;
+            nicknameCanvas.forward = Camera.main.transform.forward;
+        }
+    }
+
 
     void InitializedFSM()
     {
@@ -363,6 +386,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
         }  
        
+    }
+
+    [PunRPC]
+    public void SetPlayerNickname(string newNickname)
+    {
+        nickname = newNickname;
+
+        if (nicknameText != null)
+        {
+            nicknameText.text = nickname;
+        }
+    }
+
+    public string GetNickname()
+    {
+        return nickname;
     }
 
     //private void DropItem(ItemBase item)

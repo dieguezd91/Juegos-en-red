@@ -64,6 +64,17 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject countdownPanel;
     [SerializeField] private TextMeshProUGUI countdownText;
 
+    [Header("Nickname Panel")]
+    [SerializeField] private GameObject nicknamePanel;
+    [SerializeField] private TMP_InputField nicknameInput;
+    [SerializeField] private Button confirmNicknameButton;
+
+    [Header("Error Handling")]
+    [SerializeField] private GameObject errorPanel;
+    [SerializeField] private TextMeshProUGUI errorText;
+    [SerializeField] private Button errorOkButton;
+    [SerializeField] private float errorDisplayTime = 3f;
+    private Coroutine errorCoroutine;
 
     private void Awake()
     {
@@ -85,6 +96,11 @@ public class UIManager : MonoBehaviourPunCallbacks
         createButton.onClick.AddListener(RequestRoomCreation);
         joinButton.onClick.AddListener(GameManager.Instance.JoinRoom);
         exitBtn.onClick.AddListener(GameManager.Instance.Quit);
+        confirmNicknameButton.onClick.AddListener(ValidateAndSetNickname);
+        if (errorOkButton != null)
+        {
+            errorOkButton.onClick.AddListener(HideError);
+        }
         //maxPlayers.onValueChanged.AddListener(SetMaxPlayers);
 
         //maxPlayersValue = maxPlayers.value;
@@ -93,11 +109,16 @@ public class UIManager : MonoBehaviourPunCallbacks
         item01Icon.enabled = false;
         item02Icon.enabled = false;
 
+        createButton.interactable = false;
+        joinButton.interactable = false;
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnCountdownUpdate += UpdateCountdownDisplay;
             GameManager.Instance.OnCountdownComplete += HideCountdown;
         }
+
+        ShowNicknamePanel();
     }
 
     private void Update()
@@ -144,6 +165,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         joinButton.onClick.RemoveAllListeners();
         playBtn.onClick.RemoveAllListeners();
         exitBtn.onClick.RemoveAllListeners();
+        if (errorOkButton != null)
+        {
+            errorOkButton.onClick.RemoveListener(HideError);
+        }
         PlayerController.OnPlayerControllerInstantiated -= OnPlayerControllerInstantiated;
         if (_weaponController != null)
         {
@@ -434,5 +459,89 @@ public class UIManager : MonoBehaviourPunCallbacks
             }
 
         }
+    }
+
+    public void ShowNicknamePanel()
+    {
+        mainMenuPanel.SetActive(false);
+        playPanel.SetActive(false);
+        RoomCreationPanel.SetActive(false);
+        nicknamePanel.SetActive(true);
+    }
+
+    private void ValidateAndSetNickname()
+    {
+        string nickname = nicknameInput.text.Trim();
+
+        if (string.IsNullOrEmpty(nickname) || nickname.Length < 3)
+        {
+            ShowError("Nickname must be at least 3 characters long");
+            return;
+        }
+
+        if (!IsValidNickname(nickname))
+        {
+            ShowError("Invalid nickname. Use only letters, numbers, and underscores");
+            return;
+        }
+
+        PhotonNetwork.NickName = nickname;
+        nicknamePanel.SetActive(false);
+        mainMenuPanel.SetActive(true);
+
+        createButton.interactable = true;
+        joinButton.interactable = true;
+    }
+
+    private bool IsValidNickname(string nickname)
+    {
+        // Solo permitir letras, numeros y guiones bajos
+        return System.Text.RegularExpressions.Regex.IsMatch(nickname, @"^[a-zA-Z0-9_]+$");
+    }
+
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        loadingPanel.SetActive(false);
+
+        if (message.Contains("nickname already in use"))
+        {
+            ShowError("Nickname already in use. Please choose another one");
+            ShowNicknamePanel();
+        }
+        else
+        {
+            ShowError($"Failed to join room: {message}");
+        }
+    }
+
+    public void ShowError(string message)
+    {
+        if (errorPanel != null && errorText != null)
+        {
+            errorPanel.SetActive(true);
+            errorText.text = message;
+
+            if (errorCoroutine != null)
+            {
+                StopCoroutine(errorCoroutine);
+            }
+
+            errorCoroutine = StartCoroutine(HideErrorAfterDelay());
+        }
+    }
+
+    public void HideError()
+    {
+        if (errorPanel != null)
+        {
+            errorPanel.SetActive(false);
+        }
+    }
+
+    private IEnumerator HideErrorAfterDelay()
+    {
+        yield return new WaitForSeconds(errorDisplayTime);
+        HideError();
+        errorCoroutine = null;
     }
 }
