@@ -97,7 +97,11 @@ public class GameController : MonoBehaviourPunCallbacks
             yield break;
         }
 
-        // Configurar la cámara solo para el jugador local
+        if (playerPV.IsMine)
+        {
+            playerPV.RPC("SetPlayerNickname", RpcTarget.AllBuffered, PhotonNetwork.NickName);
+        }
+
         if (playerPV.IsMine && virtualCamera != null)
         {
             virtualCamera.Follow = playerGO.transform;
@@ -106,6 +110,7 @@ public class GameController : MonoBehaviourPunCallbacks
         isSpawning = false;
         initialized = true;
     }
+
 
     public override void OnLeftRoom()
     {
