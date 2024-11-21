@@ -182,9 +182,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
             //print("Player Interacted");
         }
 
-//-------------------------------Use Item----------------------------
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            //dropMode = !dropMode;
+            if (gameObject.GetComponent<PlayerWeaponController>().CheckWeaponSlot(1) != null)
+            {
+                gameObject.GetComponent<PlayerWeaponController>().DropWeapon();
+            }
+        }
+
+        //-------------------------------Use Item----------------------------
         if (dropMode == false)
-        {           
+        {
             if (Input.GetKeyDown(KeyCode.Alpha5) && model.itemsInventory[0] != null)
             {
                 if (model.itemsInventory[0] != null)
@@ -193,7 +202,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     model.itemsInventory[0] = null;
                     UIManager.Instance.SetItemIcon(0, null);
                     model.itemInventoryFull = false;
-                }               
+                }
             }
             else if (Input.GetKeyDown(KeyCode.Alpha6) && model.itemsInventory[1] != null)
             {
@@ -203,32 +212,46 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     model.itemsInventory[1] = null;
                     UIManager.Instance.SetItemIcon(1, null);
                     model.itemInventoryFull = false;
-                }                
+                }
             }
-        }        
-//----------------------------------------------------------------------------
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            if(gameObject.GetComponent<PlayerWeaponController>().CheckWeaponSlot(1) != null)
+
+//-------------------------------Switch Weapon---------------------------------------------
+            
+            if (Input.GetKeyDown(KeyCode.Alpha1))
             {
-                gameObject.GetComponent<PlayerWeaponController>().SwitchWeapon(1);
+                if (gameObject.GetComponent<PlayerWeaponController>().CheckWeaponSlot(1) != null)
+                {
+                    gameObject.GetComponent<PlayerWeaponController>().SwitchWeapon(1);
+                }
+                else
+                {
+                    print("No weapon detected on slot 1");
+                }
             }
-            else
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
             {
-                print("No weapon detected on slot 1");
+                if (gameObject.GetComponent<PlayerWeaponController>().CheckWeaponSlot(0) != null)
+                {
+                    gameObject.GetComponent<PlayerWeaponController>().SwitchWeapon(0);
+                }
+                else
+                {
+                    print("No weapon detected on slot 0");
+                }
             }
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            if (gameObject.GetComponent<PlayerWeaponController>().CheckWeaponSlot(0) != null)
-            {
-                gameObject.GetComponent<PlayerWeaponController>().SwitchWeapon(0);
-            }
-            else
-            {
-                print("No weapon detected on slot 0");
-            }
-        }
+        //--------------------------Drop Weapons-----------------------------------------------
+        //else if (dropMode == true)
+        //{
+        //    if (Input.GetKeyDown(KeyCode.Alpha1))
+        //    {
+        //        if (gameObject.GetComponent<PlayerWeaponController>().CheckWeaponSlot(1) != null)
+        //        {
+        //            gameObject.GetComponent<PlayerWeaponController>().DropWeapon();
+        //            dropMode = false;
+        //        }
+        //    }
+        //}
     }
 
     private void Move()

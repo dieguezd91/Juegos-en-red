@@ -102,7 +102,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void EquipWeaponRPC(int weaponId, int id)
+    private void EquipWeaponRPC(int weaponId, int id)
     {
         WeaponSO weaponData = WeaponDictionary.GetWeapon(weaponId);
         //if (_pv == null) EquipWeaponRPC(weaponId, viewID);
@@ -168,15 +168,18 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
             print("weapon slot full");
         }
 
-        if (currentWeapon == weaponSlots[0])
+        if (currentWeapon.weaponData == defaultWeapon)
         {
-            EquipWeapon(_pv.ViewID, chosenSlot);
+            SwitchWeapon(chosenSlot);
+            SwitchWeapon(chosenSlot);
+            print("autoSwitch");
         }
     }
 
     public void DropWeapon(int weaponSlot = 1)
     {
-        weaponSlots[weaponSlot].SpawnWeaponInWorld(new Vector3(transform.position.x, transform.position.y, transform.position.z + 3), Quaternion.identity);
+        SwitchWeapon(0);
+        weaponSlots[weaponSlot].SpawnWeaponInWorld(new Vector3(transform.position.x + 3, transform.position.y, transform.position.z), Quaternion.identity);
         weaponSlots[weaponSlot] = null;
     }
 
