@@ -23,6 +23,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject loadingPanel;
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject RoomCreationPanel;
+    [SerializeField] private GameObject gameOverScreen;
 
     [SerializeField] public TMP_InputField createInput;
     [SerializeField] public TMP_InputField joinInput;
@@ -37,9 +38,12 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private Button playBtn;
     [SerializeField] private Button exitBtn;
     [SerializeField] private Toggle isPrivate;
+    [SerializeField] private Button returnToMainMenu;
     private bool isPrivateValue;
     [SerializeField] private TMP_Dropdown maxPlayers;
     private int maxPlayersValue;
+    [SerializeField] private TextMeshProUGUI winText;
+    [SerializeField] private TextMeshProUGUI defeatText;
 
     [Header ("HUD")]
     [SerializeField] private GameObject timer;
@@ -111,6 +115,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         item01Icon.enabled = false;
         item02Icon.enabled = false;
         weaponReloadIndicator.SetActive(false);
+        gameOverScreen.SetActive(false);
 
         createButton.interactable = false;
         joinButton.interactable = false;
@@ -208,7 +213,32 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (_weaponController != null)
         {
             _weaponController.OnWeaponChanged += UpdateWeaponUI;
+        }        
+    }
+
+    public void ShowGameOverScreen(PlayerController player, bool win)
+    {
+        if (player.pv.IsMine)
+        {
+            gameOverScreen.SetActive(true);
+            returnToMainMenu.onClick.AddListener(Disconect);
+            if (win)
+            {
+                winText.enabled = true;
+            }
+            else
+            {
+                defeatText.enabled = true;
+            }           
         }
+    }
+
+    private void Disconect()
+    {
+        gameOverScreen.SetActive(false);
+        winText.enabled = false;
+        defeatText.enabled = false;
+        GameManager.Instance.RemovePlayer(_playerController);        
     }
 
     private void UpdateWeaponUI(WeaponBase weapon)

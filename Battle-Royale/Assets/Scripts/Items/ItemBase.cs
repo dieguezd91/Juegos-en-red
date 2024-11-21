@@ -7,12 +7,14 @@ public abstract class ItemBase : ScriptableObject
     [SerializeField] protected float weight;
 
     [SerializeField] protected Sprite icon;
-    
     public Sprite Icon { get { return icon; } }
 
     //[SerializeField] protected GameObject prefab;
     //public GameObject Prefab { get { return prefab; } }
     public float Weight { get { return weight; }}
+
+    [SerializeField] private string iD;
+    public string ID { get { return iD; } }
 
     public abstract void Spawn(Vector3 position, Quaternion rotation);
 }

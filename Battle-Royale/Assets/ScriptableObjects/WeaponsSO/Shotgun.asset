@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a41904873f39cc141adb923755cf6cc2, type: 3}
   m_Name: Shotgun
   m_EditorClassIdentifier: 
+  weight: 0
+  icon: {fileID: 0}
+  iD: W04
   weaponName: Shotgun
   weaponPrefab: {fileID: 1141122852044173600, guid: e9241e3ff8b478d429a0249b3e5262f1, type: 3}
   bulletPrefab: {fileID: 3794098143551424017, guid: 0f9f403febd94f24e8091ab3bf684157, type: 3}

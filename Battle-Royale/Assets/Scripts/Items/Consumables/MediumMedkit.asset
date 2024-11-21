@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weight: 30
   icon: {fileID: 21300000, guid: 5a3b3575f7e640a4aa87dadba7926a5c, type: 3}
+  iD: C02
   recoveryAmount: 50
   affectedStat: 0

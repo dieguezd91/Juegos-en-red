@@ -19,14 +19,17 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
     public event Action<WeaponBase> OnWeaponChanged;
     private Camera mainCamera;
     private bool isFacingLeft = false;
-
-    private void Start()
+    private void Awake()
     {
         _pv = GetComponent<PhotonView>();
+    }
+    private void Start()
+    {
+        
         mainCamera = Camera.main;
 
         weaponSlots[0] = defaultWeapon;
-        EquipWeapon(_pv.ViewID, 0);
+        EquipWeapon(_pv.ViewID, 0);        
        
     }
 
@@ -102,20 +105,25 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void EquipWeaponRPC(int weaponId, int id)
+    public void EquipWeaponRPC(string weaponId, int id)
     {
-        WeaponSO weaponData = WeaponDictionary.GetWeapon(weaponId);
+        var temp = GameManager.Instance.itemDictionary.TryGetValue(weaponId, out ItemBase item);
+        WeaponSO weaponData = item as WeaponSO;
         //if (_pv == null) EquipWeaponRPC(weaponId, viewID);
+        print("view ID: " + _pv.ViewID);
         if (_pv.ViewID == id)
         {
             if (weaponData == null || weaponPlaceHolder == null) return;
 
             if (currentWeapon != null)
             {
+                //PhotonNetwork.Destroy(currentWeapon.gameObject);
                 Destroy(currentWeapon.gameObject);
             }
 
+            //GameObject weaponInstance = PhotonNetwork.Instantiate(weaponData.weaponPrefab.name, Vector3.zero, Quaternion.identity);
             GameObject weaponInstance = Instantiate(weaponData.weaponPrefab, weaponPlaceHolder);
+            weaponInstance.transform.SetParent(weaponPlaceHolder);
             weaponInstance.transform.localPosition = Vector3.zero;
             weaponInstance.transform.localRotation = Quaternion.identity;
 
@@ -130,7 +138,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
 
     private void EquipWeapon(int photonId, int weaponSlot = 1)
     {
-        int weaponId = WeaponDictionary.GetWeaponID(weaponSlots[weaponSlot]);
+        string weaponId = weaponSlots[weaponSlot].ID;
         _pv.RPC("EquipWeaponRPC", RpcTarget.AllBuffered, weaponId, photonId);
     }
 

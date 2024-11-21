@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d56c6f79d27e3b947a94e24412d279de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentAmmo: 0
   shootPoint: {fileID: 3106251893155066249}
 --- !u!212 &4416634828042579396
 SpriteRenderer:

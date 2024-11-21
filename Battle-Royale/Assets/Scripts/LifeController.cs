@@ -44,11 +44,20 @@ public class LifeController : MonoBehaviourPunCallbacks
     //TESTING ONLY************
 
     [PunRPC]
-    public void ApplyDamage(float damage, PhotonView damageDealer = null)
+    public void ApplyDamage(float damage, int damageDealerID = -1)
     {
+
         if (_pv.IsMine)
         {
-            lastDamageDealer = damageDealer;
+            if(damageDealerID > 0)
+            {
+                lastDamageDealer = PhotonView.Find(damageDealerID);
+            }
+            else
+            {
+                lastDamageDealer = null;
+            }
+                      
 
             float remainingDamage = damage;
             if (currentShield > 0)

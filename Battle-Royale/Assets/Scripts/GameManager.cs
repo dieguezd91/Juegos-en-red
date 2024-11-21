@@ -16,6 +16,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
     private PhotonView pv;
+
+    [SerializeField] private GameItemsList itemList;
+    public Dictionary<string,ItemBase> itemDictionary { get; private set; }
     public SceneController SceneManager { get; private set; }
 
     [SerializeField] private int maxPlayers;
@@ -29,6 +32,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     private bool practiceTime = true;
     private bool roundStarted = false;
     private bool inRoom;
+    private bool winner = false;
     public bool PracticeTime { get { return practiceTime; } }
 
     [SerializeField] public float roundDuration;
@@ -75,6 +79,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         if (!PhotonNetwork.IsConnected)
             PhotonNetwork.ConnectUsingSettings();
+
+        itemDictionary = new Dictionary<string, ItemBase>();
+
+        foreach (ItemBase item in itemList.GameItems)
+        {
+            itemDictionary.Add(item.ID, item);
+        }
     }
 
     private void Update()
@@ -107,6 +118,16 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         if (isRoundTimeRunning && roundStarted)
         {
             UpdateRoundTime();
+        }
+
+        if (playerList.Count == 1 && roundStarted)
+        {
+            if (pv.IsMine)
+            {
+                winner = true;
+                UIManager.Instance.ShowGameOverScreen(playerList[0], winner);
+                winner = false;
+            }
         }
     }
 
@@ -486,7 +507,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            RemovePlayer(playerToHandle);
+            UIManager.Instance.ShowGameOverScreen(playerToHandle, winner);
         }
     }
 
@@ -804,5 +825,5 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             instance = null;
         }
         Destroy(gameObject);
-    }
+    }    
 }

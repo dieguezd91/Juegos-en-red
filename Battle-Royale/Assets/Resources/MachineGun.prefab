@@ -98,6 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10fab304452bc5a4caaca119a1e64d4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentAmmo: 0
   shootPoint: {fileID: 2657532272255831307}
 --- !u!1 &6449158466497162292
 GameObject:

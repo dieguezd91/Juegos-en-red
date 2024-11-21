@@ -94,7 +94,7 @@ public class BulletPrefab : MonoBehaviourPunCallbacks, IPunObservable
             var lifeController = collision.GetComponent<LifeController>();
             if (lifeController != null)
             {
-                lifeController.photonView.RPC("ApplyDamage", RpcTarget.All, _currentDamage, shooterPV);
+                lifeController.photonView.RPC("ApplyDamage", RpcTarget.All, _currentDamage, shooterPV.ViewID);
 
                 if (bulletType.hitEffect != null)
                 {
@@ -111,7 +111,7 @@ public class BulletPrefab : MonoBehaviourPunCallbacks, IPunObservable
             }
             else
             {
-                NetworkDestroyBullet();
+                NetworkDestroyBullet();                
             }
         }
     }

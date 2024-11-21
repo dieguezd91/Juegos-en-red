@@ -2,7 +2,7 @@ using Photon.Pun;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Weapons/Weapon")]
-public class WeaponSO : ScriptableObject
+public class WeaponSO : ItemBase
 {
     [Header("Basic Settings")]
     public string weaponName;
@@ -32,5 +32,10 @@ public class WeaponSO : ScriptableObject
         {
             weaponItem.SetInfo(this);
         }
+    }   
+
+    public override void Spawn(Vector3 position, Quaternion rotation)
+    {
+        throw new System.NotImplementedException();
     }
 }
