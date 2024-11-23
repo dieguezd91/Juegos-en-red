@@ -17,8 +17,10 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
 
     public WeaponBase currentWeapon { get; private set; }
     public event Action<WeaponBase> OnWeaponChanged;
+    public Action OnWeaponFired = delegate { };
     private Camera mainCamera;
     private bool isFacingLeft = false;
+
     private void Awake()
     {
         _pv = GetComponent<PhotonView>();
@@ -101,6 +103,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
             Vector2 direction = ((Vector2)(mousePosition - transform.position)).normalized;
 
             currentWeapon.Shoot(direction);
+            OnWeaponFired();
         }
     }
 

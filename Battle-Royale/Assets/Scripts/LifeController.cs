@@ -19,6 +19,7 @@ public class LifeController : MonoBehaviourPunCallbacks
     public int kills = 0;
 
     public System.Action<PlayerController> OnDeath = delegate { };
+    public System.Action OnDamageClientSide = delegate { };
 
     private void Start()
     {
@@ -48,16 +49,25 @@ public class LifeController : MonoBehaviourPunCallbacks
     {
         if (_pv.IsMine)
         {
-            lastDamageDealer = PhotonView.Find(damageDealer);
+            //print("pv.IsMine: " + _pv.IsMine);
+            if (damageDealer >= 0)
+            {
+                lastDamageDealer = PhotonView.Find(damageDealer);
+            }
+            else
+            {
+                lastDamageDealer = null;
+            }            
 
             float remainingDamage = damage;
+            //print("damage: " + damage);
             if (currentShield > 0)
             {
                 float shieldDamage = Mathf.Min(currentShield, damage * shieldDamageReduction);
                 currentShield -= shieldDamage;
                 remainingDamage -= shieldDamage / shieldDamageReduction;
             }
-
+            //print("remainingDamage: " +remainingDamage);
             if (remainingDamage > 0)
             {
                 currentHp -= remainingDamage;
@@ -69,6 +79,12 @@ public class LifeController : MonoBehaviourPunCallbacks
             }
 
             _pv.RPC("SyncHealthAndShield", RpcTarget.All, currentHp, currentShield);
+
+            if (_pv.IsMine)
+            {
+                OnDamageClientSide();
+            }
+
         }
     }
 

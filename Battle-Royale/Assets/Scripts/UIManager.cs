@@ -152,10 +152,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 
         if (_playerController != null && _playerController.pv.IsMine)
         {
-            UpdateLifeBar();
             UpdateStaminaBar();
-            UpdateShieldBar();
-            UpdateAmmoCount();
         }
 
         if (GameManager.Instance != null && (!GameManager.Instance.PracticeTime || !GameManager.Instance.IsCountingDown))
@@ -207,13 +204,22 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void OnPlayerControllerInstantiated(PlayerController player)
     {
-        _playerController = player;
-        _weaponController = player.GetComponent<PlayerWeaponController>();
-
-        if (_weaponController != null)
+        if (player.pv.IsMine)
         {
-            _weaponController.OnWeaponChanged += UpdateWeaponUI;
-        }        
+            _playerController = player;
+            _weaponController = player.GetComponent<PlayerWeaponController>();
+
+            if (_weaponController != null)
+            {
+                _weaponController.OnWeaponChanged += UpdateWeaponUI;
+            }
+
+            player.gameObject.GetComponent<LifeController>().OnDamageClientSide += UpdateLifeBar;
+            player.gameObject.GetComponent<LifeController>().OnDamageClientSide += UpdateShieldBar;
+            player.gameObject.GetComponent<PlayerWeaponController>().OnWeaponFired += UpdateAmmoCount;
+
+        }
+
     }
 
     public void ShowGameOverScreen(PlayerController player, bool win)
@@ -338,12 +344,12 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void UpdateLifeBar()
     {
-        if (_playerController.pv.IsMine)
-        {
             var hpPercentage = _playerController.GetComponent<LifeController>().currentHp / _playerController.GetComponent<LifeController>().PlayerData.MaxHP;
             lifeBar.fillAmount = hpPercentage;
             lifeBar.color = GetHealthColor(hpPercentage);
-        }
+        //print("CurrntHp: " + _playerController.GetComponent<LifeController>().currentHp);
+        //print("hpPercentage:" +_playerController.GetComponent<LifeController>().currentHp / _playerController.GetComponent<LifeController>().PlayerData.MaxHP);
+        //print("fillAmount:" + lifeBar.fillAmount);
     }
 
     private void UpdateStaminaBar()
@@ -358,8 +364,6 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void UpdateShieldBar()
     {
-        if (_playerController.pv.IsMine)
-        {
             var lifeController = _playerController.GetComponent<LifeController>();
             if (lifeController != null)
             {
@@ -367,7 +371,6 @@ public class UIManager : MonoBehaviourPunCallbacks
                 shieldBar.fillAmount = shieldPercentage;
                 shieldBar.color = GetShieldColor(shieldPercentage);
             }
-        }
     }
 
     private Color GetHealthColor(float healthPercentage)
