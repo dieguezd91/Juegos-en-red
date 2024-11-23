@@ -5,6 +5,7 @@ public class MachineGunWeapon : WeaponBase
 {
     [SerializeField] private Transform shootPoint;
     private AudioSource audioSource;
+    private PhotonView weaponPhotonView;
 
     private float currentSpread;
     private float maxSpread = 20f;
@@ -22,6 +23,7 @@ public class MachineGunWeapon : WeaponBase
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
+        weaponPhotonView = GetComponentInParent<PhotonView>();
         if (shootPoint == null)
         {
             shootPoint = transform;
@@ -74,6 +76,12 @@ public class MachineGunWeapon : WeaponBase
                 rotation,
                 0
             );
+
+            var bulletController = bullet.GetComponent<BulletPrefab>();
+            if (bulletController != null)
+            {
+                bulletController.Initialize(weaponData.bulletType, spreadDirection, weaponPhotonView);
+            }
 
             if (bullet.TryGetComponent<Rigidbody2D>(out var rb))
             {

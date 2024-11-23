@@ -82,7 +82,6 @@ public class BulletPrefab : MonoBehaviourPunCallbacks, IPunObservable
         else if (collision.gameObject.layer == 11)
         {
             NetworkDestroyBullet();
-            print("bullet-wall collision");
         }
     }
 
@@ -94,8 +93,10 @@ public class BulletPrefab : MonoBehaviourPunCallbacks, IPunObservable
             var lifeController = collision.GetComponent<LifeController>();
             if (lifeController != null)
             {
+                print("shooterPV: "+shooterPV.ViewID);
+                print("collision: " + collision.name);
                 lifeController.photonView.RPC("ApplyDamage", RpcTarget.All, _currentDamage, shooterPV.ViewID);
-
+                print("Damage aplied");
                 if (bulletType.hitEffect != null)
                 {
                     PhotonNetwork.Instantiate(bulletType.hitEffect.name,
@@ -111,7 +112,7 @@ public class BulletPrefab : MonoBehaviourPunCallbacks, IPunObservable
             }
             else
             {
-                NetworkDestroyBullet();                
+                NetworkDestroyBullet();
             }
         }
     }
