@@ -30,12 +30,15 @@ public class WeaponSO : ItemBase
         var weaponItem = weaponPickup.GetComponent<WeaponItem>();
         if (weaponItem != null)
         {
-            weaponItem.SetInfo(this);
+            weaponItem.SetInfo(ID);
         }
-    }   
+    }
 
     public override void Spawn(Vector3 position, Quaternion rotation)
     {
-        throw new System.NotImplementedException();
+        var temp = PhotonNetwork.Instantiate("WeaponPickup", position, rotation);
+        temp.GetComponent<WeaponItem>().SetInfo(ID);
     }
+
+
 }

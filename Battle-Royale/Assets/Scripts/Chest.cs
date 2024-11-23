@@ -41,20 +41,22 @@ public class Chest : MonoBehaviour, IInteractable
 
     private void SpawnWeapon(WeaponSO weapon)
     {
-        var weaponPickup = PhotonNetwork.Instantiate("WeaponPickup", GetRandomPosition(), Quaternion.identity);
-        var weaponItem = weaponPickup.GetComponent<WeaponItem>();
-        if (weaponItem != null)
-        {
-            weaponItem.SetInfo(weapon);
-            //Debug.Log($"Spawned weapon: {weapon.weaponName}");
-        }
+        //var weaponPickup = PhotonNetwork.Instantiate("WeaponPickup", GetRandomPosition(), Quaternion.identity);
+        //var weaponItem = weaponPickup.GetComponent<WeaponItem>();
+        //if (weaponItem != null)
+        //{
+        //    weaponItem.SetInfo(weapon.ID);
+        //    //Debug.Log($"Spawned weapon: {weapon.weaponName}");
+        //}
+        weapon.SpawnWeaponInWorld(GetRandomPosition(), Quaternion.identity);
     }
 
     private void SpawnRewards()
     {
         foreach (WeaponSO weapon in _weaponRewards)
         {
-            SpawnWeapon(weapon);            
+            //SpawnWeapon(weapon);
+            weapon.Spawn(GetRandomPosition(), Quaternion.identity);
         }
 
         foreach (ItemBase item in _itemRewards)

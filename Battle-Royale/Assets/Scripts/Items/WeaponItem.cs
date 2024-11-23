@@ -29,9 +29,38 @@ public class WeaponItem : CollectableItem
     }
 
     
-    public void SetInfo(WeaponSO info) //Must be executed be whoever spawns this WeaponItem
+    //public void SetInfo(WeaponSO info) //Must be executed be whoever spawns this WeaponItem
+    //{
+    //    weaponInfo = info;
+    //    gameObject.GetComponent<SpriteRenderer>().sprite = weaponInfo.weaponIcon;
+    //}
+
+    [PunRPC]
+    private void SetInfoRPC(string itemInfo, int pvId)
     {
-        weaponInfo = info;
+        if (photonView.ViewID == pvId)
+        {
+            var temp = GameManager.Instance.itemDictionary.GetValueOrDefault(itemInfo);
+            //print(temp.name);
+            //print(temp.GetType());
+            //if (temp.GetType() == typeof(WeaponSO))
+            //{
+                //print("WeaponSO confirmed");
+                weaponInfo = temp as WeaponSO;
+                SetSprite();
+            //}
+
+        }
+    }
+
+    public void SetInfo(string itemInfoId)
+    {
+        photonView.RPC("SetInfoRPC", RpcTarget.All, itemInfoId, photonView.ViewID);
+    }
+
+    private void SetSprite()
+    {
         gameObject.GetComponent<SpriteRenderer>().sprite = weaponInfo.weaponIcon;
+        //print("sprite set");
     }
 }

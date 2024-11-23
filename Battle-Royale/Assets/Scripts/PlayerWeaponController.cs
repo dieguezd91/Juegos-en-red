@@ -113,7 +113,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
         var temp = GameManager.Instance.itemDictionary.TryGetValue(weaponId, out ItemBase item);
         WeaponSO weaponData = item as WeaponSO;
         //if (_pv == null) EquipWeaponRPC(weaponId, viewID);
-        print("view ID: " + _pv.ViewID);
+        //print("view ID: " + _pv.ViewID);
         if (_pv.ViewID == id)
         {
             if (weaponData == null || weaponPlaceHolder == null) return;
@@ -154,7 +154,7 @@ public class PlayerWeaponController : MonoBehaviourPunCallbacks
             {
                 weaponSlots[i] = weaponData;
                 chosenSlot = i;
-                print("Weapon equiped on slot "+i);
+                //print("Weapon equiped on slot "+i);
                 break;
             }          
         }
