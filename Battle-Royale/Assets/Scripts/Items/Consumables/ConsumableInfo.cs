@@ -44,11 +44,11 @@ public class ConsumableInfo : ItemBase
                 break;
 
         }
-    }
 
+    }
     public override void Spawn(Vector3 position, Quaternion rotation)
     {
         var temp = Photon.Pun.PhotonNetwork.Instantiate("ConsumableCollectable", position, rotation);
-        temp.GetComponent<ConsumableItem>().SetInfo(this);
+        temp.GetComponent<ConsumableItem>().SetInfo(ID);
     }
 }

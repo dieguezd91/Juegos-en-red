@@ -54,7 +54,7 @@ public class Chest : MonoBehaviour, IInteractable
     {
         foreach (WeaponSO weapon in _weaponRewards)
         {
-            SpawnWeapon(weapon);
+            SpawnWeapon(weapon);            
         }
 
         foreach (ItemBase item in _itemRewards)

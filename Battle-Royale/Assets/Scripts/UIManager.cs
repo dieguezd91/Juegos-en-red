@@ -153,6 +153,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (_playerController != null && _playerController.pv.IsMine)
         {
             UpdateStaminaBar();
+            UpdateAmmoCount();
         }
 
         if (GameManager.Instance != null && (!GameManager.Instance.PracticeTime || !GameManager.Instance.IsCountingDown))
@@ -212,11 +213,11 @@ public class UIManager : MonoBehaviourPunCallbacks
             if (_weaponController != null)
             {
                 _weaponController.OnWeaponChanged += UpdateWeaponUI;
+               
             }
 
             player.gameObject.GetComponent<LifeController>().OnDamageClientSide += UpdateLifeBar;
             player.gameObject.GetComponent<LifeController>().OnDamageClientSide += UpdateShieldBar;
-            player.gameObject.GetComponent<PlayerWeaponController>().OnWeaponFired += UpdateAmmoCount;
 
         }
 
@@ -249,7 +250,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void UpdateWeaponUI(WeaponBase weapon)
     {
-        if (weapon == null || weapon.weaponData == null) return;
+        if (weapon == null || weapon.weaponData == null || !_playerController.pv.IsMine) return;
 
         // Actualizar nombre del arma
         if (currentWeaponText != null)
@@ -479,34 +480,34 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     public void SetItemIcon(int index, Sprite icon)
     {
-        if (index == 0)
-        {
-            if(icon != null)
+            if (index == 0)
             {
-                item01Icon.sprite = icon;
-                item01Icon.enabled = true;
-            }
-            else
-            {
-                item01Icon.enabled = false;
-                print("icon deactivated");
-            }
-            
-        }
-        else if (index > 0)
-        {
-            if (icon != null)
-            {
-                item02Icon.sprite = icon;
-                item02Icon.enabled = true;
-            }
-            else
-            {
-                item02Icon.enabled = false;
-                print("icon deactivated");
-            }
+                if (icon != null)
+                {
+                    item01Icon.sprite = icon;
+                    item01Icon.enabled = true;
+                }
+                else
+                {
+                    item01Icon.enabled = false;
+                    print("icon deactivated");
+                }
 
-        }
+            }
+            else if (index > 0)
+            {
+                if (icon != null)
+                {
+                    item02Icon.sprite = icon;
+                    item02Icon.enabled = true;
+                }
+                else
+                {
+                    item02Icon.enabled = false;
+                    print("icon deactivated");
+                }
+
+            }        
     }
 
     public void ShowNicknamePanel()

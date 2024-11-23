@@ -251,7 +251,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     print("No weapon detected on slot 1");
                 }
             }
-            else if (Input.GetKeyDown(KeyCode.Alpha2))
+            else if (Input.GetKeyDown(KeyCode.Alpha2) && pv.IsMine)
             {
                 if (gameObject.GetComponent<PlayerWeaponController>().CheckWeaponSlot(0) != null)
                 {
