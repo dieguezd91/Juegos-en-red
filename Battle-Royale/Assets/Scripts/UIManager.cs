@@ -131,14 +131,14 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        if (GameManager.Instance.SceneManager.SceneIndex == "MainMenu")
+        if (SceneController.Instance.SceneIndex == "MainMenu")
         {
             mainMenuCanvas.SetActive(true);
             loadingPanel.SetActive(false);
             mainMenuPanel.SetActive(true);
         }
 
-        if (GameManager.Instance.SceneManager.SceneIndex == "Gameplay")
+        if (SceneController.Instance.SceneIndex == "Gameplay")
         {
             mainMenuCanvas.SetActive(false);
             hudCanvas.SetActive(true);
@@ -242,10 +242,11 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void Disconect()
     {
+        returnToMainMenu.onClick.RemoveListener(Disconect);
+        GameManager.Instance.RemovePlayer(_playerController);
         gameOverScreen.SetActive(false);
         winText.enabled = false;
-        defeatText.enabled = false;
-        GameManager.Instance.RemovePlayer(_playerController);        
+        defeatText.enabled = false;                
     }
 
     private void UpdateWeaponUI(WeaponBase weapon)

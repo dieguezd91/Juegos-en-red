@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0609ed6232b83b43b3d496e6b017df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemList: {fileID: 11400000, guid: 84fed45acdb975d4c9bf58a8b61b5e87, type: 2}
   maxPlayers: 16
   roundDuration: 100
   countdownTime: 10
@@ -66,7 +67,8 @@ MonoBehaviour:
   Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
-  ObservedComponents: []
+  ObservedComponents:
+  - {fileID: 5363542282307325156}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0

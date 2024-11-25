@@ -11,8 +11,11 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     private static GameManager instance;
     public static GameManager Instance
     {
-        get { return instance; }
-        private set { instance = value; }
+        get 
+        {
+            return instance;
+        }
+        
     }
 
     private PhotonView pv;
@@ -66,11 +69,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             DontDestroyOnLoad(gameObject);
             pv = GetComponent<PhotonView>();
         }
-        else if (instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        //else if (instance != this)
+        //{
+        //    //Destroy(gameObject);
+        //    return;
+        //}
+
+        //objectInstance = Resources.Load<GameObject>("GameManager");
     }
 
     private void Start()
@@ -118,17 +123,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         if (isRoundTimeRunning && roundStarted)
         {
             UpdateRoundTime();
-        }
-
-        if (playerList.Count == 1 && roundStarted)
-        {
-            if (pv.IsMine)
-            {
-                winner = true;
-                UIManager.Instance.ShowGameOverScreen(playerList[0], winner);
-                winner = false;
-            }
-        }
+        }       
     }
 
 
@@ -136,12 +131,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         RemoveNicknameFromRoom(PhotonNetwork.NickName);
         base.OnLeftRoom();
+        CleanupManager();
 
-        if (instance == this)
-        {
-            instance = null;
-            Destroy(gameObject);
-        }
+        //if (instance == this)
+        //{
+        //    instance = null;
+        //    //Destroy(gameObject);
+        //}
     }
 
     private void OnDestroy()
@@ -283,9 +279,10 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         maxPlayers = _maxPlayers;
         PhotonNetwork.CreateRoom(UIManager.Instance.createInput.text, roomConfig);
         inRoom = true;
-        
-        PhotonView mapView = PhotonNetwork.Instantiate("MapPrefab", Vector3.zero, Quaternion.identity, 0).GetComponent<PhotonView>();
-        mapView.RPC("NotifyMapReady", RpcTarget.All);
+
+        //var map = PhotonNetwork.Instantiate("MapPrefab", Vector3.zero, Quaternion.identity, 0);
+        //PhotonView mapView = map.GetPhotonView();// GetComponent<PhotonView>();
+        //mapView.RPC("NotifyMapReady", RpcTarget.All);
     }
 
     public override void OnJoinedRoom()
@@ -321,9 +318,11 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             // Instanciar el mapa si no existe
             if (GameObject.Find("MapPrefab(Clone)") == null)
             {
-                //PhotonNetwork.Instantiate("MapPrefab", Vector3.zero, Quaternion.identity, 0);
-                PhotonView mapView = PhotonNetwork.Instantiate("MapPrefab", Vector3.zero, Quaternion.identity, 0).GetComponent<PhotonView>();
-                mapView.RPC("NotifyMapReady", RpcTarget.All);
+                var map = PhotonNetwork.Instantiate("MapPrefab", Vector3.zero, Quaternion.identity, 0);
+                PhotonView mapView = map.GetPhotonView();//.GetComponent<PhotonView>();
+                //mapView.RPC("NotifyMapReady", RpcTarget.All);
+                print(map.name);
+                print(mapView.ViewID);
             }
         }
     }
@@ -507,6 +506,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
+            //RemovePlayer(playerToHandle);
             UIManager.Instance.ShowGameOverScreen(playerToHandle, winner);
         }
     }
@@ -820,10 +820,17 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public void CleanupManager()
     {
         ClearLists();
-        if (instance == this)
-        {
-            instance = null;
-        }
-        Destroy(gameObject);
-    }    
+        //if (instance == this)
+        //{
+        //    instance = null;
+        //}
+        //Destroy(gameObject);
+        //ClearDelegates();
+    }
+    
+    private void ClearDelegates()
+    {
+     OnPracticeTimeOver = delegate { };
+     OnPlayerRespawn = delegate { };
+    }
 }
